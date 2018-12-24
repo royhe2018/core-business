@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.vehicleTypeInfo.VehicleTypeInfoMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.VehicleTypeInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="type_name" jdbcType="VARCHAR" property="typeName" />
+    <result column="length" jdbcType="REAL" property="length" />
+    <result column="width" jdbcType="REAL" property="width" />
+    <result column="height" jdbcType="REAL" property="height" />
+    <result column="carrying_capacity" jdbcType="REAL" property="carryingCapacity" />
+    <result column="volume" jdbcType="REAL" property="volume" />
+    <result column="image" jdbcType="VARCHAR" property="image" />
+  </resultMap>
+ 
+  <select id="findSingleVehicleTypeInfo" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_vehicle_type_info
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id != null"> and id = #{id}</if>
+    </trim>
+  </select>
+  <select id="findVehicleTypeInfoList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_vehicle_type_info
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id != null"> and id = #{id}</if>
+    </trim>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sdlh_vehicle_type_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.VehicleTypeInfo">
+    insert into sdlh_vehicle_type_info (id, type_name, length, 
+      width, height, carrying_capacity, 
+      volume, image)
+    values (#{id,jdbcType=BIGINT}, #{typeName,jdbcType=VARCHAR}, #{length,jdbcType=REAL}, 
+      #{width,jdbcType=REAL}, #{height,jdbcType=REAL}, #{carryingCapacity,jdbcType=REAL}, 
+      #{volume,jdbcType=REAL}, #{image,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sdkj.business.domain.po.VehicleTypeInfo">
+    update sdlh_vehicle_type_info
+    <set>
+      <if test="typeName != null">
+        type_name = #{typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="length != null">
+        length = #{length,jdbcType=REAL},
+      </if>
+      <if test="width != null">
+        width = #{width,jdbcType=REAL},
+      </if>
+      <if test="height != null">
+        height = #{height,jdbcType=REAL},
+      </if>
+      <if test="carryingCapacity != null">
+        carrying_capacity = #{carryingCapacity,jdbcType=REAL},
+      </if>
+      <if test="volume != null">
+        volume = #{volume,jdbcType=REAL},
+      </if>
+      <if test="image != null">
+        image = #{image,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

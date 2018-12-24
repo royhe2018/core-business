@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.driverInfo.DriverInfoMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.DriverInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="id_card_no" jdbcType="VARCHAR" property="idCardNo" />
+    <result column="id_card_type" jdbcType="INTEGER" property="idCardType" />
+    <result column="driving_license_no" jdbcType="VARCHAR" property="drivingLicenseNo" />
+    <result column="driving_license_file_no" jdbcType="VARCHAR" property="drivingLicenseFileNo" />
+    <result column="driving_license_type" jdbcType="VARCHAR" property="drivingLicenseType" />
+    <result column="driving_license_image" jdbcType="VARCHAR" property="drivingLicenseImage" />
+    <result column="id_card_image" jdbcType="VARCHAR" property="idCardImage" />
+    <result column="id_card_back_image" jdbcType="VARCHAR" property="idCardBackImage" />
+    <result column="car_no" jdbcType="VARCHAR" property="carNo" />
+    <result column="car_driving_image" jdbcType="VARCHAR" property="carDrivingImage" />
+    <result column="create_time" jdbcType="VARCHAR" property="createTime" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="on_duty_status" jdbcType="INTEGER" property="onDutyStatus" />
+    <result column="register_city" property="registerCity" />
+  </resultMap>
+ 
+  <select id="findSingleDriver" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_driver_info
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id != null"> and id = #{id}</if>
+    	<if test="userId != null"> and user_id = #{userId}</if>
+    	<if test="carNo != null"> and car_no = #{carNo}</if>
+    	<if test="drivingLicenseFileNo != null"> and driving_license_file_no = #{drivingLicenseFileNo}</if>
+    	<if test="idCardNo != null"> and id_card_no = #{idCardNo}</if>
+    </trim>
+  </select>
+  
+ <select id="findDriverInfoExist" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_driver_info
+    <trim prefix="where" prefixOverrides="or">
+   		<if test="userId != null"> or user_id = #{userId}</if>
+    	<if test="carNo != null"> or car_no = #{carNo}</if>
+    	<if test="drivingLicenseFileNo != null"> or driving_license_file_no = #{drivingLicenseFileNo}</if>
+    	<if test="idCardNo != null"> or id_card_no = #{idCardNo}</if>
+    </trim>
+  </select>
+  
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.DriverInfo" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    insert into sdlh_driver_info (id, user_id, id_card_no, 
+      id_card_type, driving_license_no, driving_license_file_no, 
+      driving_license_type, driving_license_image, 
+      id_card_image, id_card_back_image, car_no, 
+      car_driving_image, create_time, status,register_city,driver_type
+      )
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{idCardNo,jdbcType=VARCHAR}, 
+      #{idCardType,jdbcType=INTEGER}, #{drivingLicenseNo,jdbcType=VARCHAR}, #{drivingLicenseFileNo,jdbcType=VARCHAR}, 
+      #{drivingLicenseType,jdbcType=VARCHAR}, #{drivingLicenseImage,jdbcType=VARCHAR}, 
+      #{idCardImage,jdbcType=VARCHAR}, #{idCardBackImage,jdbcType=VARCHAR}, #{carNo,jdbcType=VARCHAR}, 
+      #{carDrivingImage,jdbcType=VARCHAR}, #{createTime,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},#{registerCity},1
+      )
+  </insert>
+  
+  <update id="updateByPrimaryKey" parameterType="com.sdkj.business.domain.po.DriverInfo">
+    update sdlh_driver_info
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="idCardNo != null">
+        id_card_no = #{idCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="idCardType != null">
+        id_card_type = #{idCardType,jdbcType=INTEGER},
+      </if>
+      <if test="drivingLicenseNo != null">
+        driving_license_no = #{drivingLicenseNo,jdbcType=VARCHAR},
+      </if>
+      <if test="drivingLicenseFileNo != null">
+        driving_license_file_no = #{drivingLicenseFileNo,jdbcType=VARCHAR},
+      </if>
+      <if test="drivingLicenseType != null">
+        driving_license_type = #{drivingLicenseType,jdbcType=VARCHAR},
+      </if>
+      <if test="drivingLicenseImage != null">
+        driving_license_image = #{drivingLicenseImage,jdbcType=VARCHAR},
+      </if>
+      <if test="idCardImage != null">
+        id_card_image = #{idCardImage,jdbcType=VARCHAR},
+      </if>
+      <if test="idCardBackImage != null">
+        id_card_back_image = #{idCardBackImage,jdbcType=VARCHAR},
+      </if>
+      <if test="carNo != null">
+        car_no = #{carNo,jdbcType=VARCHAR},
+      </if>
+      <if test="carDrivingImage != null">
+        car_driving_image = #{carDrivingImage,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="onDutyStatus != null">
+        on_duty_status = #{onDutyStatus,jdbcType=INTEGER},
+      </if>
+      <if test="registerCity != null">
+        register_city = #{registerCity,jdbcType=INTEGER},
+      </if>
+    </set>
+    <trim prefix="where" prefixOverrides="and">
+    	and 1=2
+    	<if test="id != null"> or id = #{id}</if>
+    	<if test="userId != null"> or  user_id = #{userId}</if>
+    </trim>
+  </update>
+</mapper>

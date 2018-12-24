@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.orderFeeDistribution.OrderFeeDistributionMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.OrderFeeDistribution">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="driver_id" jdbcType="BIGINT" property="driverId" />
+    <result column="driver_fee" jdbcType="REAL" property="driverFee" />
+    <result column="client_referee_id" jdbcType="BIGINT" property="clientRefereeId" />
+    <result column="client_referee_fee" jdbcType="REAL" property="clientRefereeFee" />
+    <result column="driver_referee_id" jdbcType="BIGINT" property="driverRefereeId" />
+    <result column="driver_referee_fee" jdbcType="REAL" property="driverRefereeFee" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, order_id, driver_id, driver_fee, client_referee_id, client_referee_fee, driver_referee_id, 
+    driver_referee_fee
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sdlh_order_fee_distribution
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sdlh_order_fee_distribution
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.OrderFeeDistribution">
+    insert into sdlh_order_fee_distribution (id, order_id, driver_id, 
+      driver_fee, client_referee_id, client_referee_fee, 
+      driver_referee_id, driver_referee_fee)
+    values (#{id,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, #{driverId,jdbcType=BIGINT}, 
+      #{driverFee,jdbcType=REAL}, #{clientRefereeId,jdbcType=BIGINT}, #{clientRefereeFee,jdbcType=REAL}, 
+      #{driverRefereeId,jdbcType=BIGINT}, #{driverRefereeFee,jdbcType=REAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sdkj.business.domain.po.OrderFeeDistribution">
+    insert into sdlh_order_fee_distribution
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="orderId != null">
+        order_id,
+      </if>
+      <if test="driverId != null">
+        driver_id,
+      </if>
+      <if test="driverFee != null">
+        driver_fee,
+      </if>
+      <if test="clientRefereeId != null">
+        client_referee_id,
+      </if>
+      <if test="clientRefereeFee != null">
+        client_referee_fee,
+      </if>
+      <if test="driverRefereeId != null">
+        driver_referee_id,
+      </if>
+      <if test="driverRefereeFee != null">
+        driver_referee_fee,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null">
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="driverId != null">
+        #{driverId,jdbcType=BIGINT},
+      </if>
+      <if test="driverFee != null">
+        #{driverFee,jdbcType=REAL},
+      </if>
+      <if test="clientRefereeId != null">
+        #{clientRefereeId,jdbcType=BIGINT},
+      </if>
+      <if test="clientRefereeFee != null">
+        #{clientRefereeFee,jdbcType=REAL},
+      </if>
+      <if test="driverRefereeId != null">
+        #{driverRefereeId,jdbcType=BIGINT},
+      </if>
+      <if test="driverRefereeFee != null">
+        #{driverRefereeFee,jdbcType=REAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sdkj.business.domain.po.OrderFeeDistribution">
+    update sdlh_order_fee_distribution
+    <set>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="driverId != null">
+        driver_id = #{driverId,jdbcType=BIGINT},
+      </if>
+      <if test="driverFee != null">
+        driver_fee = #{driverFee,jdbcType=REAL},
+      </if>
+      <if test="clientRefereeId != null">
+        client_referee_id = #{clientRefereeId,jdbcType=BIGINT},
+      </if>
+      <if test="clientRefereeFee != null">
+        client_referee_fee = #{clientRefereeFee,jdbcType=REAL},
+      </if>
+      <if test="driverRefereeId != null">
+        driver_referee_id = #{driverRefereeId,jdbcType=BIGINT},
+      </if>
+      <if test="driverRefereeFee != null">
+        driver_referee_fee = #{driverRefereeFee,jdbcType=REAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sdkj.business.domain.po.OrderFeeDistribution">
+    update sdlh_order_fee_distribution
+    set order_id = #{orderId,jdbcType=BIGINT},
+      driver_id = #{driverId,jdbcType=BIGINT},
+      driver_fee = #{driverFee,jdbcType=REAL},
+      client_referee_id = #{clientRefereeId,jdbcType=BIGINT},
+      client_referee_fee = #{clientRefereeFee,jdbcType=REAL},
+      driver_referee_id = #{driverRefereeId,jdbcType=BIGINT},
+      driver_referee_fee = #{driverRefereeFee,jdbcType=REAL}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,94 @@
+package com.sdkj.business.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.sdkj.business.domain.po.User;
+import com.sdkj.business.domain.vo.MobileResultVO;
+import com.sdkj.business.service.CheckCodeService;
+import com.sdkj.business.service.UserService;
+import com.sdkj.business.service.component.optlog.SysLog;
+import com.sdlh.common.StringUtilLH;
+
+@Controller
+public class UserController {
+	
+	Logger logger = LoggerFactory.getLogger(UserController.class);
+	
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private CheckCodeService checkCodeService;
+	@RequestMapping(value="/send/checkcode",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="发送验证码",optCode="sendCheckCode")
+   	public MobileResultVO sendCheckCode(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String userPhone = req.getParameter("userPhone");
+   			result = checkCodeService.sendCheckCode(userPhone);
+   		}catch(Exception e) {
+   			logger.error("发送验证码异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
+	
+    @RequestMapping(value="/user/login",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="用户登陆",optCode="userLogin")
+   	public MobileResultVO cancelOrder(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String userPhone = req.getParameter("userPhone");
+   			String userType = req.getParameter("userType");
+   			String checkCode = req.getParameter("checkCode");
+   			result = userService.userLogin(userPhone, userType, checkCode);
+   		}catch(Exception e) {
+   			logger.error("用户登陆异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
+	
+    @RequestMapping(value="/user/update",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="用户信息修改",optCode="userUpate")
+   	public MobileResultVO updateUser(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String userId = req.getParameter("userId");
+   			String headImg = req.getParameter("headImg");
+   			String nickName = req.getParameter("nickName");
+   			String sex = req.getParameter("sex");
+   			String registrionId = req.getParameter("registrionId");
+   			logger.info("userId:"+userId+";headImg:"+headImg+";sex:"+sex+";registrionId:"+registrionId);
+   			User user = new User();
+   			user.setId(Long.valueOf(userId));
+   			user.setHeadImg(headImg);
+   			user.setNickName(nickName);
+   			if(StringUtilLH.isNotEmpty(sex)){
+   				user.setSex(Integer.valueOf(sex));
+   			}
+   			user.setRegistrionId(registrionId);
+   			result = userService.updateUser(user);
+   		}catch(Exception e) {
+   			logger.error("修改用户信息异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
+}

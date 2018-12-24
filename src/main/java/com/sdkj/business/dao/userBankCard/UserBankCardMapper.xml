@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.userBankCard.UserBankCardMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.UserBankCard">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="bank_name" jdbcType="VARCHAR" property="bankName" />
+    <result column="card_type" jdbcType="VARCHAR" property="cardType" />
+    <result column="card_num" jdbcType="VARCHAR" property="cardNum" />
+    <result column="owner_name" jdbcType="VARCHAR" property="ownerName" />
+    <result column="owner_card_num" jdbcType="VARCHAR" property="ownerCardNum" />
+    <result column="reserve_phone" jdbcType="VARCHAR" property="reservePhone" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="create_time" jdbcType="VARCHAR" property="createTime" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="card_back_img" property="cardBackImg" />
+  </resultMap>
+ 
+  <select id="findSingleCard" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_user_bank_card
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id !=null"> and id = #{id}</if>
+    </trim>
+  </select>
+   <select id="findCardList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_user_bank_card
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id !=null"> and id = #{id}</if>
+    	<if test="userId !=null"> and user_id = #{userId}</if>
+    	<if test="status !=null"> and status = #{status}</if>
+    </trim>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sdlh_user_bank_card
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.UserBankCard" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    insert into sdlh_user_bank_card (id, bank_name, card_type, 
+      card_num, owner_name, owner_card_num, 
+      reserve_phone, user_id, create_time, 
+      status)
+    values (#{id,jdbcType=BIGINT}, #{bankName,jdbcType=VARCHAR}, #{cardType,jdbcType=VARCHAR}, 
+      #{cardNum,jdbcType=VARCHAR}, #{ownerName,jdbcType=VARCHAR}, #{ownerCardNum,jdbcType=VARCHAR}, 
+      #{reservePhone,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT}, #{createTime,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER})
+  </insert>
+   
+  <update id="updateById" parameterType="com.sdkj.business.domain.po.UserBankCard">
+    update sdlh_user_bank_card
+    <set>
+      <if test="bankName != null">
+        bank_name = #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="cardType != null">
+        card_type = #{cardType,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNum != null">
+        card_num = #{cardNum,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerName != null">
+        owner_name = #{ownerName,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerCardNum != null">
+        owner_card_num = #{ownerCardNum,jdbcType=VARCHAR},
+      </if>
+      <if test="reservePhone != null">
+        reserve_phone = #{reservePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

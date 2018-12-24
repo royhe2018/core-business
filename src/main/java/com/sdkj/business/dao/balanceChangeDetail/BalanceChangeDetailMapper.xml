@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.balanceChangeDetail.BalanceChangeDetailMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.BalanceChangeDetail">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="balance_before_change" jdbcType="REAL" property="balanceBeforeChange" />
+    <result column="balance_after_change" jdbcType="REAL" property="balanceAfterChange" />
+    <result column="change_amount" jdbcType="REAL" property="changeAmount" />
+    <result column="change_time" jdbcType="VARCHAR" property="changeTime" />
+    <result column="change_type" jdbcType="INTEGER" property="changeType" />
+  </resultMap>
+  <select id="findSingleBalanceChange" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_balance_change_detail
+    where id = #{id,jdbcType=BIGINT}
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id != null">and id = #{id}</if>
+    </trim>
+  </select>
+  <select id="findBalanceChangeList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_balance_change_detail
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="userId != null">and user_id = #{userId}</if>
+    </trim>
+    order by id desc
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sdlh_balance_change_detail
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.BalanceChangeDetail">
+    insert into sdlh_balance_change_detail (id, user_id, balance_before_change, 
+      balance_after_change, change_amount, change_time, 
+      change_type)
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{balanceBeforeChange,jdbcType=REAL}, 
+      #{balanceAfterChange,jdbcType=REAL}, #{changeAmount,jdbcType=REAL}, #{changeTime,jdbcType=VARCHAR}, 
+      #{changeType,jdbcType=INTEGER})
+  </insert>
+  <update id="update" parameterType="com.sdkj.business.domain.po.BalanceChangeDetail">
+    update sdlh_balance_change_detail
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="balanceBeforeChange != null">
+        balance_before_change = #{balanceBeforeChange,jdbcType=REAL},
+      </if>
+      <if test="balanceAfterChange != null">
+        balance_after_change = #{balanceAfterChange,jdbcType=REAL},
+      </if>
+      <if test="changeAmount != null">
+        change_amount = #{changeAmount,jdbcType=REAL},
+      </if>
+      <if test="changeTime != null">
+        change_time = #{changeTime,jdbcType=VARCHAR},
+      </if>
+      <if test="changeType != null">
+        change_type = #{changeType,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

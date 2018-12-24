@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+	<property name="LOG_PATH" value="E:\\" />
+	<appender name="application" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/application-core-business.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"> 
+　　　　　　　　　　　　　　<fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern> 
+　　　　　　　　　　　　　　<maxHistory>30</maxHistory> 
+　　　　     </rollingPolicy>
+    </appender>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    	<!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    	<encoder>
+     	 <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    	</encoder>
+  	</appender>
+	
+	<logger name="com.sdkj.map" level="INFO" additivity="false">
+		<appender-ref ref="application" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<root level="INFO">
+		<appender-ref ref="application" />
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>

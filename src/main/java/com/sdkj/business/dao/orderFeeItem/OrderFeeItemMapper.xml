@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.orderFeeItem.OrderFeeItemMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.OrderFeeItem">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="fee_name" jdbcType="VARCHAR" property="feeName" />
+    <result column="fee_amount" jdbcType="REAL" property="feeAmount" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="pay_method" jdbcType="INTEGER" property="payMethod" />
+    <result column="pay_serial_num" jdbcType="VARCHAR" property="paySerialNum" />
+    <result column="pay_time" jdbcType="VARCHAR" property="payTime" />
+  </resultMap>
+ 
+  <select id="findOrderFeeItemList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_order_fee_item
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="orderId != null"> and order_id = #{orderId}</if>
+    	<if test="status != null "> and status = #{status}</if>
+    	<if test="idList !=null">
+    		and id in
+    		<foreach collection="idList" open="(" close=")" item="id" separator=",">
+    			#{id}
+    		</foreach>
+    	</if>
+    </trim>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sdlh_order_fee_item
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.OrderFeeItem" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    insert into sdlh_order_fee_item (id, order_id, fee_name, 
+      fee_amount, status, pay_method, 
+      pay_serial_num, pay_time,fee_type)
+    values (#{id,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, #{feeName,jdbcType=VARCHAR}, 
+      #{feeAmount,jdbcType=REAL}, #{status,jdbcType=INTEGER}, #{payMethod,jdbcType=INTEGER}, 
+      #{paySerialNum,jdbcType=VARCHAR}, #{payTime,jdbcType=VARCHAR},#{feeType})
+  </insert>
+   
+  <update id="updateByPrimaryKey" parameterType="com.sdkj.business.domain.po.OrderFeeItem">
+    update sdlh_order_fee_item
+    <set>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="feeName != null">
+        fee_name = #{feeName,jdbcType=VARCHAR},
+      </if>
+      <if test="feeAmount != null">
+        fee_amount = #{feeAmount,jdbcType=REAL},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="payMethod != null">
+        pay_method = #{payMethod,jdbcType=INTEGER},
+      </if>
+      <if test="paySerialNum != null">
+        pay_serial_num = #{paySerialNum,jdbcType=VARCHAR},
+      </if>
+      <if test="payTime != null">
+        pay_time = #{payTime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

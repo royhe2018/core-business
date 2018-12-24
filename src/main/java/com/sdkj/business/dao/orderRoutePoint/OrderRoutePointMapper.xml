@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.orderRoutePoint.OrderRoutePointMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.OrderRoutePoint">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="place_name" jdbcType="VARCHAR" property="placeName" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="lat" jdbcType="VARCHAR" property="lat" />
+    <result column="log" jdbcType="VARCHAR" property="log" />
+    <result column="order_num" jdbcType="INTEGER" property="orderNum" />
+    <result column="arrive_time" jdbcType="VARCHAR" property="arriveTime" />
+    <result column="leave_time" jdbcType="VARCHAR" property="leaveTime" />
+    <result column="wait_time" jdbcType="INTEGER" property="waitTime" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="distance_from_last_point" jdbcType="REAL" property="distanceFromLastPoint" />
+    <result column="deal_user_id" property="dealUserId" />
+    <result column="contact_user_name" property="contactUserName" />
+    <result column="contact_user_phone" property="contactUserPhone" />
+  </resultMap>
+ 
+  <select id="findSingleRoutePoint" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_order_route_point
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id != null"> and id = #{id}</if>
+    </trim>
+  </select>
+  
+  <select id="findRoutePointList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_order_route_point
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id != null"> and id = #{id}</if>
+    	<if test="orderId != null"> and order_id = #{orderId}</if>
+    </trim>
+    order by order_num asc
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sdlh_order_route_point
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.OrderRoutePoint">
+    insert into sdlh_order_route_point (id, order_id, place_name, 
+      address, lat, log, 
+      order_num, arrive_time, leave_time, 
+      wait_time, status, distance_from_last_point,order_type,deal_user_id,contact_user_name,contact_user_phone
+      )
+    values (#{id,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, #{placeName,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR}, #{lat,jdbcType=VARCHAR}, #{log,jdbcType=VARCHAR}, 
+      #{orderNum,jdbcType=INTEGER}, #{arriveTime,jdbcType=VARCHAR}, #{leaveTime,jdbcType=VARCHAR}, 
+      #{waitTime,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{distanceFromLastPoint,jdbcType=REAL},#{orderType}
+      ,#{dealUserId},#{contactUserName},#{contactUserPhone}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.sdkj.business.domain.po.OrderRoutePoint">
+    insert into sdlh_order_route_point
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="orderId != null">
+        order_id,
+      </if>
+      <if test="placeName != null">
+        place_name,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="lat != null">
+        lat,
+      </if>
+      <if test="log != null">
+        log,
+      </if>
+      <if test="orderNum != null">
+        order_num,
+      </if>
+      <if test="arriveTime != null">
+        arrive_time,
+      </if>
+      <if test="leaveTime != null">
+        leave_time,
+      </if>
+      <if test="waitTime != null">
+        wait_time,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="distanceFromLastPoint != null">
+        distance_from_last_point,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null">
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="placeName != null">
+        #{placeName,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="lat != null">
+        #{lat,jdbcType=VARCHAR},
+      </if>
+      <if test="log != null">
+        #{log,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNum != null">
+        #{orderNum,jdbcType=INTEGER},
+      </if>
+      <if test="arriveTime != null">
+        #{arriveTime,jdbcType=VARCHAR},
+      </if>
+      <if test="leaveTime != null">
+        #{leaveTime,jdbcType=VARCHAR},
+      </if>
+      <if test="waitTime != null">
+        #{waitTime,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="distanceFromLastPoint != null">
+        #{distanceFromLastPoint,jdbcType=REAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sdkj.business.domain.po.OrderRoutePoint">
+    update sdlh_order_route_point
+    <set>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="placeName != null">
+        place_name = #{placeName,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="lat != null">
+        lat = #{lat,jdbcType=VARCHAR},
+      </if>
+      <if test="log != null">
+        log = #{log,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNum != null">
+        order_num = #{orderNum,jdbcType=INTEGER},
+      </if>
+      <if test="arriveTime != null">
+        arrive_time = #{arriveTime,jdbcType=VARCHAR},
+      </if>
+      <if test="leaveTime != null">
+        leave_time = #{leaveTime,jdbcType=VARCHAR},
+      </if>
+      <if test="waitTime != null">
+        wait_time = #{waitTime,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="distanceFromLastPoint != null">
+        distance_from_last_point = #{distanceFromLastPoint,jdbcType=REAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sdkj.business.domain.po.OrderRoutePoint">
+    update sdlh_order_route_point
+    set order_id = #{orderId,jdbcType=BIGINT},
+      place_name = #{placeName,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      lat = #{lat,jdbcType=VARCHAR},
+      log = #{log,jdbcType=VARCHAR},
+      order_num = #{orderNum,jdbcType=INTEGER},
+      arrive_time = #{arriveTime,jdbcType=VARCHAR},
+      leave_time = #{leaveTime,jdbcType=VARCHAR},
+      wait_time = #{waitTime,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      distance_from_last_point = #{distanceFromLastPoint,jdbcType=REAL}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

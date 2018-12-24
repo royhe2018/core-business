@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.withdrawCashRecord.WithdrawCashRecordMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.WithdrawCashRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="card_id" jdbcType="BIGINT" property="cardId" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="cash_amount" jdbcType="REAL" property="cashAmount" />
+    <result column="create_time" jdbcType="VARCHAR" property="createTime" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="pay_serial" jdbcType="VARCHAR" property="paySerial" />
+    <result column="pay_time" jdbcType="VARCHAR" property="payTime" />
+    <result column="pay_user_id" jdbcType="VARCHAR" property="payUserId" />
+  </resultMap>
+ 
+  <select id="findWithdrawCashRecord" parameterType="java.util.Map" resultType="java.util.Map">
+    select r.create_time as createTime,r.cash_amount as cashAmount,concat(c.bank_name,'(',right(c.card_num,4),')') as cashCard,
+    case when r.status=1 then '未打款' when r.status=2 then '已打款' else '打款失败' end as result
+    from sdlh_withdraw_cash_record r
+    inner join sdlh_user_bank_card c on r.card_id = c.id
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="userId != null">and user_id=#{userId}</if>
+    </trim>
+  </select>
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.WithdrawCashRecord">
+    insert into sdlh_withdraw_cash_record (id, card_id, user_id, 
+      cash_amount, create_time, status, 
+      pay_serial, pay_time, pay_user_id
+      )
+    values (#{id,jdbcType=BIGINT}, #{cardId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, 
+      #{cashAmount,jdbcType=REAL}, #{createTime,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{paySerial,jdbcType=VARCHAR}, #{payTime,jdbcType=VARCHAR}, #{payUserId,jdbcType=VARCHAR}
+      )
+  </insert>
+</mapper>

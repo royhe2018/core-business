@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.orderImage.OrderImageMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.OrderImage">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_id" property="orderId" />
+    <result column="image_type" property="imageType" />
+    <result column="image_path" property="imagePath" />
+    <result column="create_time" property="createTime" />
+  </resultMap>
+ 
+  <select id="findOrderImageList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_order_image
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="orderId != null">and order_id = #{orderId}</if>
+    	<if test="imageType != null">and image_type = #{imageType}</if>
+    </trim>
+    order by id desc
+  </select>
+  
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.OrderImage">
+ 	INSERT INTO `sdlh_order_image` (
+		  `order_id`,
+		  `image_type`,
+		  `image_path`,
+		  `create_time`
+		) 
+		VALUES
+		  ( 
+		    #{orderId},
+		    #{imageType},
+		    #{imagePath},
+		    #{createTime}
+		  ) 
+  </insert>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.sysLog.SysLogEntityMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.SysLogEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="client_ip" jdbcType="VARCHAR" property="clientIp" />
+    <result column="req_time" jdbcType="VARCHAR" property="reqTime" />
+    <result column="res_time" jdbcType="VARCHAR" property="resTime" />
+    <result column="used_time" jdbcType="INTEGER" property="usedTime" />
+    <result column="opt_desc" jdbcType="VARCHAR" property="optDesc" />
+    <result column="opt_code" jdbcType="VARCHAR" property="optCode" />
+  </resultMap>
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.SysLogEntity">
+    insert into sdlh_sys_log (id, user_id, mobile, 
+      name, client_ip, req_time, 
+      res_time, used_time, opt_desc, 
+      opt_code, opt_para,ret_info)
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{mobile,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{clientIp,jdbcType=VARCHAR}, #{reqTime,jdbcType=VARCHAR}, 
+      #{resTime,jdbcType=VARCHAR}, #{usedTime,jdbcType=INTEGER}, #{optDesc,jdbcType=VARCHAR}, 
+      #{optCode,jdbcType=VARCHAR}, #{optPara,jdbcType=LONGVARCHAR},#{retInfo})
+  </insert>
+</mapper>

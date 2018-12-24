@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.orderInfo.OrderInfoMapper">
+	<resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.OrderInfo">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="user_id" jdbcType="BIGINT" property="userId" />
+		<result column="use_truck_time" jdbcType="VARCHAR" property="useTruckTime" />
+		<result column="contact_name" jdbcType="VARCHAR" property="contactName" />
+		<result column="contact_phone" jdbcType="VARCHAR" property="contactPhone" />
+		<result column="vehicle_type_id" jdbcType="BIGINT" property="vehicleTypeId" />
+		<result column="service_vehicle_level_id" jdbcType="BIGINT"
+			property="serviceVehicleLevelId" />
+		<result column="distribution_fee_id" jdbcType="BIGINT"
+			property="distributionFeeId" />
+		<result column="special_requirement_ids" jdbcType="VARCHAR"
+			property="specialRequirementIds" />
+		<result column="start_fee" jdbcType="REAL" property="startFee" />
+		<result column="extra_fee" jdbcType="REAL" property="extraFee" />
+		<result column="insurance_fee" jdbcType="REAL" property="insuranceFee" />
+		<result column="attach_fee" jdbcType="REAL" property="attachFee" />
+		<result column="total_fee" jdbcType="REAL" property="totalFee" />
+		<result column="driver_id" jdbcType="BIGINT" property="driverId" />
+		<result column="create_time" jdbcType="VARCHAR" property="createTime" />
+		<result column="finish_time" jdbcType="VARCHAR" property="finishTime" />
+		<result column="status" jdbcType="INTEGER" property="status" />
+		<result column="close_code_pic" property="closeCodePic" />
+		<result column="thing_list_pic" property="thingListPic" />
+		<result column="taked_time" property="takedTime" />
+		<result column="remark" property="remark" />
+		<result column="data_version" property="dataVersion" />
+		<result column="pay_status" property="payStatus" />
+		<result column="cancle_status" property="cancleStatus" />
+		<result column="sign_name_pic" property="signNamePic" />
+		<result column="sign_receive_time" property="signReceiveTime" />
+		<result column="city_name" property="cityName" />
+	</resultMap>
+
+	<select id="findSingleOrder" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select *
+		from sdlh_order_info
+		<trim prefix="where" prefixOverrides="and">
+			<if test="id!=null"> and id = #{id}</if>
+		</trim>
+	</select>
+
+
+	<select id="findOrderInfoListDisplay" parameterType="java.util.Map"
+		resultType="java.util.Map">
+		select o.id as orderId,o.use_truck_time as userTime,
+		t.type_name as vehicleTypeName,'1' as orderType,
+		o.total_fee as totalFee,
+		o.pay_status as payStatus,
+		case o.status
+		when 0 then '未接单'
+		when 1 then '已接单'
+		when 2 then '到达装货地'
+		when 3 then '装货完成'
+		when 4 then '运途中'
+		when 5 then '到达收货地'
+		when 6 then '已签收'
+		else '未知' end as statusName,o.status,
+		d.nick_name as driverName,
+		d.account as driverPhone,
+		d.id as driverId,
+		'4.8' as driverScore,
+		d.map_terminal_id as mapTerminalId,
+		'8914' as mapServiceId
+		from sdlh_order_info o
+		inner join sdlh_vehicle_type_info t on o.vehicle_type_id = t.id
+		left join sdlh_user d on o.driver_id = d.id
+		<trim prefix="where" prefixOverrides="and">
+			<if test="id!=null"> and o.id = #{id}</if>
+			<if test="userId != null"> and (o.user_id = #{userId}
+				or EXISTS (SELECT 1 FROM `sdlh_order_route_point` r WHERE o.`id`=r.`order_id` AND r.`deal_user_id`=#{userId} ) )
+			</if>
+			<if test="driverId != null"> and o.driver_id = #{driverId}</if>
+			<if test="orderPeriod != null">
+				<choose>
+					<when test='orderPeriod == 1'><![CDATA[ and o.status <6 and o.cancle_status=0]]></when>
+					<when test='orderPeriod == 2'><![CDATA[ and o.status =6 and o.cancle_status=0]]></when>
+					<when test='orderPeriod == 3'><![CDATA[ and o.cancle_status=1]]></when>
+				</choose>
+			</if>
+		</trim>
+		order by o.id desc
+	</select>
+
+	<select id="findOrderList" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select *
+		from sdlh_order_info
+		<trim prefix="where" prefixOverrides="and">
+			<if test="id!=null"> and id = #{id}</if>
+			<if test="userId != null"> and user_id = #{id}</if>
+			<if test="cancleStatus != null"> and cancle_status = #{cancleStatus}</if>
+			<if test="status != null"> and status = #{status}</if>
+		</trim>
+		order by o.id desc
+	</select>
+
+	<delete id="deleteById" parameterType="java.lang.Long">
+		delete from sdlh_order_info
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="com.sdkj.business.domain.po.OrderInfo"
+		useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		insert into sdlh_order_info (id, user_id, use_truck_time,
+		contact_name, contact_phone, vehicle_type_id,
+		service_vehicle_level_id, distribution_fee_id,
+		special_requirement_ids, start_fee, extra_fee,
+		insurance_fee, attach_fee, total_fee,
+		driver_id, create_time, finish_time,
+		status,remark,city_name)
+		values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
+		#{useTruckTime,jdbcType=VARCHAR},
+		#{contactName,jdbcType=VARCHAR}, #{contactPhone,jdbcType=VARCHAR}, #{vehicleTypeId,jdbcType=BIGINT},
+		#{serviceVehicleLevelId,jdbcType=BIGINT},
+		#{distributionFeeId,jdbcType=BIGINT},
+		#{specialRequirementIds,jdbcType=VARCHAR}, #{startFee,jdbcType=REAL},
+		#{extraFee,jdbcType=REAL},
+		#{insuranceFee,jdbcType=REAL}, #{attachFee,jdbcType=REAL}, #{totalFee,jdbcType=REAL},
+		#{driverId,jdbcType=BIGINT}, #{createTime,jdbcType=VARCHAR},
+		#{finishTime,jdbcType=VARCHAR},
+		#{status,jdbcType=INTEGER},#{remark},#{cityName})
+	</insert>
+
+	<update id="updateById" parameterType="com.sdkj.business.domain.po.OrderInfo">
+		update sdlh_order_info
+		<set>
+			<if test="userId != null">
+				user_id = #{userId,jdbcType=BIGINT},
+			</if>
+			<if test="useTruckTime != null">
+				use_truck_time = #{useTruckTime,jdbcType=VARCHAR},
+			</if>
+			<if test="contactName != null">
+				contact_name = #{contactName,jdbcType=VARCHAR},
+			</if>
+			<if test="contactPhone != null">
+				contact_phone = #{contactPhone,jdbcType=VARCHAR},
+			</if>
+			<if test="vehicleTypeId != null">
+				vehicle_type_id = #{vehicleTypeId,jdbcType=BIGINT},
+			</if>
+			<if test="serviceVehicleLevelId != null">
+				service_vehicle_level_id = #{serviceVehicleLevelId,jdbcType=BIGINT},
+			</if>
+			<if test="distributionFeeId != null">
+				distribution_fee_id = #{distributionFeeId,jdbcType=BIGINT},
+			</if>
+			<if test="specialRequirementIds != null">
+				special_requirement_ids = #{specialRequirementIds,jdbcType=VARCHAR},
+			</if>
+			<if test="startFee != null">
+				start_fee = #{startFee,jdbcType=REAL},
+			</if>
+			<if test="extraFee != null">
+				extra_fee = #{extraFee,jdbcType=REAL},
+			</if>
+			<if test="insuranceFee != null">
+				insurance_fee = #{insuranceFee,jdbcType=REAL},
+			</if>
+			<if test="attachFee != null">
+				attach_fee = #{attachFee,jdbcType=REAL},
+			</if>
+			<if test="totalFee != null">
+				total_fee = #{totalFee,jdbcType=REAL},
+			</if>
+			<if test="driverId != null">
+				driver_id = #{driverId,jdbcType=BIGINT},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=VARCHAR},
+			</if>
+			<if test="finishTime != null">
+				finish_time = #{finishTime,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="takedTime != null">
+				taked_time = #{takedTime,jdbcType=INTEGER},
+			</if>
+			<if test="closeCodePic != null">
+				close_code_pic = #{closeCodePic,jdbcType=INTEGER},
+			</if>
+			<if test="thingListPic != null">
+				thing_list_pic = #{thingListPic,jdbcType=INTEGER},
+			</if>
+			<if test="payStatus != null">
+				pay_status = #{payStatus,jdbcType=INTEGER},
+			</if>
+			<if test="cancleStatus != null">
+				cancle_status = #{cancleStatus,jdbcType=INTEGER},
+			</if>
+			<if test="signNamePic != null">
+				sign_name_pic = #{signNamePic},
+			</if>
+			<if test="signReceiveTime != null">
+				sign_receive_time = #{signReceiveTime},
+			</if>
+			<if test="receiveUserId != null">
+				receive_user_id = #{receiveUserId},
+			</if>
+			data_version = #{dataVersion,jdbcType=INTEGER}+1,
+		</set>
+		where id = #{id,jdbcType=BIGINT} and data_version = #{dataVersion}
+	</update>
+</mapper>

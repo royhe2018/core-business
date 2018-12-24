@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.serviceStation.ServiceStationMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.ServiceStation">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="station_name" jdbcType="VARCHAR" property="stationName" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="lat" jdbcType="VARCHAR" property="lat" />
+    <result column="log" jdbcType="VARCHAR" property="log" />
+    <result column="create_time" jdbcType="VARCHAR" property="createTime" />
+  </resultMap>
+ 
+  <select id="findServiceStationList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_service_station
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="city != null"> and city = #{city}</if>
+    </trim>
+  </select>
+</mapper>

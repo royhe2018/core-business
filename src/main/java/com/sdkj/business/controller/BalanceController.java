@@ -1,0 +1,70 @@
+package com.sdkj.business.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.github.pagehelper.StringUtil;
+import com.sdkj.business.domain.vo.MobileResultVO;
+import com.sdkj.business.service.BalanceChangeDetailService;
+import com.sdkj.business.service.component.optlog.SysLog;
+
+@Controller
+public class BalanceController {
+	
+	Logger logger = LoggerFactory.getLogger(BalanceController.class);
+	
+	@Autowired
+	private BalanceChangeDetailService balanceChangeDetailService;
+	
+	
+	@RequestMapping(value="/find/user/balance",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="查询用户当前余额",optCode="queryUserBalance")
+   	public MobileResultVO findUserBalance(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String userId = req.getParameter("userId");
+   			result = balanceChangeDetailService.findUserBalanceInfo(Integer.valueOf(userId));
+   		}catch(Exception e) {
+   			logger.error("查询用户余额异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
+	
+	@RequestMapping(value="/find/balance/change/list",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="查询余额变更明细",optCode="queryBalanceChangeDetail")
+   	public MobileResultVO findBalanceChangeList(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String userId = req.getParameter("userId");
+   			String pageNumStr = req.getParameter("pageNum");
+   			String pageSizeStr = req.getParameter("pageSize");
+   			int pageNum =1;
+   			int pageSize = 10;
+   			if(StringUtil.isNotEmpty(pageNumStr)){
+   				pageNum = Integer.valueOf(pageNumStr);
+   			}
+   			if(StringUtil.isNotEmpty(pageSizeStr)){
+   				pageSize = Integer.valueOf(pageSizeStr);
+   			}
+   			result = balanceChangeDetailService.findUserBalanceChangePageInfo(pageNum, pageSize, Integer.valueOf(userId));
+   		}catch(Exception e) {
+   			logger.error("查询余额变更明细", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
+}
