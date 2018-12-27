@@ -19,6 +19,20 @@ public class OrderFeeItem {
     
     private Integer feeType;
 
+    private Long driverId;
+
+    private Float driverFee;
+
+    private Long clientRefereeId;
+
+    private Float clientRefereeFee;
+
+    private Long driverRefereeId;
+
+    private Float driverRefereeFee;
+    
+    private Float platFormFee;
+    
     public Long getId() {
         return id;
     }
@@ -89,6 +103,62 @@ public class OrderFeeItem {
 
 	public void setFeeType(Integer feeType) {
 		this.feeType = feeType;
+	}
+
+	public Long getDriverId() {
+		return driverId;
+	}
+
+	public void setDriverId(Long driverId) {
+		this.driverId = driverId;
+	}
+
+	public Float getDriverFee() {
+		return driverFee;
+	}
+
+	public void setDriverFee(Float driverFee) {
+		this.driverFee = driverFee;
+	}
+
+	public Long getClientRefereeId() {
+		return clientRefereeId;
+	}
+
+	public void setClientRefereeId(Long clientRefereeId) {
+		this.clientRefereeId = clientRefereeId;
+	}
+
+	public Float getClientRefereeFee() {
+		return clientRefereeFee;
+	}
+
+	public void setClientRefereeFee(Float clientRefereeFee) {
+		this.clientRefereeFee = clientRefereeFee;
+	}
+
+	public Long getDriverRefereeId() {
+		return driverRefereeId;
+	}
+
+	public void setDriverRefereeId(Long driverRefereeId) {
+		this.driverRefereeId = driverRefereeId;
+	}
+
+	public Float getDriverRefereeFee() {
+		return driverRefereeFee;
+	}
+
+	public void setDriverRefereeFee(Float driverRefereeFee) {
+		this.driverRefereeFee = driverRefereeFee;
+	}
+
+	public Float getPlatFormFee() {
+		return platFormFee;
+	}
+
+	public void setPlatFormFee(Float platFormFee) {
+		this.platFormFee = platFormFee;
 	}
     
 }

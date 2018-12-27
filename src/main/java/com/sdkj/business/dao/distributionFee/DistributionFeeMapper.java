@@ -12,5 +12,4 @@ public interface DistributionFeeMapper {
     DistributionFee findSingleDistributionFee(Map<String,Object> param);
     List<DistributionFee> findDistributionFeeList(Map<String,Object> param);
     
-
 }

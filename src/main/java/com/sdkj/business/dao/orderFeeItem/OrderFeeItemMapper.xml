@@ -10,6 +10,13 @@
     <result column="pay_method" jdbcType="INTEGER" property="payMethod" />
     <result column="pay_serial_num" jdbcType="VARCHAR" property="paySerialNum" />
     <result column="pay_time" jdbcType="VARCHAR" property="payTime" />
+    <result column="fee_type" property="feeType" />
+    <result column="driver_id" jdbcType="BIGINT" property="driverId" />
+    <result column="driver_fee" jdbcType="REAL" property="driverFee" />
+    <result column="client_referee_id" jdbcType="BIGINT" property="clientRefereeId" />
+    <result column="client_referee_fee" jdbcType="REAL" property="clientRefereeFee" />
+    <result column="driver_referee_id" jdbcType="BIGINT" property="driverRefereeId" />
+    <result column="driver_referee_fee" jdbcType="REAL" property="driverRefereeFee" />
   </resultMap>
  
   <select id="findOrderFeeItemList" parameterType="java.util.Map" resultMap="BaseResultMap">
@@ -31,12 +38,11 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.sdkj.business.domain.po.OrderFeeItem" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
-    insert into sdlh_order_fee_item (id, order_id, fee_name, 
-      fee_amount, status, pay_method, 
-      pay_serial_num, pay_time,fee_type)
+    insert into sdlh_order_fee_item (id, order_id, fee_name,fee_amount, status, pay_method, 
+      pay_serial_num, pay_time,fee_type,driver_id,driver_fee,client_referee_id,client_referee_fee,driver_referee_id,driver_referee_fee,plat_form_fee)
     values (#{id,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, #{feeName,jdbcType=VARCHAR}, 
       #{feeAmount,jdbcType=REAL}, #{status,jdbcType=INTEGER}, #{payMethod,jdbcType=INTEGER}, 
-      #{paySerialNum,jdbcType=VARCHAR}, #{payTime,jdbcType=VARCHAR},#{feeType})
+      #{paySerialNum,jdbcType=VARCHAR}, #{payTime,jdbcType=VARCHAR},#{feeType},#{driverId},#{driverFee},#{clientRefereeId},#{clientRefereeFee},#{driverRefereeId},#{driverRefereeFee},#{platFormFee})
   </insert>
    
   <update id="updateByPrimaryKey" parameterType="com.sdkj.business.domain.po.OrderFeeItem">

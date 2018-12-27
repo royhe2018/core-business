@@ -9,6 +9,7 @@ public class Constant {
 	 */
 	public static final int USER_TYPE_CUSTOMER=1;
 	public static final int USER_TYPE_DRIVER=2;
+	
 	/**
 	 * 余额变更方式 1 运送收入；2业绩提成；3提现
 	 */
@@ -46,5 +47,12 @@ public class Constant {
 	public static final int ROUTE_POINT_STATUS_NOT_ARRIVE=0;
 	public static final int ROUTE_POINT_STATUS_ARRIVED=1;
 	public static final int ROUTE_POINT_STATUS_LEAVED=2;
+	/**
+	 * 角色类型；1：司机；2司机推荐人；3客户推荐人；4平台
+	 */
+	public static final int FEE_DISPATCH_ROLE_DRIVER=1;
+	public static final int FEE_DISPATCH_ROLE_DRIVER_REFEREE=2;
+	public static final int FEE_DISPATCH_ROLE_CLIENT_REFEREE=3;
+	public static final int FEE_DISPATCH_ROLE_PLATFORM=4;
 	
 }
