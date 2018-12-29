@@ -35,6 +35,7 @@ public class Constant {
 	public static final int ORDER_STATUS_YUNTUZHONG=4;
 	public static final int ORDER_STATUS_SIJIDAODASHOUHUO=5;
 	public static final int ORDER_STATUS_YIQIANSHOU=6;
+	public static final int ORDER_STATUS_FINISH=7;
 	
 	/**
 	 * 订单取消状态0未取消；1已取消
@@ -55,4 +56,9 @@ public class Constant {
 	public static final int FEE_DISPATCH_ROLE_CLIENT_REFEREE=3;
 	public static final int FEE_DISPATCH_ROLE_PLATFORM=4;
 	
+	/**
+	 * 订单费用支付状态0未支付；1已支付
+	 */
+	public static final int FEE_ITEM_PAY_STATUS_NOPAY=0;
+	public static final int FEE_ITEM_PAY_STATUS_PAIED=1;
 }

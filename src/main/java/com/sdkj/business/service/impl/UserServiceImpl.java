@@ -97,5 +97,41 @@ public class UserServiceImpl implements UserService {
 		}
 		return result;
 	}
+	@Override
+	public MobileResultVO bindingReferee(String userId, String refereePhone, String checkCode) {
+		MobileResultVO result = new MobileResultVO();
+		result.setCode(MobileResultVO.CODE_FAIL);
+		result.setMessage("绑定推荐人失败!");
+		if(checkCodeService.validCheckCode(refereePhone, checkCode)){
+			Map<String,Object> param = new HashMap<String,Object>();
+			param.put("id", userId);
+			User user = userMapper.findSingleUser(param);
+			param.clear();
+			param.put("account", refereePhone);
+			param.put("userType", Constant.USER_TYPE_DRIVER);
+			User dbDriverUser = userMapper.findSingleUser(param);
+			if(dbDriverUser!=null) {
+				user.setRefereeId(dbDriverUser.getId());
+				userMapper.updateById(user);
+				result.setCode(MobileResultVO.CODE_SUCCESS);
+				result.setMessage("绑定推荐人成功!");
+			}else {
+				param.put("account", refereePhone);
+				param.put("userType", Constant.USER_TYPE_CUSTOMER);
+				User dbClientUser = userMapper.findSingleUser(param);
+				if(dbClientUser!=null) {
+					user.setRefereeId(dbClientUser.getId());
+					userMapper.updateById(user);
+					result.setCode(MobileResultVO.CODE_SUCCESS);
+					result.setMessage("绑定推荐人成功!");
+				}else {
+					result.setMessage("推荐人不存在!");
+				}
+			}
+		}else {
+			result.setMessage("验证码错误!");
+		}
+		return result;
+	}
 	
 }

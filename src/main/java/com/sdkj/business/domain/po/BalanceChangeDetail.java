@@ -15,6 +15,8 @@ public class BalanceChangeDetail {
 
     private Integer changeType;
 
+    private Long itemId;
+    
     public Long getId() {
         return id;
     }
@@ -70,4 +72,13 @@ public class BalanceChangeDetail {
     public void setChangeType(Integer changeType) {
         this.changeType = changeType;
     }
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
+    
 }

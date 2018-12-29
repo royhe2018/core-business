@@ -91,4 +91,41 @@ public class UserController {
    		}
    		return result;
    	}
+    
+	@RequestMapping(value="/send/binding/checkcode",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="发送验证码",optCode="sendCheckCode")
+   	public MobileResultVO sendBindingCheckCode(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String userPhone = req.getParameter("userPhone");
+   			result = checkCodeService.sendBindingCheckCode(userPhone);
+   		}catch(Exception e) {
+   			logger.error("发送推荐人验证码异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
+    
+    @RequestMapping(value="/binding/referee",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="绑定推荐人",optCode="userUpate")
+   	public MobileResultVO bindingReferee(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String userId = req.getParameter("userId");
+   			String refereePhone = req.getParameter("refereePhone");
+   			String checkCode = req.getParameter("checkCode");
+   			logger.info("userId:"+userId+";refereePhone:"+refereePhone+";checkCode:"+checkCode);
+   			result = userService.bindingReferee(userId,refereePhone,checkCode);
+   		}catch(Exception e) {
+   			logger.error("绑定推荐人异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
 }

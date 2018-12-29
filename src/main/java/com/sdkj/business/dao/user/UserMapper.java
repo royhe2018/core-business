@@ -12,4 +12,7 @@ public interface UserMapper {
     User findSingleUser(Map<String,Object> param);
 
     int updateById(User record);
+    
+    public int addUserBalance(Map<String,Object> param);
+    public int deductUserBalance(Map<String,Object> param);
 }

@@ -9,6 +9,7 @@
     <result column="change_amount" jdbcType="REAL" property="changeAmount" />
     <result column="change_time" jdbcType="VARCHAR" property="changeTime" />
     <result column="change_type" jdbcType="INTEGER" property="changeType" />
+    <result column="item_id" property="itemId" />
   </resultMap>
   <select id="findSingleBalanceChange" parameterType="java.util.Map" resultMap="BaseResultMap">
     select *
@@ -30,13 +31,13 @@
     delete from sdlh_balance_change_detail
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.sdkj.business.domain.po.BalanceChangeDetail">
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.BalanceChangeDetail" useGeneratedKeys="true" >
     insert into sdlh_balance_change_detail (id, user_id, balance_before_change, 
       balance_after_change, change_amount, change_time, 
-      change_type)
+      change_type,item_id)
     values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{balanceBeforeChange,jdbcType=REAL}, 
       #{balanceAfterChange,jdbcType=REAL}, #{changeAmount,jdbcType=REAL}, #{changeTime,jdbcType=VARCHAR}, 
-      #{changeType,jdbcType=INTEGER})
+      #{changeType,jdbcType=INTEGER},#{itemId})
   </insert>
   <update id="update" parameterType="com.sdkj.business.domain.po.BalanceChangeDetail">
     update sdlh_balance_change_detail

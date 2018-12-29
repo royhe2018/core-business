@@ -65,4 +65,22 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <update id="addUserBalance" parameterType="java.util.Map">
+   	update sdlh_user
+    <set>
+      <if test="amount != null">
+        balance = balance + #{amount}
+      </if>
+  	</set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="deductUserBalance" parameterType="java.util.Map">
+   	update sdlh_user
+    <set>
+      <if test="amount != null">
+        balance = balance - #{amount}
+      </if>
+  	</set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
 </mapper>

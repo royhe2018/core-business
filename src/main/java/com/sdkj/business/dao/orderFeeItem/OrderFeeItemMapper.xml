@@ -33,6 +33,21 @@
     	</if>
     </trim>
   </select>
+  
+  <select id="findOrderFeeDistribute" parameterType="java.util.Map" resultType="java.util.Map">
+    select order_id as orderId,driver_id as driverId,sum(driver_fee) as driverFee,
+    client_referee_id as clientRefereeId,sum(client_referee_fee) as clientRefereeFee,
+    driver_referee_id as driverRefereeId,sum(driver_referee_fee) as driverRefereeFee,
+    1 as platFormId,sum(plat_form_fee) as platFormFee
+    from sdlh_order_fee_item
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="orderId != null"> and order_id = #{orderId}</if>
+    	<if test="status != null "> and status = #{status}</if>
+    </trim>
+    order by id asc
+    group by order_id
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from sdlh_order_fee_item
     where id = #{id,jdbcType=BIGINT}
@@ -68,6 +83,27 @@
       </if>
       <if test="payTime != null">
         pay_time = #{payTime,jdbcType=VARCHAR},
+      </if>
+      <if test="driverId != null">
+        driver_id = #{driverId},
+      </if>
+      <if test="driverRefereeId != null">
+        driver_referee_id = #{driverRefereeId},
+      </if>
+      <if test="driverRefereeFee != null">
+        driver_referee_fee = #{driverRefereeFee},
+      </if>
+      <if test="platFormFee != null">
+        plat_form_fee = #{platFormFee},
+      </if>
+      <if test="clientRefereeFee != null">
+        client_referee_fee = #{clientRefereeFee},
+      </if>
+      <if test="clientRefereeId != null">
+        client_referee_id = #{clientRefereeId},
+      </if>
+      <if test="clientRefereeId != null">
+        client_referee_id = #{clientRefereeId},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

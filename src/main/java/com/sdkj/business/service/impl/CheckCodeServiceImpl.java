@@ -11,9 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.aliyun.openservices.shade.com.alibaba.rocketmq.logging.inner.Logger;
 import com.sdkj.business.dao.checkCode.CheckCodeMapper;
+import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.domain.po.CheckCode;
+import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.CheckCodeService;
+import com.sdkj.business.util.Constant;
 import com.sdkj.business.util.SmsUtil;
 import com.sdlh.common.DateUtilLH;
 
@@ -24,6 +27,9 @@ public class CheckCodeServiceImpl implements CheckCodeService {
 	
 	@Autowired
 	private CheckCodeMapper checkCodeMapper;
+	
+	@Autowired
+	private UserMapper userMapper;
 	@Override
 	public MobileResultVO sendCheckCode(String phoneNumber) {
 		MobileResultVO result = new MobileResultVO();
@@ -58,6 +64,42 @@ public class CheckCodeServiceImpl implements CheckCodeService {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public MobileResultVO sendBindingCheckCode(String phoneNumber) {
+		MobileResultVO result = new MobileResultVO();
+		Map<String,Object> param = new HashMap<String,Object>();
+		param.put("account", phoneNumber);
+		param.put("userType", Constant.USER_TYPE_DRIVER);
+		User refereeUser = userMapper.findSingleUser(param);
+		if(refereeUser==null) {
+			param.put("userType", Constant.USER_TYPE_CUSTOMER);
+			refereeUser = userMapper.findSingleUser(param);
+		}
+		if(refereeUser!=null) {
+			String code = SmsUtil.getRandomNumber(6);
+			param.clear();
+			Map<String,String> smsParam = new HashMap<String,String>();
+			smsParam.put("checkCode", code);
+			boolean sendResult = SmsUtil.sendSms(phoneNumber, "SMS_152509976", smsParam);
+			if(sendResult) {
+				result.setCode(MobileResultVO.CODE_SUCCESS);
+				result.setMessage("发送成功!");
+				CheckCode checkCode = new CheckCode();
+				checkCode.setCode(code);
+				checkCode.setPhoneNumber(phoneNumber);
+				checkCode.setCreateTime(DateUtilLH.getCurrentTime());
+				checkCodeMapper.insert(checkCode);
+			}else {
+				result.setCode(MobileResultVO.CODE_FAIL);
+				result.setMessage("发送异常");
+			}
+		}else {
+			result.setCode(MobileResultVO.CODE_FAIL);
+			result.setMessage("推荐人不存在!");
+		}
+		return result;
 	}
 
 }

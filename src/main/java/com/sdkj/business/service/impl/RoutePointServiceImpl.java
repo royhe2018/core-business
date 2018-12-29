@@ -16,6 +16,7 @@ import com.sdkj.business.domain.po.OrderInfo;
 import com.sdkj.business.domain.po.OrderRoutePoint;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.AliMQProducer;
+import com.sdkj.business.service.BalanceChangeDetailService;
 import com.sdkj.business.service.RoutePointService;
 import com.sdkj.business.util.Constant;
 import com.sdlh.common.DateUtilLH;
@@ -33,6 +34,9 @@ public class RoutePointServiceImpl implements RoutePointService {
 	private AliMQProducer aliMQProducer;
 	@Value("${ali.mq.order.dispatch.topic}")
 	private String orderDispatchTopic;
+	
+	@Autowired
+	private BalanceChangeDetailService balanceChangeDetailService;
 	
 	@Override
 	public MobileResultVO routePointArrive(OrderRoutePoint point,String driverId) {
@@ -89,10 +93,17 @@ public class RoutePointServiceImpl implements RoutePointService {
 		List<OrderRoutePoint> pointList = orderRoutePointMapper.findRoutePointList(param);
 		if(pointList!=null && pointList.size()>0){
 			OrderRoutePoint startPoint = pointList.get(0);
+			OrderRoutePoint endPoint = pointList.get(pointList.size()-1);
 			if(startPoint.getId().intValue()==point.getId().intValue()){
 				order.setStatus(Constant.ORDER_STATUS_YUNTUZHONG);
 				orderInfoMapper.updateById(order);
+			}else if(endPoint.getId().intValue()==point.getId().intValue()){
+				order.setStatus(Constant.ORDER_STATUS_FINISH);
+				orderInfoMapper.updateById(order);
+				//分配费用
+				balanceChangeDetailService.distributeOrderFeeToUser(order.getId());
 			}
+			
 		}
 		//发送离开途经点广播
 		Map<String,Object> pointInfoMap = new HashMap<String,Object>();

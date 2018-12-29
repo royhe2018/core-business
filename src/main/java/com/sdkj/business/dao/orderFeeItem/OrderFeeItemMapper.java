@@ -12,4 +12,6 @@ public interface OrderFeeItemMapper {
     List<OrderFeeItem> findOrderFeeItemList(Map<String,Object> param);
 
     int updateByPrimaryKey(OrderFeeItem record);
+    
+    Map<String,Object> findOrderFeeDistribute(Map<String,Object> param);
 }

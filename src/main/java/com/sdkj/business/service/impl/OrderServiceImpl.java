@@ -105,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
 			startFee.setOrderId(order.getId());
 			startFee.setFeeType(1);
 			startFee.setStatus(0);
-			distributeOrderFee(order, startFee,1);
+			distributeOrderFee(orderUser,order, startFee,1);
 			orderFeeItemMapper.insert(startFee);
 		}
 		if (order.getExtraFee() != null && order.getExtraFee().floatValue() > 0) {
@@ -115,7 +115,7 @@ public class OrderServiceImpl implements OrderService {
 			extraFee.setOrderId(order.getId());
 			extraFee.setFeeType(2);
 			extraFee.setStatus(0);
-			distributeOrderFee(order, extraFee,2);
+			distributeOrderFee(orderUser,order, extraFee,2);
 			orderFeeItemMapper.insert(extraFee);
 		}
 		if (order.getAttachFee() != null && order.getAttachFee().floatValue() > 0) {
@@ -134,7 +134,7 @@ public class OrderServiceImpl implements OrderService {
 		return result;
 	}
 
-	private void distributeOrderFee(OrderInfo order, OrderFeeItem feeItem,int feeType) {
+	private void distributeOrderFee(User orderUser,OrderInfo order, OrderFeeItem feeItem,int feeType) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("city", order.getCityName());
 		param.put("feeType", feeType);
@@ -189,6 +189,13 @@ public class OrderServiceImpl implements OrderService {
 		} else {
 			feeItem.setDriverFee(order.getStartFee());
 			feeItem.setPlatFormFee(0f);
+		}
+		
+		if(orderUser.getRefereeId()!=null) {
+			feeItem.setClientRefereeId(orderUser.getRefereeId());
+		}else if(feeItem.getClientRefereeFee()!=null) {
+			feeItem.setPlatFormFee(feeItem.getPlatFormFee()+feeItem.getClientRefereeFee());
+			feeItem.setClientRefereeFee(0f);
 		}
 	}
 
@@ -256,6 +263,27 @@ public class OrderServiceImpl implements OrderService {
 					result.setCode(MobileResultVO.CODE_FAIL);
 					result.setMessage("抢单失败,订单已被接单!");
 				} else {
+					param.clear();
+					param.put("id", order.getDriverId());
+					User driver = this.userMapper.findSingleUser(param);
+					if(driver!=null) {
+						List<OrderFeeItem> feeItemList = this.orderFeeItemMapper.findOrderFeeItemList(param);
+						if(feeItemList!=null && feeItemList.size()>0) {
+							for(OrderFeeItem feeItem:feeItemList) {
+								feeItem.setDriverId(order.getDriverId());
+								if(feeItem.getDriverRefereeFee()!=null) {
+									if(driver.getRefereeId()!=null) {
+										feeItem.setDriverRefereeId(driver.getRefereeId());
+									}else {
+										//没有司机推荐人将钱直接划到平台
+										feeItem.setPlatFormFee(feeItem.getPlatFormFee()+feeItem.getDriverRefereeFee());
+										feeItem.setDriverRefereeFee(0f);
+									}
+								}
+								orderFeeItemMapper.updateByPrimaryKey(feeItem);
+							}
+						}
+					}
 					// 发送接单成功广播
 					Map<String, Object> orderInfoMap = new HashMap<String, Object>();
 					orderInfoMap.put("orderId", dbOrder.getId());
