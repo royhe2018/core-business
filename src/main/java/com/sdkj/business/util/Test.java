@@ -14,7 +14,12 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		//testJson();
+		 String test = "2018-12-25 14:23:22";
+		System.out.println(test.substring(11));
+	}
+	
+	private static void testJson() {
 		try{
 			List<Map<String,Object>> placeList = new ArrayList<Map<String,Object>>();
 			Map<String,Object> place1 = new HashMap<String,Object>();

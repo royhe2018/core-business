@@ -35,7 +35,7 @@ public class OrderController {
     @RequestMapping(value="/order/submit",method=RequestMethod.POST)
 	@ResponseBody
 	@SysLog(description="提交订单",optCode="orderSubmit")
-	public MobileResultVO sendPhoneRegisterSmsCheckCode(HttpServletRequest req) {
+	public MobileResultVO orderSubmit(HttpServletRequest req) {
     	MobileResultVO result = null;
 		try {
 			OrderInfo order = new OrderInfo();
@@ -262,7 +262,17 @@ public class OrderController {
 		String startFee = req.getParameter("startFee");
 		String totalFee = req.getParameter("totalFee");
 		String useTime = req.getParameter("useTime");
+		String cityName = req.getParameter("cityName");
+		String totalDistance = req.getParameter("totalDistance");
 		String vehicleTypeInfoId = req.getParameter("vehicleTypeInfoId");
+		if(StringUtilLH.isNotEmpty(totalDistance)) {
+			order.setTotalDistance(Float.valueOf(totalDistance));
+		} 
+		if(StringUtilLH.isNotEmpty(cityName)) {
+			order.setCityName(cityName);
+		}else {
+			errorMsg.append("当前城市定位异常!");
+		}
 		if(StringUtilLH.isNotEmpty(userId)) {
 			order.setUserId(Long.valueOf(userId));
 		}else {

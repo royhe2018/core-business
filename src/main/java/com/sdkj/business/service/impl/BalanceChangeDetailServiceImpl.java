@@ -21,6 +21,7 @@ import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.BalanceChangeDetailService;
 import com.sdkj.business.util.Constant;
 import com.sdlh.common.DateUtilLH;
+import com.sdlh.common.JsonUtil;
 
 @Service
 @Transactional
@@ -77,6 +78,7 @@ public class BalanceChangeDetailServiceImpl implements
 		param.put("orderId", orderId);
 		param.put("status", Constant.FEE_ITEM_PAY_STATUS_PAIED);
 		Map<String,Object> orderFeeDistribute = orderFeeItemMapper.findOrderFeeDistribute(param);
+		logger.info("orderFeeDistribute:"+JsonUtil.convertObjectToJsonStr(orderFeeDistribute));
 		if(orderFeeDistribute!=null) {
 			//给司机分款
 			if(orderFeeDistribute.containsKey("driverId") && orderFeeDistribute.containsKey("driverFee")) {
@@ -98,18 +100,21 @@ public class BalanceChangeDetailServiceImpl implements
 	}
 
 	private void distributeFeeToUserAccount(Long orderId,Map<String, Object> orderFeeDistribute,String userIdKey,String userFeeKey,int changeType) {
+		
 		Long driverId = Long.valueOf(orderFeeDistribute.get(userIdKey)+"");
 		Float driverFee = Float.valueOf(orderFeeDistribute.get(userFeeKey)+"");
+		logger.info("userId:"+driverId+";user fee:"+driverFee);
 		 Map<String, Object> param = new HashMap<String,Object>();
 		param.put("id", driverId);
 		User driver = userMapper.findSingleUser(param);
-		param.put("amount", driverFee);
-		userMapper.addUserBalance(param);
-		BalanceChangeDetail changeDetail = new BalanceChangeDetail();
 		Float beforeBlance =0f;
 		if(driver.getBalance()!=null) {
 			beforeBlance = driver.getBalance();
 		}
+		logger.info("beforeBlance:"+beforeBlance);
+		param.put("amount", driverFee);
+		userMapper.addUserBalance(param);
+		BalanceChangeDetail changeDetail = new BalanceChangeDetail();
 		changeDetail.setBalanceBeforeChange(beforeBlance);
 		changeDetail.setBalanceAfterChange(beforeBlance+driverFee);
 		changeDetail.setChangeAmount(driverFee);
@@ -118,6 +123,21 @@ public class BalanceChangeDetailServiceImpl implements
 		changeDetail.setItemId(orderId);
 		changeDetail.setUserId(driverId);
 		balanceChangeDetailMapper.insert(changeDetail);
+	}
+
+	@Override
+	public MobileResultVO findUserPerformance(Map<String, Object> param) {
+		MobileResultVO result = new MobileResultVO();
+		result.setCode(MobileResultVO.CODE_SUCCESS);
+		Map<String,Object> performance = balanceChangeDetailMapper.findUserPerformance(param);
+		if(performance==null || performance.isEmpty()){
+			performance = new HashMap<String,Object>();
+			performance.put("totalChange", 0);
+		} 
+		List<Map<String,Object>> performanceDetailList = balanceChangeDetailMapper.findUserPerformanceDetail(param);
+		performance.put("performanceDetailList", performanceDetailList);
+		result.setData(performance);
+		return result;
 	}
 
 }

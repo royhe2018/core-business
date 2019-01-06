@@ -67,33 +67,41 @@ public class CheckCodeServiceImpl implements CheckCodeService {
 	}
 
 	@Override
-	public MobileResultVO sendBindingCheckCode(String phoneNumber) {
+	public MobileResultVO sendBindingCheckCode(String phoneNumber,String userId) {
 		MobileResultVO result = new MobileResultVO();
 		Map<String,Object> param = new HashMap<String,Object>();
 		param.put("account", phoneNumber);
 		param.put("userType", Constant.USER_TYPE_DRIVER);
 		User refereeUser = userMapper.findSingleUser(param);
+		param.clear();
+		param.put("id", userId);
+		User loginUser = userMapper.findSingleUser(param);
 		if(refereeUser==null) {
 			param.put("userType", Constant.USER_TYPE_CUSTOMER);
 			refereeUser = userMapper.findSingleUser(param);
 		}
 		if(refereeUser!=null) {
-			String code = SmsUtil.getRandomNumber(6);
-			param.clear();
-			Map<String,String> smsParam = new HashMap<String,String>();
-			smsParam.put("checkCode", code);
-			boolean sendResult = SmsUtil.sendSms(phoneNumber, "SMS_152509976", smsParam);
-			if(sendResult) {
-				result.setCode(MobileResultVO.CODE_SUCCESS);
-				result.setMessage("发送成功!");
-				CheckCode checkCode = new CheckCode();
-				checkCode.setCode(code);
-				checkCode.setPhoneNumber(phoneNumber);
-				checkCode.setCreateTime(DateUtilLH.getCurrentTime());
-				checkCodeMapper.insert(checkCode);
-			}else {
+			if(refereeUser.getAccount().equals(loginUser.getAccount())){
 				result.setCode(MobileResultVO.CODE_FAIL);
-				result.setMessage("发送异常");
+				result.setMessage("推荐人不能为自己!");
+			}else{
+				String code = SmsUtil.getRandomNumber(6);
+				param.clear();
+				Map<String,String> smsParam = new HashMap<String,String>();
+				smsParam.put("checkCode", code);
+				boolean sendResult = SmsUtil.sendSms(phoneNumber, "SMS_152509976", smsParam);
+				if(sendResult) {
+					result.setCode(MobileResultVO.CODE_SUCCESS);
+					result.setMessage("发送成功!");
+					CheckCode checkCode = new CheckCode();
+					checkCode.setCode(code);
+					checkCode.setPhoneNumber(phoneNumber);
+					checkCode.setCreateTime(DateUtilLH.getCurrentTime());
+					checkCodeMapper.insert(checkCode);
+				}else {
+					result.setCode(MobileResultVO.CODE_FAIL);
+					result.setMessage("发送异常");
+				}
 			}
 		}else {
 			result.setCode(MobileResultVO.CODE_FAIL);

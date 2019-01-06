@@ -11,12 +11,13 @@
     <result column="pay_serial_num" jdbcType="VARCHAR" property="paySerialNum" />
     <result column="pay_time" jdbcType="VARCHAR" property="payTime" />
     <result column="fee_type" property="feeType" />
-    <result column="driver_id" jdbcType="BIGINT" property="driverId" />
-    <result column="driver_fee" jdbcType="REAL" property="driverFee" />
-    <result column="client_referee_id" jdbcType="BIGINT" property="clientRefereeId" />
-    <result column="client_referee_fee" jdbcType="REAL" property="clientRefereeFee" />
-    <result column="driver_referee_id" jdbcType="BIGINT" property="driverRefereeId" />
-    <result column="driver_referee_fee" jdbcType="REAL" property="driverRefereeFee" />
+    <result column="driver_id"  property="driverId" />
+    <result column="driver_fee"  property="driverFee" />
+    <result column="client_referee_id"  property="clientRefereeId" />
+    <result column="client_referee_fee"  property="clientRefereeFee" />
+    <result column="driver_referee_id"  property="driverRefereeId" />
+    <result column="driver_referee_fee" property="driverRefereeFee" />
+    <result column="plat_form_fee"  property="platFormFee" />
   </resultMap>
  
   <select id="findOrderFeeItemList" parameterType="java.util.Map" resultMap="BaseResultMap">
@@ -44,7 +45,6 @@
     	<if test="orderId != null"> and order_id = #{orderId}</if>
     	<if test="status != null "> and status = #{status}</if>
     </trim>
-    order by id asc
     group by order_id
   </select>
   

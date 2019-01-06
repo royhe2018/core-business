@@ -1,6 +1,7 @@
 package com.sdkj.business.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sdkj.business.dao.orderFeeItem.OrderFeeItemMapper;
 import com.sdkj.business.dao.orderInfo.OrderInfoMapper;
+import com.sdkj.business.dao.orderRoutePoint.OrderRoutePointMapper;
+import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.domain.po.OrderFeeItem;
 import com.sdkj.business.domain.po.OrderInfo;
+import com.sdkj.business.domain.po.OrderRoutePoint;
+import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.OrderFeeItemService;
 import com.sdkj.business.service.component.wxPay.WXPayComponent;
 import com.sdkj.business.service.component.wxPay.WxappPayDto;
+import com.sdkj.business.util.Constant;
 import com.sdlh.common.DateUtilLH;
 import com.sdlh.common.JsonUtil;
 
@@ -35,6 +41,12 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 	private OrderFeeItemMapper orderFeeItemMapper; 
 	@Autowired
 	private WXPayComponent wxPayComponent;
+	
+	@Autowired
+	private UserMapper userMapper;
+	
+	@Autowired
+	private OrderRoutePointMapper orderRoutePointMapper;
 	@Override
 	public MobileResultVO addFeeItem(List<OrderFeeItem> itemList) {
 		MobileResultVO result = new MobileResultVO();
@@ -46,9 +58,40 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 				order.setPayStatus(1);
 				orderInfoMapper.updateById(order);
 			}
+			//额外费用增加推荐人项分配，暂无分配，后需可增加设置项
+			Map<String,Object> param = new HashMap<String,Object>();
+			param.put("id",order.getUserId());
+			User clientUser = userMapper.findSingleUser(param);
+			param.put("id",order.getDriverId());
+			User driverUser = userMapper.findSingleUser(param);
 			for(OrderFeeItem target:itemList){
-				target.setStatus(0);
-				orderFeeItemMapper.insert(target);
+				if(target.getFeeAmount()>0){
+					target.setClientRefereeId(clientUser.getRefereeId());
+					target.setClientRefereeFee(0f);
+					target.setDriverRefereeId(driverUser.getRefereeId());
+					target.setDriverRefereeFee(0f);
+					target.setPlatFormFee(0f);
+					target.setStatus(0);
+					orderFeeItemMapper.insert(target);
+					if("等候逾时费".equals(target.getFeeName())){
+						param.clear();
+						param.put("orderId", order.getId());
+						List<OrderRoutePoint> routPointList = orderRoutePointMapper.findRoutePointList(param);
+						if(routPointList!=null && routPointList.size()>0){
+							for(int i=0;i<routPointList.size();i++){
+								OrderRoutePoint routePoint = routPointList.get(i);
+								if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_CALED){
+									routePoint.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED);
+									orderRoutePointMapper.updateByPrimaryKeySelective(routePoint);
+								}else if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL){
+									routePoint.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED);
+									orderRoutePointMapper.updateByPrimaryKeySelective(routePoint);
+									break;
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		result.setMessage("添加成功");
@@ -141,6 +184,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
         }
         logger.info("payFee:"+payFee);
         String attachInfo = itemIds+"|"+orderId;
+        payFee=1;//测试，暂时按1分计算
 		WxappPayDto dto = wxPayComponent.prePay(attachInfo, orderNo, payFee, "顺道拉货", "运费支付");
         if(null!=dto){
         	result.setData(dto);
@@ -196,6 +240,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 			logger.info("payFeeFen:"+payFee);
 			logger.info("hasNoPayItem:"+hasNoPayItem);
 			logger.info("feeItemIds:"+feeItemIds);
+			payFee=1;//暂时不计算金额正误，只做测试
 			if(!totalFee.equals(payFee+"")){
 				logger.info("金额核对有误："+payFee);
 			}else if(!",".equals(feeItemIds)){
@@ -215,6 +260,44 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 				orderInfoMapper.updateById(order);
 			}
 		}
+		return result;
+	}
+
+	@Override
+	public MobileResultVO findOrderOverTimeFee(String orderId) {
+		MobileResultVO result = new MobileResultVO();
+		result.setCode(MobileResultVO.CODE_SUCCESS);
+		result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
+		Map<String,Object> param = new HashMap<String,Object>();
+		param.put("orderId", orderId);
+		List<OrderRoutePoint> routPointList = orderRoutePointMapper.findRoutePointList(param);
+		Float overTimeFee = 0f;
+		if(routPointList!=null && routPointList.size()>0){
+			for(int i=0;i<routPointList.size();i++){
+				OrderRoutePoint routePoint = routPointList.get(i);
+				if(routePoint.getOverTimeFeeStatus()!=null){
+					if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_CALED){
+						overTimeFee+=routePoint.getOverTimeFee();
+					}else if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL){
+						if(routePoint.getStatus().intValue()==Constant.ROUTE_POINT_STATUS_ARRIVED){
+							Date now = new Date();
+							Date arriveTime = DateUtilLH.convertStr2Date(routePoint.getArriveTime(), "yyyy-MM-dd HH:mm:ss");
+							long between = (now.getTime() - arriveTime.getTime())/1000;
+							long min = between/60;
+							if(i<2){
+								min = min-45;
+							}
+							if(min>0){
+								double reuslt = Math.ceil(min/15.0);
+								overTimeFee = overTimeFee +(int)reuslt*10;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		result.setData(overTimeFee);
 		return result;
 	}
 

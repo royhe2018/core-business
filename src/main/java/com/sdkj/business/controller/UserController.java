@@ -1,5 +1,8 @@
 package com.sdkj.business.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -46,7 +49,7 @@ public class UserController {
     @RequestMapping(value="/user/login",method=RequestMethod.POST)
    	@ResponseBody
    	@SysLog(description="用户登陆",optCode="userLogin")
-   	public MobileResultVO cancelOrder(HttpServletRequest req) {
+   	public MobileResultVO userLogin(HttpServletRequest req) {
        	MobileResultVO result = null;
    		try {
    			String userPhone = req.getParameter("userPhone");
@@ -98,8 +101,9 @@ public class UserController {
    	public MobileResultVO sendBindingCheckCode(HttpServletRequest req) {
        	MobileResultVO result = null;
    		try {
-   			String userPhone = req.getParameter("userPhone");
-   			result = checkCodeService.sendBindingCheckCode(userPhone);
+   			String refereePhone = req.getParameter("refereePhone");
+   			String userId = req.getParameter("userId");
+   			result = checkCodeService.sendBindingCheckCode(refereePhone,userId);
    		}catch(Exception e) {
    			logger.error("发送推荐人验证码异常", e);
    			result = new MobileResultVO();
@@ -122,6 +126,26 @@ public class UserController {
    			result = userService.bindingReferee(userId,refereePhone,checkCode);
    		}catch(Exception e) {
    			logger.error("绑定推荐人异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
+    
+    @RequestMapping(value="/get/sys/config",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="获取系统配置",optCode="getSysConfig")
+   	public MobileResultVO getSysConfig(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String type = req.getParameter("type");
+   			result = new MobileResultVO();
+   			Map<String,Object> config = new HashMap<String,Object>();
+   			config.put("serviceTel", "029-8312116"+type);
+   			result.setData(config);
+   		}catch(Exception e) {
+   			logger.error("获取系统配置异常", e);
    			result = new MobileResultVO();
    			result.setCode(MobileResultVO.CODE_FAIL);
    			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);

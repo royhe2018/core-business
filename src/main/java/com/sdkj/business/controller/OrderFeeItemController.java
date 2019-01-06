@@ -75,6 +75,23 @@ public class OrderFeeItemController {
    		return result;
     }
     
+    @RequestMapping(value="/find/over/time/fee",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="查询订单超时费",optCode="findOverTimeFee")
+   	public MobileResultVO findOverTimeFee(HttpServletRequest req) {
+    	MobileResultVO result = null;
+   		try {
+   			String orderId = req.getParameter("orderId");
+			result = orderFeeItemService.findOrderOverTimeFee(orderId);
+   		}catch(Exception e) {
+   			logger.error("添加额外费用异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+    }
+    
     @RequestMapping(value="/find/order/fee/list",method=RequestMethod.POST)
    	@ResponseBody
    	@SysLog(description="查询订单费用明细",optCode="findOrderFeeItemList")

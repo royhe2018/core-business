@@ -25,6 +25,7 @@ public class Constant {
 	public static final String MQ_TAG_CANCLE_TAKED_ORDER = "CANCLE_TAKED";
 	public static final String MQ_TAG_ARRIVE_ROUTE_POINT = "ARRIVE_POINT";
 	public static final String MQ_TAG_LEAVE_ROUTE_POINT = "LEAVE_POINT";
+	public static final String MQ_TAG_FINISH_ORDER = "FINISH_ORDER";
 	/**
 	 * 订单状态0未接单；1已接单；2司机到达装货点，3装货完成；4运途中；5终点到达；6已签收
 	 */
@@ -61,4 +62,17 @@ public class Constant {
 	 */
 	public static final int FEE_ITEM_PAY_STATUS_NOPAY=0;
 	public static final int FEE_ITEM_PAY_STATUS_PAIED=1;
+	/**
+	 * 订单支付状态  0未支付；1未付清；2已付清
+	 */
+	public static final int ORDER_PAY_STATUS_NOPAY=0;
+	public static final int ORDER_PAY_STATUS_NOPAID=1;
+	public static final int ORDER_PAY_STATUS_PAID=2;
+	
+	/**
+	 * 途经点等候费用状态 0未计算；1已计算未收费；2已收费
+	 */
+	public static final int ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL=0;
+	public static final int ROUTE_POINT_OVER_TIME_FEE_STATUS_CALED=1;
+	public static final int ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED=2;
 }

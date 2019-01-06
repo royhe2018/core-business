@@ -35,6 +35,10 @@ public class OrderRoutePoint {
     
     private String contactUserPhone;
     
+    private Integer overTimeFeeStatus;
+    
+    private Float overTimeFee;
+    
     public Long getId() {
         return id;
     }
@@ -170,5 +174,20 @@ public class OrderRoutePoint {
 	public void setContactUserPhone(String contactUserPhone) {
 		this.contactUserPhone = contactUserPhone;
 	}
-    
+
+	public Integer getOverTimeFeeStatus() {
+		return overTimeFeeStatus;
+	}
+
+	public void setOverTimeFeeStatus(Integer overTimeFeeStatus) {
+		this.overTimeFeeStatus = overTimeFeeStatus;
+	}
+
+	public Float getOverTimeFee() {
+		return overTimeFee;
+	}
+
+	public void setOverTimeFee(Float overTimeFee) {
+		this.overTimeFee = overTimeFee;
+	}
 }

@@ -22,6 +22,8 @@ public class User {
     
     private String mapTerminalId;
     
+    private String refereeName;
+    
     public Long getId() {
         return id;
     }
@@ -101,5 +103,12 @@ public class User {
 	public void setMapTerminalId(String mapTerminalId) {
 		this.mapTerminalId = mapTerminalId;
 	}
-	
+
+	public String getRefereeName() {
+		return refereeName;
+	}
+
+	public void setRefereeName(String refereeName) {
+		this.refereeName = refereeName;
+	}
 }

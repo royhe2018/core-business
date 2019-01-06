@@ -15,4 +15,8 @@ public interface BalanceChangeDetailMapper {
     List<BalanceChangeDetail> findBalanceChangeList(Map<String,Object> param);
 
     int update(BalanceChangeDetail record);
+    
+    public Map<String,Object> findUserPerformance(Map<String,Object> param);
+    
+    public List<Map<String,Object>> findUserPerformanceDetail(Map<String,Object> param);
 }

@@ -75,6 +75,8 @@ public class RoutePointServiceImpl implements RoutePointService {
 	@Override
 	public MobileResultVO routePointLeave(OrderRoutePoint point,String driverId) {
 		MobileResultVO result = new MobileResultVO();
+		result.setCode(MobileResultVO.CODE_SUCCESS);
+		result.setMessage("操作成功!");
 		Map<String,Object> param = new HashMap<String,Object>();
 		param.put("id", point.getId());
 		OrderRoutePoint pointDB = orderRoutePointMapper.findSingleRoutePoint(param);
@@ -83,7 +85,22 @@ public class RoutePointServiceImpl implements RoutePointService {
 		String arriveTimeStr = pointDB.getArriveTime();
 		Date arriveTime = DateUtilLH.convertStr2Date(arriveTimeStr, DateUtilLH.timeFormat);
 		Date leavedTime = new Date();
-		pointDB.setWaitTime((int)(leavedTime.getTime()-arriveTime.getTime())/(60*1000));
+		Integer waitMinite = (int)(leavedTime.getTime()-arriveTime.getTime())/(60*1000);
+		pointDB.setWaitTime(waitMinite);
+		Float overTimeFee = 0f;
+		if(pointDB.getOrderNum()<3){
+			waitMinite = waitMinite -45;
+		}
+		if(waitMinite>0){
+			double reuslt = Math.ceil(waitMinite/15.0);
+			overTimeFee = overTimeFee +(int)reuslt*10;
+		}
+		pointDB.setOverTimeFee(overTimeFee);
+		if(overTimeFee>0){
+			pointDB.setOverTimeFeeStatus(1);
+		}else{
+			pointDB.setOverTimeFeeStatus(2);
+		}
 		orderRoutePointMapper.updateByPrimaryKeySelective(pointDB);
 		param.clear();
 		param.put("id", point.getOrderId());
@@ -92,24 +109,39 @@ public class RoutePointServiceImpl implements RoutePointService {
 		param.put("orderId", point.getOrderId());
 		List<OrderRoutePoint> pointList = orderRoutePointMapper.findRoutePointList(param);
 		if(pointList!=null && pointList.size()>0){
+			
+			
+			
 			OrderRoutePoint startPoint = pointList.get(0);
 			OrderRoutePoint endPoint = pointList.get(pointList.size()-1);
 			if(startPoint.getId().intValue()==point.getId().intValue()){
 				order.setStatus(Constant.ORDER_STATUS_YUNTUZHONG);
 				orderInfoMapper.updateById(order);
 			}else if(endPoint.getId().intValue()==point.getId().intValue()){
-				order.setStatus(Constant.ORDER_STATUS_FINISH);
-				orderInfoMapper.updateById(order);
-				//分配费用
-				balanceChangeDetailService.distributeOrderFeeToUser(order.getId());
+				if(Constant.ORDER_PAY_STATUS_PAID != order.getPayStatus().intValue()){
+					result.setCode(MobileResultVO.CODE_FAIL);
+					result.setMessage("订单未支付完成!");
+				}else{
+					order.setStatus(Constant.ORDER_STATUS_FINISH);
+					orderInfoMapper.updateById(order);
+					//分配费用
+					balanceChangeDetailService.distributeOrderFeeToUser(order.getId());
+					
+					//账户入账广播
+					Map<String,Object> pointInfoMap = new HashMap<String,Object>();
+					pointInfoMap.put("orderId", pointDB.getOrderId());
+					this.aliMQProducer.sendMessage(orderDispatchTopic,Constant.MQ_TAG_FINISH_ORDER,pointInfoMap);
+				}
 			}
 			
 		}
-		//发送离开途经点广播
-		Map<String,Object> pointInfoMap = new HashMap<String,Object>();
-		pointInfoMap.put("orderId", pointDB.getOrderId());
-		pointInfoMap.put("pointId", pointDB.getId());
-		this.aliMQProducer.sendMessage(orderDispatchTopic,Constant.MQ_TAG_LEAVE_ROUTE_POINT,pointInfoMap);
+		if(result.getCode()==MobileResultVO.CODE_SUCCESS){
+			//发送离开途经点广播
+			Map<String,Object> pointInfoMap = new HashMap<String,Object>();
+			pointInfoMap.put("orderId", pointDB.getOrderId());
+			pointInfoMap.put("pointId", pointDB.getId());
+			this.aliMQProducer.sendMessage(orderDispatchTopic,Constant.MQ_TAG_LEAVE_ROUTE_POINT,pointInfoMap);
+		}
 		return result;
 	}
 

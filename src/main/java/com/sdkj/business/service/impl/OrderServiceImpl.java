@@ -95,6 +95,8 @@ public class OrderServiceImpl implements OrderService {
 					point.setDealUserId(dbUser.getId());
 				}
 			}
+			point.setOverTimeFee(0f);
+			point.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL);
 			orderRoutePointMapper.insert(point);
 		}
 
@@ -190,7 +192,15 @@ public class OrderServiceImpl implements OrderService {
 			feeItem.setDriverFee(order.getStartFee());
 			feeItem.setPlatFormFee(0f);
 		}
-		
+		if(feeItem.getPlatFormFee()==null){
+			feeItem.setPlatFormFee(0f);
+		}
+		if(feeItem.getClientRefereeFee()==null){
+			feeItem.setClientRefereeFee(0f);
+		}
+		if(feeItem.getDriverRefereeFee()==null){
+			feeItem.setDriverRefereeFee(0f);
+		}
 		if(orderUser.getRefereeId()!=null) {
 			feeItem.setClientRefereeId(orderUser.getRefereeId());
 		}else if(feeItem.getClientRefereeFee()!=null) {
@@ -212,6 +222,7 @@ public class OrderServiceImpl implements OrderService {
 			orderInfo.put("endPointName", endPoint.getPlaceName());
 			orderInfo.put("endPointAddress", endPoint.getAddress());
 			orderInfo.put("endPointLocation", endPoint.getLat() + "," + endPoint.getLog());
+			orderInfo.put("totalDistance", order.getTotalDistance());
 			Map<String, Object> param = new HashMap<String, Object>();
 			orderInfo.put("specialRequirement", "");
 			if (StringUtilLH.isNotEmpty(order.getSpecialRequirementIds())) {
@@ -230,10 +241,13 @@ public class OrderServiceImpl implements OrderService {
 				}
 			}
 			orderInfo.put("remark", order.getRemark());
-			orderInfo.put("totalFee", order.getTotalFee());
-			orderInfo.put("startFee", order.getStartFee());
-			orderInfo.put("extraFee", order.getExtraFee());
-			orderInfo.put("attachFee", order.getAttachFee());
+			param.clear();
+			param.put("orderId", order.getId());
+			Map<String,Object> orderFeeDistribute = orderFeeItemMapper.findOrderFeeDistribute(param);
+			orderInfo.put("totalFee", orderFeeDistribute.get("driverFee"));
+			orderInfo.put("startFee", orderFeeDistribute.get("driverFee"));
+			orderInfo.put("extraFee", orderFeeDistribute.get("driverFee"));
+			orderInfo.put("attachFee", orderFeeDistribute.get("driverFee"));
 			orderInfo.put("payStatus", "0");
 			int sendResult = aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_DISPATCH_ORDER, orderInfo);
 			logger.info("order dispatch sendResult:" + sendResult);
@@ -267,6 +281,8 @@ public class OrderServiceImpl implements OrderService {
 					param.put("id", order.getDriverId());
 					User driver = this.userMapper.findSingleUser(param);
 					if(driver!=null) {
+						param.clear();
+						param.put("orderId", order.getId());
 						List<OrderFeeItem> feeItemList = this.orderFeeItemMapper.findOrderFeeItemList(param);
 						if(feeItemList!=null && feeItemList.size()>0) {
 							for(OrderFeeItem feeItem:feeItemList) {
@@ -552,6 +568,18 @@ public class OrderServiceImpl implements OrderService {
 			queryMap.put("orderId", orderId);
 			List<OrderRoutePoint> placePointList = orderRoutePointMapper.findRoutePointList(queryMap);
 			if (placePointList != null && placePointList.size() > 0) {
+				for(OrderRoutePoint point:placePointList){
+					if(StringUtils.isNotEmpty(point.getArriveTime())){
+						point.setArriveTime(point.getArriveTime().substring(11));
+					}else{
+						point.setArriveTime("--");
+					}
+					if(StringUtils.isNotEmpty(point.getLeaveTime())){
+						point.setLeaveTime(point.getLeaveTime().substring(11));
+					}else{
+						point.setLeaveTime("--");
+					}
+				}
 				orderItem.put("placePointList", placePointList);
 			}
 			result.setCode(MobileResultVO.CODE_SUCCESS);

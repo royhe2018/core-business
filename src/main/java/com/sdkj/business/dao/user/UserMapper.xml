@@ -12,15 +12,17 @@
     <result column="registrion_id" property="registrionId" />
     <result column="balance" property="balance" />
     <result column="map_terminal_id" property="mapTerminalId" />
+    <result column="refereeName" property="refereeName" />
   </resultMap>
   
   <select id="findSingleUser" parameterType="java.util.Map" resultMap="BaseResultMap">
-    select *
-    from sdlh_user
+    select u.*,case when r.nick_name is not null then r.nick_name when r.account is not null then r.account else '' end as refereeName
+    from sdlh_user u
+    left join sdlh_user r on u.referee_id = r.id
     <trim prefix="where" prefixOverrides="and">
-    	<if test="account != null"> and account = #{account}</if>
-    	<if test="userType != null"> and user_type = #{userType}</if>
-    	<if test="id != null"> and id = #{id}</if>
+    	<if test="account != null"> and u.account = #{account}</if>
+    	<if test="userType != null"> and u.user_type = #{userType}</if>
+    	<if test="id != null"> and u.id = #{id}</if>
     </trim>
   </select>
   <delete id="deleteById" parameterType="java.lang.Long">

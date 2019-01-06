@@ -27,6 +27,31 @@
     </trim>
     order by id desc
   </select>
+  
+  <select id="findUserPerformance" parameterType="java.util.Map" resultType="java.util.Map">
+    SELECT SUM(c.`change_amount`) AS totalChange
+	FROM `sdlh_balance_change_detail` c
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="userId != null">and c.`user_id` = #{userId}</if>
+    	<if test="startTime != null"><![CDATA[and c.`change_time`> #{startTime}]]></if>
+    	<if test="endTime != null"><![CDATA[AND c.`change_time`< #{endTime}]]></if>
+    </trim>
+  </select>
+  
+  <select id="findUserPerformanceDetail" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT CASE WHEN u.`nick_name` IS NOT NULL THEN u.`nick_name` ELSE u.`account` END AS userName,c.`change_amount` AS changeMoney,LEFT(c.`change_time`,10) AS changeDate
+	FROM `sdlh_balance_change_detail` c
+	INNER JOIN `sdlh_order_info` o ON c.`item_id`=o.`id`
+	INNER JOIN `sdlh_user` u ON o.`user_id`=u.id
+    <trim prefix="where" prefixOverrides="and">
+    	and c.change_type IN (1,2)
+    	<if test="userId != null">and c.`user_id` = #{userId}</if>
+    	<if test="startTime != null"><![CDATA[and c.`change_time`> #{startTime}]]></if>
+    	<if test="endTime != null"><![CDATA[AND c.`change_time`< #{endTime}]]></if>
+    </trim>
+    ORDER BY c.`id` DESC
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from sdlh_balance_change_detail
     where id = #{id,jdbcType=BIGINT}

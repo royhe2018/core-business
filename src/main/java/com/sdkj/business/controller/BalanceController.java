@@ -1,5 +1,8 @@
 package com.sdkj.business.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -61,6 +64,35 @@ public class BalanceController {
    			result = balanceChangeDetailService.findUserBalanceChangePageInfo(pageNum, pageSize, Integer.valueOf(userId));
    		}catch(Exception e) {
    			logger.error("查询余额变更明细", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
+	
+	@RequestMapping(value="/find/user/performance",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="查询用户业绩提成",optCode="findUserPerformance")
+   	public MobileResultVO findUserPerformance(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String userId = req.getParameter("userId");
+   			String startTime = req.getParameter("startTime");
+   			String endTime = req.getParameter("endTime");
+   			Map<String,Object> param = new HashMap<String,Object>();
+   			if(StringUtil.isNotEmpty(userId)){
+   				param.put("userId", userId);
+   			}
+   			if(StringUtil.isNotEmpty(startTime)){
+   				param.put("startTime", startTime);
+   			}
+   			if(StringUtil.isNotEmpty(endTime)){
+   				param.put("endTime", endTime+" 23:59:59");
+   			}
+   			result = balanceChangeDetailService.findUserPerformance(param);
+   		}catch(Exception e) {
+   			logger.error("查询用户业绩提成异常", e);
    			result = new MobileResultVO();
    			result.setCode(MobileResultVO.CODE_FAIL);
    			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
