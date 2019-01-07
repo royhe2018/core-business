@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,9 @@ public class UserController {
    			String userPhone = req.getParameter("userPhone");
    			String userType = req.getParameter("userType");
    			String checkCode = req.getParameter("checkCode");
-   			result = userService.userLogin(userPhone, userType, checkCode);
+   			String passWord = req.getParameter("passWord");
+   			String loginType = req.getParameter("loginType");
+   			result = userService.userLogin(userPhone, userType, checkCode,passWord,loginType);
    		}catch(Exception e) {
    			logger.error("用户登陆异常", e);
    			result = new MobileResultVO();
@@ -139,11 +142,16 @@ public class UserController {
    	public MobileResultVO getSysConfig(HttpServletRequest req) {
        	MobileResultVO result = null;
    		try {
+   			String cityName = req.getParameter("cityName");
    			String type = req.getParameter("type");
-   			result = new MobileResultVO();
-   			Map<String,Object> config = new HashMap<String,Object>();
-   			config.put("serviceTel", "029-8312116"+type);
-   			result.setData(config);
+   			Map<String,Object> param = new HashMap<String,Object>();
+   			if(StringUtils.isNotEmpty(type)) {
+   				param.put("clientType", type);
+   			}
+   			if(StringUtils.isNotEmpty(cityName)) {
+   				param.put("cityName", cityName);
+   			}
+   			result = this.userService.getSysConfig(param);
    		}catch(Exception e) {
    			logger.error("获取系统配置异常", e);
    			result = new MobileResultVO();

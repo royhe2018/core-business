@@ -6,6 +6,8 @@ public class User {
 
     private String account;
 
+    private String passWord;
+    
     private String headImg;
 
     private String nickName;
@@ -39,8 +41,16 @@ public class User {
     public void setAccount(String account) {
         this.account = account == null ? null : account.trim();
     }
+    
+    public String getPassWord() {
+		return passWord;
+	}
 
-    public String getHeadImg() {
+	public void setPassWord(String passWord) {
+		this.passWord = passWord;
+	}
+
+	public String getHeadImg() {
         return headImg;
     }
 

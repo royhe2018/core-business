@@ -1,13 +1,17 @@
 package com.sdkj.business.service.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.sdkj.business.dao.clientConfig.ClientConfigMapper;
 import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
 import com.sdkj.business.dao.user.UserMapper;
+import com.sdkj.business.domain.po.ClientConfig;
 import com.sdkj.business.domain.po.DriverInfo;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
@@ -26,24 +30,34 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private CheckCodeService checkCodeService;
+	
+	@Autowired
+	private ClientConfigMapper clientConfigMapper;
 	@Override
-	public MobileResultVO userLogin(String userPhone,String userType,String checkCode) {
+	public MobileResultVO userLogin(String userPhone,String userType,String checkCode,String passWord,String loginType) {
 		MobileResultVO result = new MobileResultVO();
-		if(checkCodeService.validCheckCode(userPhone, checkCode)){
+		Map<String,Object> param = new HashMap<String,Object>();
+		param.put("account", userPhone);
+		param.put("userType", userType);
+		User dbUser = userMapper.findSingleUser(param);
+		if("2".equals(loginType) &&
+				(dbUser==null || StringUtilLH.isEmpty(passWord) || !passWord.equals(dbUser.getPassWord()))) {
+			result.setCode(MobileResultVO.CODE_FAIL);
+			result.setMessage("登陆失败!");
+		}else if(!checkCodeService.validCheckCode(userPhone, checkCode)){
+			result.setCode(MobileResultVO.CODE_FAIL);
+			result.setMessage("验证码错误!");
+		}else{
 			result.setMessage(MobileResultVO.LOGIN_SUCCESS_MESSAGE);
-			Map<String,Object> param = new HashMap<String,Object>();
-			param.put("account", userPhone);
-			param.put("userType", userType);
-			User dbUser = userMapper.findSingleUser(param);
 			if(dbUser==null){
 				dbUser = new User();
 				dbUser.setAccount(userPhone);
 				dbUser.setUserType(Integer.valueOf(userType));
+				dbUser.setPassWord(StringUtilLH.getStringRandom(16));
 				userMapper.insert(dbUser);
-			}else{
-				if(StringUtilLH.isNotEmpty(dbUser.getHeadImg())){
-					dbUser.setHeadImg(Constant.ALI_OSS_ACCESS_PREFIX+dbUser.getHeadImg());
-				}
+			}
+			if(StringUtilLH.isNotEmpty(dbUser.getHeadImg())){
+				dbUser.setHeadImg(Constant.ALI_OSS_ACCESS_PREFIX+dbUser.getHeadImg());
 			}
 			Map<String,Object> loginData = new HashMap<String,Object>();
 			loginData.put("userInfo", dbUser);
@@ -59,9 +73,6 @@ public class UserServiceImpl implements UserService {
 				loginData.put("mapServiceId", "8914");
 			}
 			result.setData(loginData);
-		}else{
-			result.setCode(MobileResultVO.CODE_FAIL);
-			result.setMessage("验证码错误!");
 		}
 		return result;
 	}
@@ -118,12 +129,17 @@ public class UserServiceImpl implements UserService {
 			}else {
 				param.put("account", refereePhone);
 				param.put("userType", Constant.USER_TYPE_CUSTOMER);
-				User dbClientUser = userMapper.findSingleUser(param);
-				if(dbClientUser!=null) {
-					user.setRefereeId(dbClientUser.getId());
+				User refereeUser = userMapper.findSingleUser(param);
+				if(refereeUser!=null) {
+					user.setRefereeId(refereeUser.getId());
 					userMapper.updateById(user);
 					result.setCode(MobileResultVO.CODE_SUCCESS);
 					result.setMessage("绑定推荐人成功!");
+					if(StringUtils.isNotEmpty(refereeUser.getNickName())) {
+						result.setData(refereeUser.getNickName());
+					}else {
+						result.setData(refereeUser.getAccount());
+					}
 				}else {
 					result.setMessage("推荐人不存在!");
 				}
@@ -131,6 +147,21 @@ public class UserServiceImpl implements UserService {
 		}else {
 			result.setMessage("验证码错误!");
 		}
+		return result;
+	}
+	@Override
+	public MobileResultVO getSysConfig(Map<String, Object> param) {
+		MobileResultVO result = new MobileResultVO();
+		result.setCode(MobileResultVO.CODE_SUCCESS);
+		result.setMessage("获取成功!");
+	    List<ClientConfig> configList = clientConfigMapper.findClientConfigList(param);
+	    if(configList!=null && configList.size()>0) {
+	    	Map<String,Object> configMap = new HashMap<String,Object>();
+	    	for(ClientConfig config:configList) {
+	    		configMap.put(config.getKey(), config.getValue());
+	    	}
+	    	result.setData(configMap);
+	    }
 		return result;
 	}
 	

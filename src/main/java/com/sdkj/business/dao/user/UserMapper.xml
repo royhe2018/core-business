@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.User">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="account" jdbcType="VARCHAR" property="account" />
+    <result column="pass_word" jdbcType="VARCHAR" property="passWord" />
     <result column="head_img" jdbcType="VARCHAR" property="headImg" />
     <result column="nick_name" jdbcType="VARCHAR" property="nickName" />
     <result column="sex" jdbcType="INTEGER" property="sex" />
@@ -32,10 +33,10 @@
   <insert id="insert" parameterType="com.sdkj.business.domain.po.User" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     insert into sdlh_user (id, account, head_img, 
       nick_name, sex, user_type, 
-      referee_id,balance)
+      referee_id,balance,pass_word)
     values (#{id,jdbcType=BIGINT}, #{account,jdbcType=VARCHAR}, #{headImg,jdbcType=VARCHAR}, 
       #{nickName,jdbcType=VARCHAR}, #{sex,jdbcType=INTEGER}, #{userType,jdbcType=INTEGER}, 
-      #{refereeId,jdbcType=BIGINT},0)
+      #{refereeId,jdbcType=BIGINT},0,#{passWord})
   </insert>
   <update id="updateById"  parameterType="com.sdkj.business.domain.po.User">
     update sdlh_user

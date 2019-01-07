@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.clientConfig.ClientConfigMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.ClientConfig">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="city_name" property="cityName" />
+    <result column="client_type" property="clientType" />
+    <result column="key" property="key" />
+    <result column="value" property="value" />
+  </resultMap>
+ 
+  <select id="findClientConfigList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_client_config
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="cityName != null">and city_name = #{cityName}</if>
+    	<if test="clientType != null">and client_type = #{clientType}</if>
+    	<if test="key != null">and key>=#{key}</if>
+    </trim>
+  </select>
+</mapper>
