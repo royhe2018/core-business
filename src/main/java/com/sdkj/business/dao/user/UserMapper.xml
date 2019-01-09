@@ -65,6 +65,9 @@
       <if test="balance != null">
         balance = #{balance},
       </if>
+      <if test="passWord != null">
+        pass_word = #{passWord},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>

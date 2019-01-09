@@ -80,28 +80,6 @@ public class RoutePointServiceImpl implements RoutePointService {
 		Map<String,Object> param = new HashMap<String,Object>();
 		param.put("id", point.getId());
 		OrderRoutePoint pointDB = orderRoutePointMapper.findSingleRoutePoint(param);
-		pointDB.setStatus(Constant.ROUTE_POINT_STATUS_LEAVED);
-		pointDB.setLeaveTime(DateUtilLH.getCurrentTime());
-		String arriveTimeStr = pointDB.getArriveTime();
-		Date arriveTime = DateUtilLH.convertStr2Date(arriveTimeStr, DateUtilLH.timeFormat);
-		Date leavedTime = new Date();
-		Integer waitMinite = (int)(leavedTime.getTime()-arriveTime.getTime())/(60*1000);
-		pointDB.setWaitTime(waitMinite);
-		Float overTimeFee = 0f;
-		if(pointDB.getOrderNum()<3){
-			waitMinite = waitMinite -45;
-		}
-		if(waitMinite>0){
-			double reuslt = Math.ceil(waitMinite/15.0);
-			overTimeFee = overTimeFee +(int)reuslt*10;
-		}
-		pointDB.setOverTimeFee(overTimeFee);
-		if(overTimeFee>0){
-			pointDB.setOverTimeFeeStatus(1);
-		}else{
-			pointDB.setOverTimeFeeStatus(2);
-		}
-		orderRoutePointMapper.updateByPrimaryKeySelective(pointDB);
 		param.clear();
 		param.put("id", point.getOrderId());
 		OrderInfo order = orderInfoMapper.findSingleOrder(param);
@@ -109,9 +87,6 @@ public class RoutePointServiceImpl implements RoutePointService {
 		param.put("orderId", point.getOrderId());
 		List<OrderRoutePoint> pointList = orderRoutePointMapper.findRoutePointList(param);
 		if(pointList!=null && pointList.size()>0){
-			
-			
-			
 			OrderRoutePoint startPoint = pointList.get(0);
 			OrderRoutePoint endPoint = pointList.get(pointList.size()-1);
 			if(startPoint.getId().intValue()==point.getId().intValue()){
@@ -136,6 +111,28 @@ public class RoutePointServiceImpl implements RoutePointService {
 			
 		}
 		if(result.getCode()==MobileResultVO.CODE_SUCCESS){
+			pointDB.setStatus(Constant.ROUTE_POINT_STATUS_LEAVED);
+			pointDB.setLeaveTime(DateUtilLH.getCurrentTime());
+			String arriveTimeStr = pointDB.getArriveTime();
+			Date arriveTime = DateUtilLH.convertStr2Date(arriveTimeStr, DateUtilLH.timeFormat);
+			Date leavedTime = new Date();
+			Integer waitMinite = (int)(leavedTime.getTime()-arriveTime.getTime())/(60*1000);
+			pointDB.setWaitTime(waitMinite);
+			Float overTimeFee = 0f;
+			if(pointDB.getOrderNum()<3){
+				waitMinite = waitMinite -45;
+			}
+			if(waitMinite>0){
+				double reuslt = Math.ceil(waitMinite/15.0);
+				overTimeFee = overTimeFee +(int)reuslt*10;
+			}
+			pointDB.setOverTimeFee(overTimeFee);
+			if(overTimeFee>0){
+				pointDB.setOverTimeFeeStatus(1);
+			}else{
+				pointDB.setOverTimeFeeStatus(2);
+			}
+			orderRoutePointMapper.updateByPrimaryKeySelective(pointDB);
 			//发送离开途经点广播
 			Map<String,Object> pointInfoMap = new HashMap<String,Object>();
 			pointInfoMap.put("orderId", pointDB.getOrderId());

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +24,7 @@ import com.sdlh.common.StringUtilLH;
 
 @Service
 public class UserServiceImpl implements UserService {
-	
+	Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 	@Autowired
 	private UserMapper userMapper;
 	@Autowired
@@ -40,11 +42,16 @@ public class UserServiceImpl implements UserService {
 		param.put("account", userPhone);
 		param.put("userType", userType);
 		User dbUser = userMapper.findSingleUser(param);
-		if("2".equals(loginType) &&
-				(dbUser==null || StringUtilLH.isEmpty(passWord) || !passWord.equals(dbUser.getPassWord()))) {
+		logger.info("loginType:"+loginType);
+		logger.info("userPhone:"+userPhone);
+		logger.info("checkCode:"+checkCode);
+		logger.info("passWord:"+passWord);
+		
+		if("2".equals(loginType) && dbUser!=null &&
+				StringUtilLH.isNotEmpty(passWord) && !passWord.equals(dbUser.getPassWord())) {
 			result.setCode(MobileResultVO.CODE_FAIL);
 			result.setMessage("登陆失败!");
-		}else if(!checkCodeService.validCheckCode(userPhone, checkCode)){
+		}else if("1".equals(loginType) && !checkCodeService.validCheckCode(userPhone, checkCode)){
 			result.setCode(MobileResultVO.CODE_FAIL);
 			result.setMessage("验证码错误!");
 		}else{
@@ -55,6 +62,10 @@ public class UserServiceImpl implements UserService {
 				dbUser.setUserType(Integer.valueOf(userType));
 				dbUser.setPassWord(StringUtilLH.getStringRandom(16));
 				userMapper.insert(dbUser);
+			}
+			if(StringUtils.isEmpty(dbUser.getPassWord())){
+				dbUser.setPassWord(StringUtilLH.getStringRandom(16));
+				userMapper.updateById(dbUser);
 			}
 			if(StringUtilLH.isNotEmpty(dbUser.getHeadImg())){
 				dbUser.setHeadImg(Constant.ALI_OSS_ACCESS_PREFIX+dbUser.getHeadImg());

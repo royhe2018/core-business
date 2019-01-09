@@ -148,7 +148,6 @@ public class OrderController {
     
     @RequestMapping(value="/order/list",method=RequestMethod.POST)
    	@ResponseBody
-   	@SysLog(description="订单列表",optCode="orderList")
    	public MobileResultVO orderList(HttpServletRequest req) {
        	MobileResultVO result = null;
    		try {

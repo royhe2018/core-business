@@ -73,13 +73,13 @@ public class CheckCodeServiceImpl implements CheckCodeService {
 		param.put("account", phoneNumber);
 		param.put("userType", Constant.USER_TYPE_DRIVER);
 		User refereeUser = userMapper.findSingleUser(param);
-		param.clear();
-		param.put("id", userId);
-		User loginUser = userMapper.findSingleUser(param);
 		if(refereeUser==null) {
 			param.put("userType", Constant.USER_TYPE_CUSTOMER);
 			refereeUser = userMapper.findSingleUser(param);
 		}
+		param.clear();
+		param.put("id", userId);
+		User loginUser = userMapper.findSingleUser(param);
 		if(refereeUser!=null) {
 			if(refereeUser.getAccount().equals(loginUser.getAccount())){
 				result.setCode(MobileResultVO.CODE_FAIL);
