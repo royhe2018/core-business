@@ -13,4 +13,6 @@ public interface DriverInfoMapper {
     DriverInfo findDriverInfoExist(Map<String,Object> param);
 
     int updateByPrimaryKey(DriverInfo record);
+    
+    public Map<String,Object> findDriverDetailInfo(Map<String,Object> param);
 }

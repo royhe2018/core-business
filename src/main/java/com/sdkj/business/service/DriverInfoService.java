@@ -11,4 +11,6 @@ public interface DriverInfoService {
 	public MobileResultVO findDriverInfo(Map<String,Object> param);
 	
 	public MobileResultVO updateDriverOnDutyStatus(DriverInfo target);
+	
+	public MobileResultVO findDriverDetailInfo(Map<String,Object> param);
 }

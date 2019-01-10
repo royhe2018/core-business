@@ -15,4 +15,5 @@ public interface UserMapper {
     
     public int addUserBalance(Map<String,Object> param);
     public int deductUserBalance(Map<String,Object> param);
+
 }

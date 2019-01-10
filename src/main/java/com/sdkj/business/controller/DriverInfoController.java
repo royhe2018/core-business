@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,4 +120,29 @@ public class DriverInfoController {
 		}
 		return result;
 	}
+	
+    @RequestMapping(value="/find/driver/detailInfo",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="获取司机详情",optCode="findDriverDetailInfo")
+   	public MobileResultVO findDriverDetailInfo(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String cityName = req.getParameter("cityName");
+   			String type = req.getParameter("type");
+   			Map<String,Object> param = new HashMap<String,Object>();
+   			if(StringUtils.isNotEmpty(type)) {
+   				param.put("clientType", type);
+   			}
+   			if(StringUtils.isNotEmpty(cityName)) {
+   				param.put("cityName", cityName);
+   			}
+   			result = driverInfoService.findDriverDetailInfo(param); 
+   		}catch(Exception e) {
+   			logger.error("获取司机详情异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
 }

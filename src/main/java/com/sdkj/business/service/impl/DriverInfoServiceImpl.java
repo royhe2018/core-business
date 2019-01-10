@@ -1,6 +1,7 @@
 package com.sdkj.business.service.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -9,8 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mysql.jdbc.Driver;
+import com.sdkj.business.dao.comment.CommentMapper;
 import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
+import com.sdkj.business.domain.po.Comment;
 import com.sdkj.business.domain.po.DriverInfo;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.DriverInfoService;
@@ -25,6 +27,9 @@ public class DriverInfoServiceImpl implements DriverInfoService{
 	
 	@Autowired
 	private DriverInfoMapper driverInfoMapper;
+	
+	@Autowired
+	private CommentMapper commentMapper;
 	@Override
 	public MobileResultVO registerDriverInfo(DriverInfo target) {
 		MobileResultVO result = new MobileResultVO();
@@ -83,5 +88,18 @@ public class DriverInfoServiceImpl implements DriverInfoService{
 		}
 		return result;
 	}
-
+	
+	@Override
+	public MobileResultVO findDriverDetailInfo(Map<String, Object> param) {
+		MobileResultVO result = new MobileResultVO();
+		result.setCode(MobileResultVO.CODE_SUCCESS);
+		result.setMessage("操作成功");
+		Map<String,Object> driverBaseInfo = driverInfoMapper.findDriverDetailInfo(param);
+		List<Comment> commentList = commentMapper.findCommentList(param);
+		Map<String,Object> driverInfo = new HashMap<String,Object>();
+		driverInfo.put("baseInfo",driverBaseInfo);
+		driverInfo.put("commentList", commentList);
+		result.setData(driverInfo);
+		return result;
+	}
 }

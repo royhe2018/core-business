@@ -26,6 +26,8 @@ public class User {
     
     private String refereeName;
     
+    private Float commentScore;
+    
     public Long getId() {
         return id;
     }
@@ -121,4 +123,13 @@ public class User {
 	public void setRefereeName(String refereeName) {
 		this.refereeName = refereeName;
 	}
+
+	public Float getCommentScore() {
+		return commentScore;
+	}
+
+	public void setCommentScore(Float commentScore) {
+		this.commentScore = commentScore;
+	}
+	
 }
