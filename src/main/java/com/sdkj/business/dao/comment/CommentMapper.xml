@@ -8,6 +8,7 @@
     <result column="driver_id" property="driverId" />
     <result column="vehicle_score" property="vehicleScore" />
     <result column="manner_score" property="mannerScore" />
+    <result column="efficiency_score" property="efficiencyScore" />
     <result column="average_score" property="averageScore" />
     <result column="content" property="content" />
     <result column="create_time" property="createTime" />
@@ -24,7 +25,7 @@
   </select>
   
   <select id="findDriverAveScore" parameterType="java.util.Map" resultType="java.lang.Float">
-    select AVG(averageScore)
+    select AVG(average_score)
     from sdlh_comment
     <trim prefix="where" prefixOverrides="and">
     	<if test="orderId != null">and order_id = #{orderId}</if>
@@ -36,7 +37,7 @@
   
   <insert id="insertComment" parameterType="com.sdkj.business.domain.po.Comment" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
  	INSERT INTO 
- 	`sdlh_comment` (`order_id`,`user_id`,`driver_id`,`vehicle_score`,`manner_score`,`average_score`,`content`,`create_time`) 
-	VALUES(#{orderId},#{userId},#{driverId},#{vehicleScore},#{mannerScore},#{averageScore},#{content},#{createTime}) 
+ 	`sdlh_comment` (`order_id`,`user_id`,`driver_id`,`vehicle_score`,`manner_score`,`efficiency_score`,`average_score`,`content`,`create_time`) 
+	VALUES(#{orderId},#{userId},#{driverId},#{vehicleScore},#{mannerScore},#{efficiencyScore},#{averageScore},#{content},#{createTime}) 
   </insert>
 </mapper>

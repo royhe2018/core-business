@@ -43,6 +43,18 @@
     </trim>
   </select>
   
+  
+  <select id="findDriverDetailInfo" parameterType="java.util.Map" resultType="java.util.Map">
+    SELECT  CASE WHEN u.`nick_name` IS NOT NULL THEN u.`nick_name` ELSE u.account END AS driverName,u.comment_score AS commentScore,COUNT(1) AS orderCount,
+	d.car_no AS carNo,v.type_name AS vehicleTypeName,CONCAT('长',v.length,'*宽',v.width,'*高',v.height,'米') AS vehicleTypeInfo
+    FROM sdlh_driver_info d
+    INNER JOIN sdlh_user u ON d.`user_id`=u.`id`
+    LEFT JOIN sdlh_vehicle_type_info v ON d.vehicle_type_id=v.id
+    LEFT JOIN `sdlh_order_info` o ON o.`driver_id`=d.`user_id` AND o.status=7
+    <trim prefix="where" prefixOverrides="and">
+   		<if test="driverId != null"> and u.id = #{driverId}</if>
+    </trim>
+  </select>
   <insert id="insert" parameterType="com.sdkj.business.domain.po.DriverInfo" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     insert into sdlh_driver_info (id, user_id, id_card_no, 
       id_card_type, driving_license_no, driving_license_file_no, 

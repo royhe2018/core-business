@@ -127,14 +127,10 @@ public class DriverInfoController {
    	public MobileResultVO findDriverDetailInfo(HttpServletRequest req) {
        	MobileResultVO result = null;
    		try {
-   			String cityName = req.getParameter("cityName");
-   			String type = req.getParameter("type");
+   			String driverId = req.getParameter("driverId");
    			Map<String,Object> param = new HashMap<String,Object>();
-   			if(StringUtils.isNotEmpty(type)) {
-   				param.put("clientType", type);
-   			}
-   			if(StringUtils.isNotEmpty(cityName)) {
-   				param.put("cityName", cityName);
+   			if(StringUtils.isNotEmpty(driverId)) {
+   				param.put("driverId", driverId);
    			}
    			result = driverInfoService.findDriverDetailInfo(param); 
    		}catch(Exception e) {

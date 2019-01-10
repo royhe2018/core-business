@@ -8,6 +8,7 @@ public class Comment {
 	private Long driverId;
 	private Float vehicleScore;
 	private Float mannerScore;
+	private Float efficiencyScore;
 	private Float averageScore;
 	private String content;
 	private String createTime;
@@ -67,6 +68,12 @@ public class Comment {
 	}
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
+	}
+	public Float getEfficiencyScore() {
+		return efficiencyScore;
+	}
+	public void setEfficiencyScore(Float efficiencyScore) {
+		this.efficiencyScore = efficiencyScore;
 	}
 	
 }

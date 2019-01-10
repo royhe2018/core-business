@@ -36,6 +36,7 @@ public class CommentController {
    			String orderId = req.getParameter("orderId");
    			String vehicleScore = req.getParameter("vehicleScore");
    			String mannerScore = req.getParameter("mannerScore");
+   			String efficiencyScore = req.getParameter("efficiencyScore");
    			String content = req.getParameter("content");
    			Comment comment = new Comment();
    			comment.setOrderId(Long.valueOf(orderId));
@@ -45,6 +46,9 @@ public class CommentController {
    			}
    			if(StringUtils.isNotEmpty(mannerScore)) {
    				comment.setMannerScore(Float.valueOf(mannerScore));
+   			}
+   			if(StringUtils.isNotEmpty(efficiencyScore)) {
+   				comment.setEfficiencyScore(Float.valueOf(efficiencyScore));
    			}
    			comment.setContent(content);
    			result = commentService.addComment(comment);

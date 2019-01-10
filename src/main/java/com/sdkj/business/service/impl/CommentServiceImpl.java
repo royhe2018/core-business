@@ -17,6 +17,7 @@ import com.sdkj.business.domain.po.OrderInfo;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.CommentService;
+import com.sdlh.common.DateUtilLH;
 
 @Service
 @Transactional
@@ -44,6 +45,10 @@ public class CommentServiceImpl implements CommentService {
 			scoreCount +=1;
 			totalScore += target.getMannerScore();
 		}
+		if(target.getEfficiencyScore() != null) {
+			scoreCount +=1;
+			totalScore += target.getEfficiencyScore();
+		}
 		if(scoreCount==0) {
 			target.setAverageScore(5f);
 		}else {
@@ -55,6 +60,7 @@ public class CommentServiceImpl implements CommentService {
 		if(order!=null) {
 			target.setDriverId(order.getDriverId());
 		}
+		target.setCreateTime(DateUtilLH.getCurrentTime());
 		commentMapper.insertComment(target);
 		param.clear();
 		param.put("driverId", target.getDriverId());
