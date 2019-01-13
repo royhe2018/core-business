@@ -45,7 +45,7 @@
   
   
   <select id="findDriverDetailInfo" parameterType="java.util.Map" resultType="java.util.Map">
-    SELECT  CASE WHEN u.`nick_name` IS NOT NULL THEN u.`nick_name` ELSE u.account END AS driverName,u.comment_score AS commentScore,COUNT(1) AS orderCount,
+    SELECT  u.head_img as headImg,CASE WHEN u.`nick_name` IS NOT NULL THEN u.`nick_name` ELSE u.account END AS driverName,u.comment_score AS commentScore,COUNT(1) AS orderCount,
 	d.car_no AS carNo,v.type_name AS vehicleTypeName,CONCAT('长',v.length,'*宽',v.width,'*高',v.height,'米') AS vehicleTypeInfo
     FROM sdlh_driver_info d
     INNER JOIN sdlh_user u ON d.`user_id`=u.`id`

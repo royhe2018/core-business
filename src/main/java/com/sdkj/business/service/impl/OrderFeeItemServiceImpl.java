@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import com.sdkj.business.domain.po.OrderInfo;
 import com.sdkj.business.domain.po.OrderRoutePoint;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
+import com.sdkj.business.service.AliMQProducer;
 import com.sdkj.business.service.OrderFeeItemService;
 import com.sdkj.business.service.component.wxPay.WXPayComponent;
 import com.sdkj.business.service.component.wxPay.WxappPayDto;
@@ -47,6 +49,12 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 	
 	@Autowired
 	private OrderRoutePointMapper orderRoutePointMapper;
+	
+	@Autowired
+	private AliMQProducer aliMQProducer;
+	@Value("${ali.mq.order.dispatch.topic}")
+	private String orderDispatchTopic;
+	
 	@Override
 	public MobileResultVO addFeeItem(List<OrderFeeItem> itemList) {
 		MobileResultVO result = new MobileResultVO();
@@ -93,6 +101,11 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 					}
 				}
 			}
+			//添加费用支付提醒广播
+			Map<String,Object> payRemarkMap = new HashMap<String,Object>();
+			payRemarkMap.put("orderId", order.getId());
+			payRemarkMap.put("payFeeType", 2);
+			this.aliMQProducer.sendMessage(orderDispatchTopic,Constant.MQ_TAG_PAY_REMARK,payRemarkMap);
 		}
 		result.setMessage("添加成功");
 		return result;

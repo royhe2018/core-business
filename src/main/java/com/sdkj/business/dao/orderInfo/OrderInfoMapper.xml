@@ -66,10 +66,12 @@
 		d.id as driverId,
 		'4.8' as driverScore,
 		d.map_terminal_id as mapTerminalId,
-		'8914' as mapServiceId
+		'8914' as mapServiceId,
+		case when c.id is null then 0 else 1 end as commentStatus
 		from sdlh_order_info o
 		inner join sdlh_vehicle_type_info t on o.vehicle_type_id = t.id
 		left join sdlh_user d on o.driver_id = d.id
+		left join sdlh_comment c on o.id=c.order_id
 		<trim prefix="where" prefixOverrides="and">
 			<if test="id!=null"> and o.id = #{id}</if>
 			<if test="userId != null"> and (o.user_id = #{userId}
@@ -95,6 +97,7 @@
 				</choose>
 			</if>
 		</trim>
+		group by o.id
 		order by o.id desc
 	</select>
 

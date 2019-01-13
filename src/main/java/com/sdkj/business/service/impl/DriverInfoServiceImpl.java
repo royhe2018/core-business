@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.aliyuncs.utils.StringUtils;
 import com.sdkj.business.dao.comment.CommentMapper;
 import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
 import com.sdkj.business.domain.po.Comment;
@@ -18,6 +19,7 @@ import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.DriverInfoService;
 import com.sdkj.business.util.Constant;
 import com.sdlh.common.DateUtilLH;
+import com.sdlh.common.StringUtilLH;
 
 @Service
 @Transactional
@@ -95,6 +97,9 @@ public class DriverInfoServiceImpl implements DriverInfoService{
 		result.setCode(MobileResultVO.CODE_SUCCESS);
 		result.setMessage("操作成功");
 		Map<String,Object> driverBaseInfo = driverInfoMapper.findDriverDetailInfo(param);
+		if(driverBaseInfo!=null && driverBaseInfo.containsKey("headImg") && StringUtilLH.isNotEmpty(driverBaseInfo.get("headImg")+"")){
+			driverBaseInfo.put("headImg", Constant.ALI_OSS_ACCESS_PREFIX+driverBaseInfo.get("headImg"));
+		}
 		List<Comment> commentList = commentMapper.findCommentList(param);
 		Map<String,Object> driverInfo = new HashMap<String,Object>();
 		driverInfo.put("baseInfo",driverBaseInfo);
