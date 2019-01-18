@@ -207,6 +207,35 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 	}
 
 	@Override
+	public MobileResultVO getWXDriverPrePayInfo(String orderId, String itemIds) throws Exception {
+		logger.info("orderId:"+orderId+";itemIds:"+itemIds);
+		MobileResultVO result = new MobileResultVO();
+		 //订单号
+        String orderNo="wx"+orderId+"_"+System.currentTimeMillis();
+        Map<String,Object> param = new HashMap<String,Object>();
+        param.put("idList", itemIds.split(","));
+        List<OrderFeeItem> feeItemList = this.orderFeeItemMapper.findOrderFeeItemList(param);
+        int payFee=0;
+        if(feeItemList!=null && feeItemList.size()>0){
+        	for(OrderFeeItem item:feeItemList){
+        		item.setPaySerialNum(orderNo);
+        		orderFeeItemMapper.updateByPrimaryKey(item);
+        		logger.info("item.getFeeAmount():"+item.getFeeAmount());
+        		payFee +=item.getFeeAmount()*100;
+        	}
+        }
+        logger.info("payFee:"+payFee);
+        String attachInfo = itemIds+"|"+orderId;
+        payFee=1;//测试，暂时按1分计算
+		WxappPayDto dto = wxPayComponent.preDriverPay(attachInfo, orderNo, payFee, "顺道拉货", "运费支付");
+        if(null!=dto){
+        	result.setData(dto);
+        }
+        logger.info("pay order info:"+JsonUtil.convertObjectToJsonStr(result));
+		return result;
+	}
+	
+	@Override
 	public MobileResultVO wxPayNotify(String notifyInfo) {
 		logger.info("wxPayNotify start");
 		MobileResultVO result= new MobileResultVO();

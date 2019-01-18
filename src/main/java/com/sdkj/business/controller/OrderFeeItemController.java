@@ -152,6 +152,27 @@ public class OrderFeeItemController {
         return result;
     }
     
+    @ResponseBody
+    @RequestMapping(value = "/weapp/submit/driver/prepay",method=RequestMethod.POST)
+    @SysLog(description="微信司机端统一下单接口",optCode="wxDriverUnifiedOrder")
+    public MobileResultVO wxDriverUnifiedOrder(HttpServletRequest req) throws Exception {
+    	MobileResultVO result = null;
+    	try{
+    		String orderId = req.getParameter("orderId");
+   			String driverId = req.getParameter("driverId");
+   			String feeItemIds = req.getParameter("feeItemIds");
+            logger.info("orderId:"+orderId);
+            logger.info("feeItemIds:"+feeItemIds);
+            result = orderFeeItemService.getWXDriverPrePayInfo(orderId,feeItemIds);
+    	}catch(Exception e){
+    		logger.error("微信支付统一下单异常", e);
+    		result =new MobileResultVO();
+    		result.setCode(MobileResultVO.CODE_FAIL);
+    		result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+    	}
+        return result;
+    }
+    
     @RequestMapping(value="/weapp/wxPayNotify",method=RequestMethod.POST)
     @ResponseBody
     @SysLog(description="微信支付回调",optCode="wxPayOrderCallBack")

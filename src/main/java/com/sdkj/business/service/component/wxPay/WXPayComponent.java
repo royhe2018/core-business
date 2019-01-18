@@ -32,6 +32,8 @@ public class WXPayComponent {
 
 	@Value("${wx.pay.appid}")
 	private String appID; // 移动应用APPID
+	@Value("${wx.pay.driver.appid}")
+	private String driverAppID;// 移动应用司机端APPID
 	@Value("${wx.pay.unified.order.url}")
 	private String unifiedOrderUrl; // 微信统一下单地址
 	@Value("${wx.pay.apikey}")
@@ -123,6 +125,69 @@ public class WXPayComponent {
 		return dto;
 	}
 
+	
+	public WxappPayDto preDriverPay(String attach, String orderNo, int money,
+			String describe, String detail) throws Exception {
+		WxappPayDto dto = new WxappPayDto();
+		try {
+			String nonceStr = getNonceStr();
+			SortedMap<String, String> packageParams = new TreeMap<String, String>();
+			packageParams.put("appid", driverAppID);
+			packageParams.put("attach", attach);// 附加数据
+			packageParams.put("body", describe);// 商品描述
+			packageParams.put("detail", detail);
+			packageParams.put("mch_id", mchId);// 商户号
+			packageParams.put("nonce_str", nonceStr);// 随机数
+			packageParams.put("notify_url", notifyUrl);
+			packageParams.put("out_trade_no", orderNo);// 商户订单号
+			packageParams.put("spbill_create_ip", serverInternetIP);// 订单生成的机器
+			packageParams.put("total_fee", money+"");// 总金额
+			packageParams.put("trade_type", "APP");
+			String sign = createSign(packageParams, apiKey);
+			String xml = "<xml>" + 
+							"<appid>" + driverAppID + "</appid>" + 
+							"<attach>"+ attach + "</attach>" + 
+							"<body><![CDATA[" + describe+ "]]></body>" + 
+							"<detail><![CDATA[" + detail+ "]]></detail>" + 
+							"<mch_id>" + mchId + "</mch_id>"+ 
+							"<nonce_str>" + nonceStr + "</nonce_str>" + 
+							"<notify_url>" + notifyUrl+ "</notify_url>" + 
+							"<out_trade_no>" + orderNo+ "</out_trade_no>" + 
+							"<spbill_create_ip>"+ serverInternetIP + "</spbill_create_ip>" + 
+							"<total_fee>"+ money + "</total_fee>" + 
+							"<trade_type>APP</trade_type>"+ 
+							"<sign>"+ sign + "</sign>" 
+					+ "</xml>";
+			logger.info("unified order xml:"+xml);
+			//xml = new String(xml.toString().getBytes(), "utf-8");
+			String prepayId = getPayNo(unifiedOrderUrl, xml);
+			if (StringUtilLH.isNotEmpty(prepayId)) {
+				SortedMap<String, String> finalpackage = new TreeMap<String, String>();
+				String timestamp = getTimeStamp();
+				finalpackage.put("appid", appID);
+				finalpackage.put("noncestr", nonceStr);
+				finalpackage.put("package", "Sign=WXPay");
+				finalpackage.put("partnerid", mchId);
+				finalpackage.put("prepayid", prepayId);
+				//finalpackage.put("signType", "MD5");
+				finalpackage.put("timestamp", timestamp);
+				String finalsign = createSign(finalpackage, apiKey);
+
+				dto.setNonceStr(nonceStr);
+				dto.setPrePayId(prepayId);
+				dto.setPaySign(finalsign);
+				dto.setSignType("MD5");
+				dto.setTimeStamp(timestamp);
+				dto.setAppId(appID);
+				dto.setPackageStr("Sign=WXPay");
+				dto.setPartnerId(mchId);
+			}
+		} catch (Exception e1) {
+			logger.error("统一下单接口异常", e1);
+		}
+		return dto;
+	}
+	
 	/**
 	 * 获取从1970年开始到现在的秒数
 	 * 

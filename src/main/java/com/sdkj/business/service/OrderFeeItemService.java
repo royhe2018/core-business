@@ -22,6 +22,8 @@ public interface OrderFeeItemService {
 	
 	public MobileResultVO getWXPrePayInfo(String orderId,String itemIds)  throws Exception;
 	
+	public MobileResultVO getWXDriverPrePayInfo(String orderId, String itemIds) throws Exception;
+	
 	public MobileResultVO wxPayNotify(String notifyInfo);
 	
 	public MobileResultVO findOrderOverTimeFee(String orderId);
