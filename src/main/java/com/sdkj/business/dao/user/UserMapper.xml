@@ -34,10 +34,10 @@
   <insert id="insert" parameterType="com.sdkj.business.domain.po.User" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     insert into sdlh_user (id, account, head_img, 
       nick_name, sex, user_type, 
-      referee_id,balance,pass_word)
+      referee_id,balance,pass_word,registrion_id)
     values (#{id,jdbcType=BIGINT}, #{account,jdbcType=VARCHAR}, #{headImg,jdbcType=VARCHAR}, 
       #{nickName,jdbcType=VARCHAR}, #{sex,jdbcType=INTEGER}, #{userType,jdbcType=INTEGER}, 
-      #{refereeId,jdbcType=BIGINT},0,#{passWord})
+      #{refereeId,jdbcType=BIGINT},0,#{passWord},#{registrionId})
   </insert>
   <update id="updateById"  parameterType="com.sdkj.business.domain.po.User">
     update sdlh_user

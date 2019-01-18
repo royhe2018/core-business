@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.sdkj.business.dao.clientConfig.ClientConfigMapper;
@@ -17,6 +18,7 @@ import com.sdkj.business.domain.po.ClientConfig;
 import com.sdkj.business.domain.po.DriverInfo;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
+import com.sdkj.business.service.AliMQProducer;
 import com.sdkj.business.service.CheckCodeService;
 import com.sdkj.business.service.UserService;
 import com.sdkj.business.util.Constant;
@@ -35,8 +37,15 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private ClientConfigMapper clientConfigMapper;
+	
+	@Autowired
+	private AliMQProducer aliMQProducer;
+ 
+	@Value("${ali.mq.order.dispatch.topic}")
+	private String orderDispatchTopic;
+	
 	@Override
-	public MobileResultVO userLogin(String userPhone,String userType,String checkCode,String passWord,String loginType) {
+	public MobileResultVO userLogin(String userPhone,String userType,String checkCode,String passWord,String loginType,String registrionId) {
 		MobileResultVO result = new MobileResultVO();
 		Map<String,Object> param = new HashMap<String,Object>();
 		param.put("account", userPhone);
@@ -56,6 +65,15 @@ public class UserServiceImpl implements UserService {
 			result.setMessage("验证码错误!");
 		}else{
 			result.setMessage(MobileResultVO.LOGIN_SUCCESS_MESSAGE);
+			if(dbUser!=null && StringUtils.isNotEmpty(dbUser.getRegistrionId()) && !registrionId.equals(dbUser.getRegistrionId())) {
+				// 强制下线广播
+				Map<String, Object> userInfoMap = new HashMap<String, Object>();
+				userInfoMap.put("userId", dbUser.getId());
+				userInfoMap.put("userType", dbUser.getUserType());
+				userInfoMap.put("registrionId", dbUser.getRegistrionId());
+				this.aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_FORCE_OFFLINE,userInfoMap);
+				dbUser.setRegistrionId(registrionId);
+			}
 			if(dbUser==null){
 				dbUser = new User();
 				dbUser.setAccount(userPhone);

@@ -58,7 +58,8 @@ public class UserController {
    			String checkCode = req.getParameter("checkCode");
    			String passWord = req.getParameter("passWord");
    			String loginType = req.getParameter("loginType");
-   			result = userService.userLogin(userPhone, userType, checkCode,passWord,loginType);
+   			String registrionId = req.getParameter("registrionId");
+   			result = userService.userLogin(userPhone, userType, checkCode,passWord,loginType,registrionId);
    		}catch(Exception e) {
    			logger.error("用户登陆异常", e);
    			result = new MobileResultVO();

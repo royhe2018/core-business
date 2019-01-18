@@ -27,6 +27,7 @@ public class Constant {
 	public static final String MQ_TAG_LEAVE_ROUTE_POINT = "LEAVE_POINT";
 	public static final String MQ_TAG_FINISH_ORDER = "FINISH_ORDER";
 	public static final String MQ_TAG_PAY_REMARK = "PAY_REMARK";
+	public static final String MQ_TAG_FORCE_OFFLINE = "FORCE_OFFLINE";
 	/**
 	 * 订单状态0未接单；1已接单；2司机到达装货点，3装货完成；4运途中；5终点到达；6已签收
 	 */
