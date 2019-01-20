@@ -102,6 +102,67 @@
 		order by o.id desc
 	</select>
 
+
+	<select id="findSingleOrderInfoDisplay" parameterType="java.util.Map"
+		resultType="java.util.Map">
+		select o.id as orderId,o.use_truck_time as userTime,
+		t.type_name as vehicleTypeName,'1' as orderType,
+		o.pay_status as payStatus,
+		o.total_distance as totalDistance,
+		case o.status
+		when 0 then '未接单'
+		when 1 then '已接单'
+		when 2 then '到达装货地'
+		when 3 then '装货完成'
+		when 4 then '运途中'
+		when 5 then '到达收货地'
+		when 6 then '已签收'
+		else '未知' end as statusName,o.status,
+		d.nick_name as driverName,
+		d.account as driverPhone,
+		u.nick_name as userName,
+		u.account as userPhone,
+		d.id as driverId,
+		d.comment_score as driverScore,
+		d.map_terminal_id as mapTerminalId,
+		'8914' as mapServiceId,
+		o.create_time as orderCreateTime,
+		sum(f.fee_amount) as orderTotalFee,
+		sum(f.driver_fee) as driverFee
+		from sdlh_order_info o
+		inner join sdlh_vehicle_type_info t on o.vehicle_type_id = t.id
+		left join sdlh_user d on o.driver_id = d.id
+		left join sdlh_user u on o.user_id = u.id
+		left join sdlh_order_fee_item f on f.order_id=o.id
+		<trim prefix="where" prefixOverrides="and">
+			<if test="id!=null"> and o.id = #{id}</if>
+			<if test="userId != null"> and (o.user_id = #{userId}
+				or EXISTS (SELECT 1 FROM `sdlh_order_route_point` r WHERE o.`id`=r.`order_id` AND r.`deal_user_id`=#{userId} ) )
+			</if>
+			<if test="driverId != null"> and o.driver_id = #{driverId}</if>
+			<if test="orderPeriod != null">
+				<choose>
+					<when test="driverId != null">
+						<choose>
+							<when test='orderPeriod == 1'><![CDATA[ and o.status <7 and o.cancle_status=0]]></when>
+							<when test='orderPeriod == 2'><![CDATA[ and o.status =7 and o.cancle_status=0]]></when>
+							<when test='orderPeriod == 3'><![CDATA[ and o.cancle_status=1]]></when>
+						</choose>
+					</when>
+					<otherwise>
+						<choose>
+							<when test='orderPeriod == 1'><![CDATA[ and o.status <6 and o.cancle_status=0]]></when>
+							<when test='orderPeriod == 2'><![CDATA[ and o.status >= 6 and o.cancle_status=0]]></when>
+							<when test='orderPeriod == 3'><![CDATA[ and o.cancle_status=1]]></when>
+						</choose>
+					</otherwise>
+				</choose>
+			</if>
+		</trim>
+		group by o.id
+		order by o.id desc
+	</select>
+	
 	<select id="findOrderList" parameterType="java.util.Map"
 		resultMap="BaseResultMap">
 		select *

@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 			result.setMessage("验证码错误!");
 		}else{
 			result.setMessage(MobileResultVO.LOGIN_SUCCESS_MESSAGE);
-			if(dbUser!=null && StringUtils.isNotEmpty(dbUser.getRegistrionId()) && !registrionId.equals(dbUser.getRegistrionId())) {
+			if(dbUser!=null && StringUtils.isNotEmpty(dbUser.getRegistrionId()) && StringUtils.isNotEmpty(registrionId) && !registrionId.equals(dbUser.getRegistrionId())) {
 				// 强制下线广播
 				Map<String, Object> userInfoMap = new HashMap<String, Object>();
 				userInfoMap.put("userId", dbUser.getId());
@@ -124,6 +124,15 @@ public class UserServiceImpl implements UserService {
 				dbUser.setSex(user.getSex());
 			}
 			if(StringUtilLH.isNotEmpty(user.getRegistrionId())){
+				
+				if(dbUser!=null && StringUtils.isNotEmpty(dbUser.getRegistrionId()) && !user.getRegistrionId().equals(dbUser.getRegistrionId())) {
+					// 强制下线广播
+					Map<String, Object> userInfoMap = new HashMap<String, Object>();
+					userInfoMap.put("userId", dbUser.getId());
+					userInfoMap.put("userType", dbUser.getUserType());
+					userInfoMap.put("registrionId", dbUser.getRegistrionId());
+					this.aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_FORCE_OFFLINE,userInfoMap);
+				}
 				dbUser.setRegistrionId(user.getRegistrionId());
 			}
 			userMapper.updateById(dbUser);

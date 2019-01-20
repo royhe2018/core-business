@@ -474,4 +474,41 @@ public class OrderController {
 		}
 		return errorMsg;
 	}
+	
+    @RequestMapping(value="/order/cancle/by/driver",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="订单取消",optCode="orderCancel")
+   	public MobileResultVO cancelOrderByDriver(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			OrderInfo order = new OrderInfo();
+   			String orderId = req.getParameter("orderId");
+   			order.setId(Long.valueOf(orderId));
+   			result = orderService.orderCancle(order);
+   		}catch(Exception e) {
+   			logger.error("订单接单异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
+    
+    @RequestMapping(value="/copy/order",method=RequestMethod.POST)
+	@ResponseBody
+	@SysLog(description="重新提交订单",optCode="copyOrder")
+	public MobileResultVO copyOrder(HttpServletRequest req) {
+    	MobileResultVO result = null;
+		try {
+			String orderId = req.getParameter("orderId");
+			String userId = req.getParameter("userId");
+			result = orderService.copyOrder(orderId, userId);
+		}catch(Exception e) {
+			logger.error("订单提交异常", e);
+			result = new MobileResultVO();
+			result.setCode(MobileResultVO.CODE_FAIL);
+			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+		}
+		return result;
+	}
 }

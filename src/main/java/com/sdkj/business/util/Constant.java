@@ -22,6 +22,7 @@ public class Constant {
 	public static final String MQ_TAG_STOWAGE_ORDER = "STOWAGE";
 	public static final String MQ_TAG_SIGN_RECEIVE_ORDER = "RECEIVE";
 	public static final String MQ_TAG_CANCLE_ORDER = "CANCLE";
+	public static final String MQ_TAG_CANCLE_ORDER_BY_DRIVER = "CANCLE_BY_DRIVER";
 	public static final String MQ_TAG_CANCLE_TAKED_ORDER = "CANCLE_TAKED";
 	public static final String MQ_TAG_ARRIVE_ROUTE_POINT = "ARRIVE_POINT";
 	public static final String MQ_TAG_LEAVE_ROUTE_POINT = "LEAVE_POINT";
