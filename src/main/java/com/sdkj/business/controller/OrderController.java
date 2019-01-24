@@ -477,14 +477,14 @@ public class OrderController {
 	
     @RequestMapping(value="/order/cancle/by/driver",method=RequestMethod.POST)
    	@ResponseBody
-   	@SysLog(description="订单取消",optCode="orderCancel")
+   	@SysLog(description="司机端订单取消",optCode="cancelOrderByDriver")
    	public MobileResultVO cancelOrderByDriver(HttpServletRequest req) {
        	MobileResultVO result = null;
    		try {
    			OrderInfo order = new OrderInfo();
    			String orderId = req.getParameter("orderId");
    			order.setId(Long.valueOf(orderId));
-   			result = orderService.orderCancle(order);
+   			result = orderService.orderCancleByDriver(order);
    		}catch(Exception e) {
    			logger.error("订单接单异常", e);
    			result = new MobileResultVO();

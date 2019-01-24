@@ -18,6 +18,8 @@
     <result column="status" jdbcType="INTEGER" property="status" />
     <result column="on_duty_status" jdbcType="INTEGER" property="onDutyStatus" />
     <result column="register_city" property="registerCity" />
+    <result column="driver_type" property="driverType" />
+    <result column="vehicle_type_id" property="vehicleTypeId" />
   </resultMap>
  
   <select id="findSingleDriver" parameterType="java.util.Map" resultMap="BaseResultMap">

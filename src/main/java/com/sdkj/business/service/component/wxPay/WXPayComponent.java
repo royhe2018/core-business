@@ -45,6 +45,10 @@ public class WXPayComponent {
 	@Value("${wx.pay.server.internet.ip}")
 	private String serverInternetIP;//服务器公网IP
 
+	@Value("${wx.pay.driver.apikey}")
+	private String driverApiKey;// 微信支付账户秘钥
+	@Value("${wx.pay.driver.mchid}")
+	private String driverMchId; // 商户号
 	/**
 	 * 统一下单
 	 * 
@@ -136,20 +140,20 @@ public class WXPayComponent {
 			packageParams.put("attach", attach);// 附加数据
 			packageParams.put("body", describe);// 商品描述
 			packageParams.put("detail", detail);
-			packageParams.put("mch_id", mchId);// 商户号
+			packageParams.put("mch_id", driverMchId);// 商户号
 			packageParams.put("nonce_str", nonceStr);// 随机数
 			packageParams.put("notify_url", notifyUrl);
 			packageParams.put("out_trade_no", orderNo);// 商户订单号
 			packageParams.put("spbill_create_ip", serverInternetIP);// 订单生成的机器
 			packageParams.put("total_fee", money+"");// 总金额
 			packageParams.put("trade_type", "APP");
-			String sign = createSign(packageParams, apiKey);
+			String sign = createSign(packageParams, driverApiKey);
 			String xml = "<xml>" + 
 							"<appid>" + driverAppID + "</appid>" + 
 							"<attach>"+ attach + "</attach>" + 
 							"<body><![CDATA[" + describe+ "]]></body>" + 
 							"<detail><![CDATA[" + detail+ "]]></detail>" + 
-							"<mch_id>" + mchId + "</mch_id>"+ 
+							"<mch_id>" + driverMchId + "</mch_id>"+ 
 							"<nonce_str>" + nonceStr + "</nonce_str>" + 
 							"<notify_url>" + notifyUrl+ "</notify_url>" + 
 							"<out_trade_no>" + orderNo+ "</out_trade_no>" + 
@@ -164,23 +168,23 @@ public class WXPayComponent {
 			if (StringUtilLH.isNotEmpty(prepayId)) {
 				SortedMap<String, String> finalpackage = new TreeMap<String, String>();
 				String timestamp = getTimeStamp();
-				finalpackage.put("appid", appID);
+				finalpackage.put("appid", driverAppID);
 				finalpackage.put("noncestr", nonceStr);
 				finalpackage.put("package", "Sign=WXPay");
-				finalpackage.put("partnerid", mchId);
+				finalpackage.put("partnerid", driverMchId);
 				finalpackage.put("prepayid", prepayId);
 				//finalpackage.put("signType", "MD5");
 				finalpackage.put("timestamp", timestamp);
-				String finalsign = createSign(finalpackage, apiKey);
+				String finalsign = createSign(finalpackage, driverApiKey);
 
 				dto.setNonceStr(nonceStr);
 				dto.setPrePayId(prepayId);
 				dto.setPaySign(finalsign);
 				dto.setSignType("MD5");
 				dto.setTimeStamp(timestamp);
-				dto.setAppId(appID);
+				dto.setAppId(driverAppID);
 				dto.setPackageStr("Sign=WXPay");
-				dto.setPartnerId(mchId);
+				dto.setPartnerId(driverMchId);
 			}
 		} catch (Exception e1) {
 			logger.error("统一下单接口异常", e1);

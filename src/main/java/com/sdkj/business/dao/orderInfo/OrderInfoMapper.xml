@@ -106,7 +106,9 @@
 	<select id="findSingleOrderInfoDisplay" parameterType="java.util.Map"
 		resultType="java.util.Map">
 		select o.id as orderId,o.use_truck_time as userTime,
-		t.type_name as vehicleTypeName,'1' as orderType,
+		t.type_name as vehicleTypeName,
+		concat(t.length,'|',t.width,'|',t.height) as vehicleStandard,
+		'1' as orderType,
 		o.pay_status as payStatus,
 		o.total_distance as totalDistance,
 		case o.status

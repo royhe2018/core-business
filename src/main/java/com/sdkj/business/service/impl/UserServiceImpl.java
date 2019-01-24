@@ -14,9 +14,11 @@ import org.springframework.stereotype.Service;
 import com.sdkj.business.dao.clientConfig.ClientConfigMapper;
 import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
 import com.sdkj.business.dao.user.UserMapper;
+import com.sdkj.business.dao.vehicleTypeInfo.VehicleTypeInfoMapper;
 import com.sdkj.business.domain.po.ClientConfig;
 import com.sdkj.business.domain.po.DriverInfo;
 import com.sdkj.business.domain.po.User;
+import com.sdkj.business.domain.po.VehicleTypeInfo;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.AliMQProducer;
 import com.sdkj.business.service.CheckCodeService;
@@ -40,6 +42,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private AliMQProducer aliMQProducer;
+	
+	@Autowired
+	private VehicleTypeInfoMapper vehicleTypeInfoMapper;
  
 	@Value("${ali.mq.order.dispatch.topic}")
 	private String orderDispatchTopic;
@@ -98,6 +103,14 @@ public class UserServiceImpl implements UserService {
 					loginData.put("driverStatus", 0);
 				}else {
 					loginData.put("driverStatus",driver.getStatus());
+					if(driver.getVehicleTypeId()!=null){
+						param.clear();
+						param.put("id", driver.getVehicleTypeId());
+						VehicleTypeInfo vehicleType = vehicleTypeInfoMapper.findSingleVehicleTypeInfo(param);
+						if(vehicleType!=null){
+							loginData.put("vehicleStandard", vehicleType.getLength()+"|"+vehicleType.getWidth()+"|"+vehicleType.getHeight());
+						}
+					}
 				}
 				loginData.put("mapServiceId", "8914");
 			}
