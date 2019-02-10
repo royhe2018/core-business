@@ -1,6 +1,7 @@
 package com.sdkj.business.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.sdkj.business.domain.po.OrderFeeItem;
 import com.sdkj.business.domain.vo.MobileResultVO;
@@ -25,6 +26,10 @@ public interface OrderFeeItemService {
 	public MobileResultVO getWXDriverPrePayInfo(String orderId, String itemIds) throws Exception;
 	
 	public MobileResultVO wxPayNotify(String notifyInfo);
+	
+	public MobileResultVO getAliPrePayInfo(String orderId,String itemIds)  throws Exception;
+	
+	public MobileResultVO aliPayNotify(Map notifyInfo);
 	
 	public MobileResultVO findOrderOverTimeFee(String orderId);
 	

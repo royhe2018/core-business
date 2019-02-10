@@ -209,4 +209,47 @@ public class OrderFeeItemController {
     }
     
     
+    @ResponseBody
+    @RequestMapping(value = "/ali/submit/prepay",method=RequestMethod.POST)
+    @SysLog(description="支付宝客户端统一下单接口",optCode="aliSubmitPrepay")
+    public MobileResultVO aliSubmitPrepay(HttpServletRequest req) throws Exception {
+    	MobileResultVO result = null;
+    	try{
+    		String orderId = req.getParameter("orderId");
+   			String driverId = req.getParameter("driverId");
+   			String feeItemIds = req.getParameter("feeItemIds");
+            logger.info("orderId:"+orderId);
+            logger.info("feeItemIds:"+feeItemIds);
+            result = orderFeeItemService.getAliPrePayInfo(orderId,feeItemIds);
+    	}catch(Exception e){
+    		logger.error("支付宝客户端统一下单异常", e);
+    		result =new MobileResultVO();
+    		result.setCode(MobileResultVO.CODE_FAIL);
+    		result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+    	}
+        return result;
+    }
+    
+    @RequestMapping(value="/ali/app/payNotify",method=RequestMethod.POST)
+    @ResponseBody
+    @SysLog(description="支付宝回调",optCode="aliPayNotify")
+    public String  aliPayNotify(HttpServletRequest request, HttpServletResponse resp) throws Exception{
+    	logger.info("进入支付回调");
+        Map<String,String> notifyResult = new HashMap<String,String>();
+    	notifyResult.put("code", "FAIL");
+	    notifyResult.put("msg", "支付通知异常");
+        try{
+        	orderFeeItemService.aliPayNotify(request.getParameterMap());
+        }catch(Exception e){
+        	logger.error("支付回调异常", e);
+        }
+        resp.setCharacterEncoding("UTF-8");
+        String xml="<xml>"
+                +"<return_code>"+notifyResult.get("code")+"</return_code>"
+                +"<return_msg>"+notifyResult.get("msg")+"</return_msg>"
+                +"</xml>";
+        logger.info("return xml:"+xml);
+        return xml;
+    }
+    
 }

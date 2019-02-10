@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.AliMQProducer;
 import com.sdkj.business.service.OrderFeeItemService;
+import com.sdkj.business.service.component.aliPay.ALIPayComponent;
 import com.sdkj.business.service.component.wxPay.WXPayComponent;
 import com.sdkj.business.service.component.wxPay.WxappPayDto;
 import com.sdkj.business.util.Constant;
@@ -43,6 +45,9 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 	private OrderFeeItemMapper orderFeeItemMapper; 
 	@Autowired
 	private WXPayComponent wxPayComponent;
+	
+	@Autowired
+	private ALIPayComponent aliPayComponent;
 	
 	@Autowired
 	private UserMapper userMapper;
@@ -341,6 +346,44 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 		}
 		result.setData(overTimeFee);
 		return result;
+	}
+
+	@Override
+	public MobileResultVO getAliPrePayInfo(String orderId, String itemIds) throws Exception {
+		logger.info("orderId:"+orderId+";itemIds:"+itemIds);
+		MobileResultVO result = new MobileResultVO();
+		 //订单号
+        String orderNo="ali"+orderId+"_"+System.currentTimeMillis();
+        Map<String,Object> param = new HashMap<String,Object>();
+        param.put("idList", itemIds.split(","));
+        List<OrderFeeItem> feeItemList = this.orderFeeItemMapper.findOrderFeeItemList(param);
+        float payFee=0f;
+        if(feeItemList!=null && feeItemList.size()>0){
+        	for(OrderFeeItem item:feeItemList){
+        		item.setPaySerialNum(orderNo);
+        		orderFeeItemMapper.updateByPrimaryKey(item);
+        		logger.info("item.getFeeAmount():"+item.getFeeAmount());
+        		payFee +=item.getFeeAmount();
+        	}
+        }
+        logger.info("payFee:"+payFee);
+        String attachInfo = itemIds+"|"+orderId;
+        payFee=0.01f;//测试，暂时按1分计算
+		String aliPayInfo = aliPayComponent.generatorAliPayOrderInfo(orderNo,attachInfo, payFee);
+        if(StringUtils.isNotEmpty(aliPayInfo)){
+        	result.setData(aliPayInfo);
+        }else {
+        	result.setCode(MobileResultVO.CODE_FAIL);
+        	result.setMessage("生成支付信息异常");
+        }
+        logger.info("pay order info:"+JsonUtil.convertObjectToJsonStr(result));
+		return result;
+	}
+
+	@Override
+	public MobileResultVO aliPayNotify(Map notifyInfo) {
+		aliPayComponent.parseAliPayNotify(notifyInfo);
+		return null;
 	}
 
 }

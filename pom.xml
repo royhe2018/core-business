@@ -10,6 +10,13 @@
 	<packaging>war</packaging>
 	<dependencies>
 		<dependency>
+			<groupId>alipay</groupId>
+			<artifactId>alipay-sdk</artifactId>
+			<version>3.3.2</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/alipay-sdk-java-3.3.2.jar</systemPath>
+		</dependency>
+		<dependency>
 			<groupId>com.sdkj</groupId>
 			<artifactId>web-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
