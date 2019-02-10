@@ -560,9 +560,8 @@ public class OrderServiceImpl implements OrderService {
 	public MobileResultVO findOrderRoutePointDetailInfo(Map<String, Object> param) {
 		MobileResultVO result = new MobileResultVO();
 		result.setCode(MobileResultVO.CODE_FAIL);
-		List<Map<String, Object>> orderDisplayList = orderInfoMapper.findOrderInfoListDisplay(param);
-		if (orderDisplayList != null && orderDisplayList.size() == 1) {
-			Map<String, Object> orderItem = orderDisplayList.get(0);
+		Map<String, Object> orderItem = orderInfoMapper.findSingleOrderInfoDisplay(param);
+		if (orderItem != null && !orderItem.isEmpty()) {
 			Object orderId = orderItem.get("orderId");
 			Map<String, Object> queryMap = new HashMap<String, Object>();
 			queryMap.put("orderId", orderId);
@@ -626,6 +625,66 @@ public class OrderServiceImpl implements OrderService {
 		resultData.put("mortgageFee", 1500);
 		resultData.put("totalFee", 1870);
 		result.setData(resultData);
+		return result;
+	}
+	
+	@Override
+	public MobileResultVO orderCancleByDriver(OrderInfo order) {
+		MobileResultVO result = new MobileResultVO();
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("id", order.getId());
+		OrderInfo dbOrder = orderInfoMapper.findSingleOrder(param);
+		if (dbOrder != null) {
+			if (dbOrder.getStatus().intValue() >= Constant.ORDER_STATUS_ZHUANGHUO) {
+				result.setCode(MobileResultVO.CODE_FAIL);
+				result.setMessage("订单状态变更,不可取消!");
+			} else {
+				dbOrder.setCancleStatus(Constant.ORDER_CANCLE_STATUS_CANCLE);
+				int updateCount = orderInfoMapper.updateById(dbOrder);
+				if (updateCount != 1) {
+					logger.error("取消失败：orderid:" + dbOrder.getId() + ";driverId:" + dbOrder.getDriverId());
+					result.setCode(MobileResultVO.CODE_FAIL);
+					result.setMessage("取消失败,订单信息已变更!");
+				} else {
+					// 发送司机端取消成功广播
+					Map<String, Object> orderInfoMap = new HashMap<String, Object>();
+					orderInfoMap.put("orderId", dbOrder.getId());
+					this.aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_CANCLE_ORDER_BY_DRIVER, orderInfoMap);
+					result.setMessage("取消成功!");
+				}
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public MobileResultVO copyOrder(String orderId, String userId) {
+		MobileResultVO result = new MobileResultVO();
+		Map<String,Object> queryMap = new HashMap<String,Object>();
+		queryMap.put("id", orderId);
+		OrderInfo order = this.orderInfoMapper.findSingleOrder(queryMap);
+		order.setId(null);
+		order.setDriverId(null);
+		queryMap.clear();
+		queryMap.put("orderId", orderId);
+		List<OrderRoutePoint> routePointList = orderRoutePointMapper.findRoutePointList(queryMap);
+		if(routePointList!=null && routePointList.size()>0){
+			for(OrderRoutePoint routePoint:routePointList){
+				routePoint.setId(null);
+				routePoint.setArriveTime(null);
+				routePoint.setLeaveTime(null);
+			}
+		}
+		this.submitOrder(order, routePointList);
+		Map<String,Object> orderResult = new HashMap<String,Object>();
+		orderResult.put("orderId", order.getId());
+		orderResult.put("startPlaceName", routePointList.get(0).getPlaceName());
+		orderResult.put("endPlaceName", routePointList.get(routePointList.size()-1).getPlaceName());
+		orderResult.put("totalFee", order.getTotalFee());
+		orderResult.put("createTime", order.getCreateTime());
+		result.setCode(MobileResultVO.CODE_SUCCESS);
+		result.setMessage("下单成功");
+		result.setData(orderResult);
 		return result;
 	}
 }

@@ -20,6 +20,8 @@ public interface OrderService {
 	
 	public MobileResultVO orderCancle(OrderInfo order);
 	
+	public MobileResultVO orderCancleByDriver(OrderInfo order);
+	
 	public MobileResultVO findOrderList(int pageNum,int pageSize,Map<String,Object> param);
 	
 	public MobileResultVO findOrderDetailInfo(Map<String,Object> param);
@@ -28,4 +30,6 @@ public interface OrderService {
 	
 	
 	public MobileResultVO submitLeaseTruckOrder(LeaseTruckOrder order,List<OrderRoutePoint> routePointList);
+	
+	public MobileResultVO copyOrder(String orderId,String userId);
 }

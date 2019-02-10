@@ -32,6 +32,11 @@ public class DriverInfo {
     private Integer status;
     
     private Integer onDutyStatus;
+    
+    private Integer driverType;
+    
+    private Long vehicleTypeId;
+    
     public Long getId() {
         return id;
     }
@@ -160,5 +165,12 @@ public class DriverInfo {
 	public void setOnDutyStatus(Integer onDutyStatus) {
 		this.onDutyStatus = onDutyStatus;
 	}
-    
+
+	public Long getVehicleTypeId() {
+		return vehicleTypeId;
+	}
+
+	public void setVehicleTypeId(Long vehicleTypeId) {
+		this.vehicleTypeId = vehicleTypeId;
+	}
 }
