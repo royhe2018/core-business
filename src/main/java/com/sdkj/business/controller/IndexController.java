@@ -143,4 +143,19 @@ public class IndexController {
 		return result;
 	}
     
+    @RequestMapping(value="/find/appointment/timeListTest",method=RequestMethod.POST)
+	@ResponseBody
+	public MobileResultVO findAppointmentTimeListTest(HttpServletRequest req) {
+    	MobileResultVO result = new MobileResultVO();
+		try {
+			List<Map<String,Object>> appointmentList = this.indexService.findAppointmentTimeList();
+			result.setData(appointmentList);
+			result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
+		}catch(Exception e) {
+			logger.error("获取预约时间", e);
+			result.setCode(MobileResultVO.CODE_FAIL);
+			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+		}
+		return result;
+	}
 }

@@ -1,11 +1,14 @@
 package com.sdkj.business.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.sdkj.business.dao.distributionFee.DistributionFeeMapper;
@@ -18,6 +21,7 @@ import com.sdkj.business.domain.po.VehicleSpecialRequirement;
 import com.sdkj.business.domain.po.VehicleTypeInfo;
 import com.sdkj.business.service.IndexService;
 import com.sdkj.business.util.Constant;
+import com.sdlh.common.DateUtilLH;
 import com.sdlh.common.StringUtilLH;
 
 @Service
@@ -29,6 +33,12 @@ public class IndexServiceImpl implements IndexService{
 	@Autowired
 	private VehicleTypeInfoMapper vehicleTypeInfoMapper;
 	
+	@Value("${appointment.hour.list.str}")
+	private String hourListStr;
+	
+	@Value("${appointment.minute.list.str}")
+	private String minuteListStr;
+ 
 	@Autowired
 	private ServiceStationMapper serviceStationMapper;
 	@Override
@@ -95,5 +105,85 @@ public class IndexServiceImpl implements IndexService{
 		result.put("serviceStationList", serviceStationList);
 		return result;
 	}
+	@Override
+	public List<Map<String, Object>> findAppointmentTimeList() {
+		List<Map<String,Object>> timeList = new ArrayList<Map<String,Object>>();
+		Calendar ca = Calendar.getInstance();
+		String[] hourList = hourListStr.split(",");
+		String[] minuteList = minuteListStr.split(",");
+		int curHour = ca.get(Calendar.HOUR_OF_DAY);
+		int curMinute = ca.get(Calendar.MINUTE);
+		String curHourStr = curHour+"";
+		if(curHourStr.length()<2) {
+			curHourStr = "0"+curHourStr;
+		}
+		String curMinuteStr = curMinute+"";
+		if(curMinuteStr.length()<2) {
+			curMinuteStr = "0"+curMinuteStr;
+		}
+		for(int i=0;;i++) {
+			ca.add(Calendar.DAY_OF_MONTH, i);
+			if(i==0) {
+				List<String> todayHourList = new ArrayList<String>();
+				List<List<String>> totalMinuteList = new ArrayList<List<String>>();
+				for(String hourItem:hourList) {
+					if(curHourStr.compareTo(hourItem)<0) {
+						todayHourList.add(hourItem);
+					}
+				}
+				if(todayHourList.size()>0) {
+					for(int j=0;j<todayHourList.size();) {
+						List<String> hourMinuteList = new ArrayList<String>();
+						if(j==0) {
+							for(String minuteItem:minuteList) {
+								if(curMinuteStr.compareTo(minuteItem)<0) {
+									hourMinuteList.add(minuteItem);
+								}
+							}
+							if(hourMinuteList.size()>0) {
+								totalMinuteList.add(hourMinuteList);
+								j++;
+							}else {
+								todayHourList.remove(j);
+							}
+						}else {
+							totalMinuteList.add(Arrays.asList(minuteList));
+							j++;
+						}
+					}
+				}
+				if(todayHourList.size()>0 && totalMinuteList.size()>0) {
+					Map<String,Object> todayItem = new HashMap<String,Object>();
+					todayItem.put("day", "今天");
+					todayItem.put("houreList", todayHourList);
+					todayItem.put("minList", totalMinuteList);
+					timeList.add(todayItem);
+				}				
+			}else {
+				List<String> totalHourList = Arrays.asList(hourList);
+				List<List<String>> totalMinuteList = new ArrayList<List<String>>();
+				for(int k=0;k<totalHourList.size();k++) {
+					totalMinuteList.add(Arrays.asList(minuteList));
+				}
+				if(totalHourList.size()>0 && totalHourList.size()>0) {
+					Map<String,Object> dayItem = new HashMap<String,Object>();
+					if(i==1) {
+						dayItem.put("day", "明天");
+					}else {
+						dayItem.put("day", DateUtilLH.convertDate2Str(ca.getTime(), "yyyy-MM-dd"));
+					}
+					dayItem.put("houreList", totalHourList);
+					dayItem.put("minList", totalMinuteList);
+					timeList.add(dayItem);
+				}
+			}
+			if(timeList.size()>2) {
+				break;
+			}
+		}
+		return timeList;
+	}
+	
+	
 	
 }
