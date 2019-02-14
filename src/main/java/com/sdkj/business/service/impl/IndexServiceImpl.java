@@ -127,7 +127,7 @@ public class IndexServiceImpl implements IndexService{
 				List<String> todayHourList = new ArrayList<String>();
 				List<List<String>> totalMinuteList = new ArrayList<List<String>>();
 				for(String hourItem:hourList) {
-					if(curHourStr.compareTo(hourItem)<0) {
+					if(curHourStr.compareTo(hourItem)<=0) {
 						todayHourList.add(hourItem);
 					}
 				}

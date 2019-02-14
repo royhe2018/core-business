@@ -69,9 +69,9 @@ public class IndexController {
 		return result;
 	}
     
-    @RequestMapping(value="/find/appointment/timeList",method=RequestMethod.POST)
+    @RequestMapping(value="/find/appointment/timeListTest",method=RequestMethod.POST)
 	@ResponseBody
-	public MobileResultVO findAppointmentTimeList(HttpServletRequest req) {
+	public MobileResultVO findAppointmentTimeListTest(HttpServletRequest req) {
     	MobileResultVO result = new MobileResultVO();
 		try {
 			List<Map<String,Object>> appointmentList = new ArrayList<Map<String,Object>>();
@@ -143,9 +143,9 @@ public class IndexController {
 		return result;
 	}
     
-    @RequestMapping(value="/find/appointment/timeListTest",method=RequestMethod.POST)
+    @RequestMapping(value="/find/appointment/timeList",method=RequestMethod.POST)
 	@ResponseBody
-	public MobileResultVO findAppointmentTimeListTest(HttpServletRequest req) {
+	public MobileResultVO findAppointmentTimeList(HttpServletRequest req) {
     	MobileResultVO result = new MobileResultVO();
 		try {
 			List<Map<String,Object>> appointmentList = this.indexService.findAppointmentTimeList();

@@ -36,7 +36,7 @@ public class CheckCodeServiceImpl implements CheckCodeService {
 		String code = SmsUtil.getRandomNumber(6);
 		Map<String,String> param = new HashMap<String,String>();
 		param.put("checkCode", code);
-		boolean sendResult = SmsUtil.sendSms(phoneNumber, "SMS_152509976", param);
+		boolean sendResult = SmsUtil.sendSms(phoneNumber, "SMS_157454607", param);
 		if(sendResult) {
 			result.setCode(MobileResultVO.CODE_SUCCESS);
 			CheckCode checkCode = new CheckCode();
@@ -89,7 +89,7 @@ public class CheckCodeServiceImpl implements CheckCodeService {
 				param.clear();
 				Map<String,String> smsParam = new HashMap<String,String>();
 				smsParam.put("checkCode", code);
-				boolean sendResult = SmsUtil.sendSms(phoneNumber, "SMS_152509976", smsParam);
+				boolean sendResult = SmsUtil.sendSms(phoneNumber, "SMS_157454607", smsParam);
 				if(sendResult) {
 					result.setCode(MobileResultVO.CODE_SUCCESS);
 					result.setMessage("发送成功!");
