@@ -235,21 +235,15 @@ public class OrderFeeItemController {
     @SysLog(description="支付宝回调",optCode="aliPayNotify")
     public String  aliPayNotify(HttpServletRequest request, HttpServletResponse resp) throws Exception{
     	logger.info("进入支付回调");
-        Map<String,String> notifyResult = new HashMap<String,String>();
-    	notifyResult.put("code", "FAIL");
-	    notifyResult.put("msg", "支付通知异常");
+	    String resutl = "fail";
         try{
         	orderFeeItemService.aliPayNotify(request.getParameterMap());
+        	resutl = "success";
         }catch(Exception e){
         	logger.error("支付回调异常", e);
         }
         resp.setCharacterEncoding("UTF-8");
-        String xml="<xml>"
-                +"<return_code>"+notifyResult.get("code")+"</return_code>"
-                +"<return_msg>"+notifyResult.get("msg")+"</return_msg>"
-                +"</xml>";
-        logger.info("return xml:"+xml);
-        return xml;
+        return resutl;
     }
     
 }

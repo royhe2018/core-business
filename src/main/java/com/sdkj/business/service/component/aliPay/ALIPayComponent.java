@@ -47,6 +47,7 @@ public class ALIPayComponent {
 			model.setTotalAmount(payMoney+"");
 			model.setProductCode("QUICK_MSECURITY_PAY");
 			model.setBusinessParams(businessParams);
+			model.setPassbackParams(businessParams);
 			request.setBizModel(model);
 			request.setNotifyUrl(aliNotifyUrl);
 	        //这里和普通的接口调用不同，使用的是sdkExecute
@@ -77,8 +78,8 @@ public class ALIPayComponent {
 			}
 			//切记alipaypublickey是支付宝的公钥，请去open.alipay.com对应应用下查看。
 			//boolean AlipaySignature.rsaCheckV1(Map<String, String> params, String publicKey, String charset, String sign_type)
-			logger.info(JsonUtil.convertObjectToJsonStr(parseResult));
 			boolean flag = AlipaySignature.rsaCheckV1(parseResult, aliPayPublicKey, "UTF-8","RSA2");
+			logger.info(flag+":"+JsonUtil.convertObjectToJsonStr(parseResult));
 		}catch(Exception e) {
 			logger.error("支付宝回调异常", e);
 		}

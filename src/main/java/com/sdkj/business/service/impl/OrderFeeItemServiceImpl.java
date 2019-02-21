@@ -247,67 +247,79 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 		Map<String,String> notifyMap = wxPayComponent.parseXmlToMap(notifyInfo);
 		logger.info("notifyMap:"+JsonUtil.convertObjectToJsonStr(notifyMap));
 		String resultCode = notifyMap.get("result_code");
+		String attach = notifyMap.get("attach");
+		String totalFee = notifyMap.get("total_fee");
 		if("SUCCESS".equals(resultCode)){
-			String attach = notifyMap.get("attach");
-			String totalFee = notifyMap.get("total_fee");
-			String[] attachArr = attach.split("\\|");
-			String feeItemIds = attachArr[0];
-			String orderId = attachArr[1];
-			logger.info("feeItemIds:"+feeItemIds);
-			logger.info("orderId:"+orderId);
-			if(!feeItemIds.startsWith(",")){
-				feeItemIds = ","+feeItemIds;
-			}
-			if(!feeItemIds.endsWith(",")){
-				feeItemIds = feeItemIds+",";
-			}
-			Map<String,Object> queryMap= new HashMap<String,Object>();
-			queryMap.put("orderId", orderId);
-			queryMap.put("status", 0);//查找未付款项
-			List<OrderFeeItem> feeItemList = orderFeeItemMapper.findOrderFeeItemList(queryMap);
-			boolean  hasNoPayItem = false;
-	        int payFee=0;
-	        if(feeItemList!=null && feeItemList.size()>0){
-	        	for(OrderFeeItem item:feeItemList){
-	        		String itemIdKey = ","+item.getId()+",";
-	        		if(feeItemIds.contains(itemIdKey)){
-	        			item.setPayMethod(2);
-	    				item.setPayTime(DateUtilLH.getCurrentTime());
-	    				item.setStatus(1);
-	            		orderFeeItemMapper.updateByPrimaryKey(item);
-	            		logger.info("payFee amount:"+item.getFeeAmount());
-	            		payFee +=item.getFeeAmount()*100;
-	            		logger.info("payFee item:"+payFee);
-	            		feeItemIds = feeItemIds.replaceAll(itemIdKey, ",");
-	        		}else{
-	        			hasNoPayItem = true;
-	        		}
-	        	}
-	        }
-			logger.info("payFeeFen:"+payFee);
-			logger.info("hasNoPayItem:"+hasNoPayItem);
-			logger.info("feeItemIds:"+feeItemIds);
-			payFee=1;//暂时不计算金额正误，只做测试
-			if(!totalFee.equals(payFee+"")){
-				logger.info("金额核对有误："+payFee);
-			}else if(!",".equals(feeItemIds)){
-				logger.info("有不区配的支付项："+feeItemIds);
-			}else {
-				logger.info("update order status");
-				Map<String,Object> orderQueryMap=new HashMap<String,Object>();
-				orderQueryMap.put("id", orderId);
-				OrderInfo order = orderInfoMapper.findSingleOrder(orderQueryMap);
-				if(hasNoPayItem){
-					logger.info("setPayStatus 1");
-					order.setPayStatus(1);//未付清
-				}else{
-					logger.info("setPayStatus 2");
-					order.setPayStatus(2);//已付清
-				}
-				orderInfoMapper.updateById(order);
-			}
+			notifyFeeItemPay(attach, totalFee);
 		}
 		return result;
+	}
+
+	private void notifyFeeItemPay(String attach, String totalFee) {
+		String[] attachArr = attach.split("\\|");
+		String feeItemIds = attachArr[0];
+		String orderId = attachArr[1];
+		logger.info("feeItemIds:"+feeItemIds);
+		logger.info("orderId:"+orderId);
+		if(!feeItemIds.startsWith(",")){
+			feeItemIds = ","+feeItemIds;
+		}
+		if(!feeItemIds.endsWith(",")){
+			feeItemIds = feeItemIds+",";
+		}
+		Map<String,Object> queryMap= new HashMap<String,Object>();
+		queryMap.put("orderId", orderId);
+		queryMap.put("status", 0);//查找未付款项
+		List<OrderFeeItem> feeItemList = orderFeeItemMapper.findOrderFeeItemList(queryMap);
+		boolean  hasNoPayItem = false;
+		int payFee=0;
+		if(feeItemList!=null && feeItemList.size()>0){
+			for(OrderFeeItem item:feeItemList){
+				String itemIdKey = ","+item.getId()+",";
+				if(feeItemIds.contains(itemIdKey)){
+					item.setPayMethod(2);
+					item.setPayTime(DateUtilLH.getCurrentTime());
+					item.setStatus(1);
+		    		orderFeeItemMapper.updateByPrimaryKey(item);
+		    		logger.info("payFee amount:"+item.getFeeAmount());
+		    		payFee +=item.getFeeAmount()*100;
+		    		logger.info("payFee item:"+payFee);
+		    		feeItemIds = feeItemIds.replaceAll(itemIdKey, ",");
+				}else{
+					hasNoPayItem = true;
+				}
+			}
+		}
+		logger.info("payFeeFen:"+payFee);
+		logger.info("hasNoPayItem:"+hasNoPayItem);
+		logger.info("feeItemIds:"+feeItemIds);
+		payFee=1;//暂时不计算金额正误，只做测试
+		if(!totalFee.equals(payFee+"")){
+			logger.info("金额核对有误："+payFee);
+		}else if(!",".equals(feeItemIds)){
+			logger.info("有不区配的支付项："+feeItemIds);
+		}else {
+			logger.info("update order status");
+			Map<String,Object> orderQueryMap=new HashMap<String,Object>();
+			orderQueryMap.put("id", orderId);
+			OrderInfo order = orderInfoMapper.findSingleOrder(orderQueryMap);
+			if(hasNoPayItem){
+				logger.info("setPayStatus 1");
+				order.setPayStatus(1);//未付清
+			}else{
+				logger.info("setPayStatus 2");
+				order.setPayStatus(2);//已付清
+			}
+			orderInfoMapper.updateById(order);
+			for(OrderFeeItem item:feeItemList){
+				String itemIdKey = ","+item.getId()+",";
+				if(feeItemIds.contains(itemIdKey)){
+					orderFeeItemMapper.updateByPrimaryKey(item);
+				}else{
+					hasNoPayItem = true;
+				}
+			}
+		}
 	}
 
 	@Override
@@ -382,7 +394,13 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 
 	@Override
 	public MobileResultVO aliPayNotify(Map notifyInfo) {
-		aliPayComponent.parseAliPayNotify(notifyInfo);
+		Map<String,String> notifyMap = aliPayComponent.parseAliPayNotify(notifyInfo);
+		String attach = notifyMap.get("passback_params");
+		String totalFeeStr = notifyMap.get("total_amount");
+		if(StringUtils.isNotEmpty(attach)&&StringUtils.isNotEmpty(totalFeeStr)){
+			int totalFee = (int)(Float.valueOf(totalFeeStr)*100);
+			notifyFeeItemPay(attach, totalFee+"");
+		}
 		return null;
 	}
 
