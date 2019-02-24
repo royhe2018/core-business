@@ -79,6 +79,8 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 			User driverUser = userMapper.findSingleUser(param);
 			for(OrderFeeItem target:itemList){
 				if(target.getFeeAmount()>0){
+					target.setDriverFee(target.getFeeAmount());
+					target.setDriverId(driverUser.getId());
 					target.setClientRefereeId(clientUser.getRefereeId());
 					target.setClientRefereeFee(0f);
 					target.setDriverRefereeId(driverUser.getRefereeId());

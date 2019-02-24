@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.aliyuncs.utils.StringUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sdkj.business.domain.po.LeaseTruckOrder;
@@ -316,11 +317,15 @@ public class OrderController {
 					OrderRoutePoint placePoint = new OrderRoutePoint();
 					placePoint.setAddress(placeNode.get("placeAddress").asText());
 					placePoint.setPlaceName(placeNode.get("placeName").asText());
-					if(placeNode.has("contactName")){
+					if(placeNode.has("contactName")&& StringUtils.isNotEmpty(placeNode.get("contactName").asText())){
 						placePoint.setContactUserName(placeNode.get("contactName").asText());
+					}else{
+						placePoint.setContactUserName(contactName);
 					}
-					if(placeNode.has("contactPhone")){
+					if(placeNode.has("contactPhone") && StringUtils.isNotEmpty(placeNode.get("contactPhone").asText())){
 						placePoint.setContactUserPhone(placeNode.get("contactPhone").asText());
+					}else{
+						placePoint.setContactUserPhone(contactPhone);
 					}
 					placePoint.setOrderNum(i+1);
 					String location = placeNode.get("placePosition").asText();
