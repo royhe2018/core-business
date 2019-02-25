@@ -11,6 +11,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,14 @@ public class OrderFeeItemController {
 						item.setOrderId(Long.valueOf(orderId));
 						item.setFeeName(feeNode.get("feeName").asText());
 						item.setFeeAmount(Float.valueOf(feeNode.get("feeAmount").asText()));
+						if(feeNode.has("feeId") && StringUtils.isNotEmpty(feeNode.get("feeId").asText())) {
+							item.setId(Long.valueOf(feeNode.get("feeId").asText()));
+						}
+						if(feeNode.has("feeType") && StringUtils.isNotEmpty(feeNode.get("feeType").asText())) {
+							item.setFeeType(Integer.valueOf(feeNode.get("feeType").asText()));
+						}else {
+							item.setFeeType(2);
+						}
 						feeList.add(item);
 					}
 				}
@@ -91,6 +100,24 @@ public class OrderFeeItemController {
    		}
    		return result;
     }
+    
+    @RequestMapping(value="/find/order/fee/item",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="查询订单费用明细",optCode="findOverTimeFee")
+   	public MobileResultVO findOrderFeeItem(HttpServletRequest req) {
+    	MobileResultVO result = null;
+   		try {
+   			String orderId = req.getParameter("orderId");
+			result = orderFeeItemService.findOrderFeeItemPayInfoList(orderId);
+   		}catch(Exception e) {
+   			logger.error("查询订单费用明细列表异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+    }
+    
     
     @RequestMapping(value="/find/order/fee/list",method=RequestMethod.POST)
    	@ResponseBody

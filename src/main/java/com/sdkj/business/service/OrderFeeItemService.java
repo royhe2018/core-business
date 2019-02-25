@@ -33,4 +33,5 @@ public interface OrderFeeItemService {
 	
 	public MobileResultVO findOrderOverTimeFee(String orderId);
 	
+	public MobileResultVO findOrderFeeItemPayInfoList(String orderId);
 }

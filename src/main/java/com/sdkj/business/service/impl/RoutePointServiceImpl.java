@@ -63,10 +63,10 @@ public class RoutePointServiceImpl implements RoutePointService {
 				order.setStatus(Constant.ORDER_STATUS_SIJIDAODASHOUHUO);
 				
 				//支付提醒广播
-				Map<String,Object> payRemarkMap = new HashMap<String,Object>();
-				payRemarkMap.put("orderId", pointDB.getOrderId());
-				payRemarkMap.put("payFeeType", 1);
-				this.aliMQProducer.sendMessage(orderDispatchTopic,Constant.MQ_TAG_PAY_REMARK,payRemarkMap);
+//				Map<String,Object> payRemarkMap = new HashMap<String,Object>();
+//				payRemarkMap.put("orderId", pointDB.getOrderId());
+//				payRemarkMap.put("payFeeType", 1);
+//				this.aliMQProducer.sendMessage(orderDispatchTopic,Constant.MQ_TAG_PAY_REMARK,payRemarkMap);
 			}
 			orderInfoMapper.updateById(order);
 		}

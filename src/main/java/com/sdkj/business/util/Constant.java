@@ -30,7 +30,7 @@ public class Constant {
 	public static final String MQ_TAG_PAY_REMARK = "PAY_REMARK";
 	public static final String MQ_TAG_FORCE_OFFLINE = "FORCE_OFFLINE";
 	/**
-	 * 订单状态0未接单；1已接单；2司机到达装货点，3装货完成；4运途中；5终点到达；6已签收
+	 * 订单状态0未接单；1已接单；2司机到达装货点，3装货完成；4运途中；5终点到达；6已签收,7订单结束；8确认费用；9支付完成
 	 */
 	public static final int ORDER_STATUS_WEIJIEDAN=0;
 	public static final int ORDER_STATUS_JIEDAN=1;
@@ -40,6 +40,8 @@ public class Constant {
 	public static final int ORDER_STATUS_SIJIDAODASHOUHUO=5;
 	public static final int ORDER_STATUS_YIQIANSHOU=6;
 	public static final int ORDER_STATUS_FINISH=7;
+	public static final int ORDER_STATUS_CONFIRMFEE=8;
+	public static final int ORDER_STATUS_PAYFINISH=9;
 	
 	/**
 	 * 订单取消状态0未取消；1已取消

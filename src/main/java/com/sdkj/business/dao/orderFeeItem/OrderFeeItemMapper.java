@@ -8,7 +8,9 @@ import com.sdkj.business.domain.po.OrderFeeItem;
 public interface OrderFeeItemMapper {
 
     int insert(OrderFeeItem record);
-
+    
+    OrderFeeItem findSingleOrderFeeItem(Map<String,Object> param);
+    
     List<OrderFeeItem> findOrderFeeItemList(Map<String,Object> param);
 
     int updateByPrimaryKey(OrderFeeItem record);

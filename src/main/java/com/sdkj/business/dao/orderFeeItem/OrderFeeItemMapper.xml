@@ -20,6 +20,15 @@
     <result column="plat_form_fee"  property="platFormFee" />
   </resultMap>
  
+ 
+  <select id="findSingleOrderFeeItem" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_order_fee_item
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id != null"> and id = #{id}</if>
+    </trim>
+  </select>	
+  	
   <select id="findOrderFeeItemList" parameterType="java.util.Map" resultMap="BaseResultMap">
     select *
     from sdlh_order_fee_item

@@ -67,18 +67,24 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 			Map<String,Object> orderQueryMap=new HashMap<String,Object>();
 			orderQueryMap.put("id", itemList.get(0).getOrderId());
 			OrderInfo order = orderInfoMapper.findSingleOrder(orderQueryMap);
-			if(order.getPayStatus().intValue()!=0){
-				order.setPayStatus(1);
-				orderInfoMapper.updateById(order);
-			}
 			//额外费用增加推荐人项分配，暂无分配，后需可增加设置项
 			Map<String,Object> param = new HashMap<String,Object>();
 			param.put("id",order.getUserId());
 			User clientUser = userMapper.findSingleUser(param);
 			param.put("id",order.getDriverId());
 			User driverUser = userMapper.findSingleUser(param);
+			Float noPaidFee=0f;
 			for(OrderFeeItem target:itemList){
 				if(target.getFeeAmount()>0){
+					if(target.getId()!=null) {
+						param.clear();
+						param.put("id", target.getId());
+						OrderFeeItem feeItemDB = orderFeeItemMapper.findSingleOrderFeeItem(param);
+						if(feeItemDB.getStatus().intValue()==1||feeItemDB.getFeeType().intValue()==1) {
+							continue;
+						}
+					}
+					noPaidFee +=target.getFeeAmount();
 					target.setDriverFee(target.getFeeAmount());
 					target.setDriverId(driverUser.getId());
 					target.setClientRefereeId(clientUser.getRefereeId());
@@ -86,32 +92,47 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 					target.setDriverRefereeId(driverUser.getRefereeId());
 					target.setDriverRefereeFee(0f);
 					target.setPlatFormFee(0f);
-					target.setStatus(0);
-					orderFeeItemMapper.insert(target);
-					if("等候逾时费".equals(target.getFeeName())){
-						param.clear();
-						param.put("orderId", order.getId());
-						List<OrderRoutePoint> routPointList = orderRoutePointMapper.findRoutePointList(param);
-						if(routPointList!=null && routPointList.size()>0){
-							for(int i=0;i<routPointList.size();i++){
-								OrderRoutePoint routePoint = routPointList.get(i);
-								if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_CALED){
-									routePoint.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED);
-									orderRoutePointMapper.updateByPrimaryKeySelective(routePoint);
-								}else if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL){
-									routePoint.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED);
-									orderRoutePointMapper.updateByPrimaryKeySelective(routePoint);
-									break;
+					target.setStatus(Constant.FEE_ITEM_PAY_STATUS_NOPAY);
+					if(target.getId()!=null) {
+						orderFeeItemMapper.updateByPrimaryKey(target);
+					}else {
+						orderFeeItemMapper.insert(target);
+						if("等候逾时费".equals(target.getFeeName())){
+							param.clear();
+							param.put("orderId", order.getId());
+							List<OrderRoutePoint> routPointList = orderRoutePointMapper.findRoutePointList(param);
+							if(routPointList!=null && routPointList.size()>0){
+								for(int i=0;i<routPointList.size();i++){
+									OrderRoutePoint routePoint = routPointList.get(i);
+									if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_CALED){
+										routePoint.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED);
+										orderRoutePointMapper.updateByPrimaryKeySelective(routePoint);
+									}else if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL){
+										routePoint.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED);
+										orderRoutePointMapper.updateByPrimaryKeySelective(routePoint);
+										break;
+									}
 								}
 							}
 						}
 					}
 				}
 			}
+			
+			if(noPaidFee.floatValue()>0) {
+				order.setStatus(Constant.ORDER_STATUS_CONFIRMFEE);
+				order.setPayStatus(Constant.ORDER_PAY_STATUS_NOPAID);
+				orderInfoMapper.updateById(order);
+			}else {
+				order.setStatus(Constant.ORDER_STATUS_PAYFINISH);
+				order.setPayStatus(Constant.ORDER_PAY_STATUS_PAID);
+				orderInfoMapper.updateById(order);
+			}
+			
 			//添加费用支付提醒广播
 			Map<String,Object> payRemarkMap = new HashMap<String,Object>();
 			payRemarkMap.put("orderId", order.getId());
-			payRemarkMap.put("payFeeType", 2);
+			payRemarkMap.put("payFeeType", 1);
 			this.aliMQProducer.sendMessage(orderDispatchTopic,Constant.MQ_TAG_PAY_REMARK,payRemarkMap);
 		}
 		result.setMessage("添加成功");
@@ -307,10 +328,13 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 			OrderInfo order = orderInfoMapper.findSingleOrder(orderQueryMap);
 			if(hasNoPayItem){
 				logger.info("setPayStatus 1");
-				order.setPayStatus(1);//未付清
+				order.setPayStatus(Constant.ORDER_PAY_STATUS_NOPAID);//未付清
 			}else{
 				logger.info("setPayStatus 2");
-				order.setPayStatus(2);//已付清
+				order.setPayStatus(Constant.ORDER_PAY_STATUS_PAID);//已付清
+				if(Constant.ORDER_STATUS_CONFIRMFEE==order.getStatus().intValue()) {
+					order.setStatus(Constant.ORDER_STATUS_PAYFINISH);
+				}
 			}
 			orderInfoMapper.updateById(order);
 			for(OrderFeeItem item:feeItemList){
@@ -404,6 +428,36 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 			notifyFeeItemPay(attach, totalFee+"");
 		}
 		return null;
+	}
+
+	@Override
+	public MobileResultVO findOrderFeeItemPayInfoList(String orderId) {
+		MobileResultVO result = new MobileResultVO();
+		Map<String,Object> queryMap= new HashMap<String,Object>();
+		queryMap.put("orderId", orderId);
+		List<OrderFeeItem> feeItemList = orderFeeItemMapper.findOrderFeeItemList(queryMap);
+		if(feeItemList!=null && feeItemList.size()>0) {
+			boolean hasOverTimeFee = false;
+			for(OrderFeeItem feeItem:feeItemList) {
+				if("等候逾时费".equals(feeItem.getFeeName())) {
+					hasOverTimeFee = true;
+					break;
+				}
+			}
+			if(!hasOverTimeFee) {
+				MobileResultVO overTimeFee = findOrderOverTimeFee(orderId);
+				OrderFeeItem overTimeFeeItem = new OrderFeeItem();
+				overTimeFeeItem.setFeeAmount(Float.valueOf(overTimeFee.getData().toString()));
+				overTimeFeeItem.setFeeName("等候逾时费");
+				overTimeFeeItem.setFeeType(2);
+				feeItemList.add(overTimeFeeItem);
+			}
+		}
+		
+		result.setData(feeItemList);
+		result.setCode(MobileResultVO.CODE_SUCCESS);
+		result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
+		return result;
 	}
 
 }
