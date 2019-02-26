@@ -114,6 +114,9 @@
       <if test="clientRefereeId != null">
         client_referee_id = #{clientRefereeId},
       </if>
+      <if test="driverFee != null">
+        driver_fee = #{driverFee},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>

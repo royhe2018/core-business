@@ -41,6 +41,7 @@ import com.sdkj.business.service.AliMQProducer;
 import com.sdkj.business.service.OrderService;
 import com.sdkj.business.util.Constant;
 import com.sdlh.common.DateUtilLH;
+import com.sdlh.common.JsonUtil;
 import com.sdlh.common.StringUtilLH;
 
 @Service
@@ -147,6 +148,7 @@ public class OrderServiceImpl implements OrderService {
 		param.put("feeType", feeItem.getFeeType());
 		param.put("driverType", driverInfo.getDriverType());
 		param.put("vehicleType", order.getVehicleTypeId());
+		logger.info("param:"+JsonUtil.convertObjectToJsonStr(param));
 		List<DistributionSetting> feeDispatchSettingList = distributionSettingMapper
 				.findDistributionSettingList(param);
 		if (feeDispatchSettingList != null && feeDispatchSettingList.size()>0) {
@@ -253,7 +255,7 @@ public class OrderServiceImpl implements OrderService {
 					param.put("id", order.getDriverId());
 					User driver = this.userMapper.findSingleUser(param);
 					param.clear();
-					param.put("id", order.getUserId());
+					param.put("id", dbOrder.getUserId());
 					User orderUser = this.userMapper.findSingleUser(param);
 					if(driver!=null) {
 						param.clear();
@@ -261,7 +263,9 @@ public class OrderServiceImpl implements OrderService {
 						List<OrderFeeItem> feeItemList = this.orderFeeItemMapper.findOrderFeeItemList(param);
 						if(feeItemList!=null && feeItemList.size()>0) {
 							for(OrderFeeItem feeItem:feeItemList) {
-								distributeOrderFee(orderUser,driver,order, feeItem);
+								logger.info("feeItem11:"+JsonUtil.convertObjectToJsonStr(feeItem));
+								distributeOrderFee(orderUser,driver,dbOrder, feeItem);
+								logger.info("feeItem22:"+JsonUtil.convertObjectToJsonStr(feeItem));
 								feeItem.setDriverId(order.getDriverId());
 								if(feeItem.getDriverRefereeFee()!=null) {
 									if(driver.getRefereeId()!=null) {

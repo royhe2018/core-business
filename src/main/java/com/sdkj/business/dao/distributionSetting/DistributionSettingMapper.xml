@@ -39,6 +39,8 @@
 			<if test="city != null">and city = #{city}</if>
 			<if test="roleType != null">and role_type = #{roleType}</if>
 			<if test="feeType != null">and fee_type = #{feeType}</if>
+			<if test="driverType != null">and driver_type = #{driverType}</if>
+			<if test="vehicleType != null">and vehicle_type = #{vehicleType}</if>
 		</trim>
 	</select>
 </mapper>
