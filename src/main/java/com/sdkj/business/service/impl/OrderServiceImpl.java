@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.aliyuncs.utils.StringUtils;
 import com.github.pagehelper.PageHelper;
 import com.sdkj.business.dao.distributionSetting.DistributionSettingMapper;
+import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
 import com.sdkj.business.dao.leaseTruckOrder.LeaseTruckOrderMapper;
 import com.sdkj.business.dao.orderFeeItem.OrderFeeItemMapper;
 import com.sdkj.business.dao.orderInfo.OrderInfoMapper;
@@ -26,6 +27,7 @@ import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.dao.vehicleSpecialRequirement.VehicleSpecialRequirementMapper;
 import com.sdkj.business.dao.vehicleTypeInfo.VehicleTypeInfoMapper;
 import com.sdkj.business.domain.po.DistributionSetting;
+import com.sdkj.business.domain.po.DriverInfo;
 import com.sdkj.business.domain.po.LeaseTruckOrder;
 import com.sdkj.business.domain.po.OrderFeeItem;
 import com.sdkj.business.domain.po.OrderInfo;
@@ -71,7 +73,9 @@ public class OrderServiceImpl implements OrderService {
 
 	@Autowired
 	private DistributionSettingMapper distributionSettingMapper;
-
+	
+	@Autowired
+	private DriverInfoMapper driverInfoMapper;
 	@Override
 	public MobileResultVO submitOrder(OrderInfo order, List<OrderRoutePoint> routePointList) {
 		MobileResultVO result = new MobileResultVO();
@@ -107,7 +111,6 @@ public class OrderServiceImpl implements OrderService {
 			startFee.setOrderId(order.getId());
 			startFee.setFeeType(1);
 			startFee.setStatus(0);
-			distributeOrderFee(orderUser,order, startFee,1);
 			orderFeeItemMapper.insert(startFee);
 		}
 		if (order.getExtraFee() != null && order.getExtraFee().floatValue() > 0) {
@@ -117,7 +120,6 @@ public class OrderServiceImpl implements OrderService {
 			extraFee.setOrderId(order.getId());
 			extraFee.setFeeType(2);
 			extraFee.setStatus(0);
-			distributeOrderFee(orderUser,order, extraFee,2);
 			orderFeeItemMapper.insert(extraFee);
 		}
 		if (order.getAttachFee() != null && order.getAttachFee().floatValue() > 0) {
@@ -136,70 +138,40 @@ public class OrderServiceImpl implements OrderService {
 		return result;
 	}
 
-	private void distributeOrderFee(User orderUser,OrderInfo order, OrderFeeItem feeItem,int feeType) {
+	private void distributeOrderFee(User orderUser,User driver,OrderInfo order, OrderFeeItem feeItem) {
 		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("userId", driver.getId());
+		DriverInfo driverInfo = driverInfoMapper.findSingleDriver(param);
+		param.clear();
 		param.put("city", order.getCityName());
-		param.put("feeType", feeType);
+		param.put("feeType", feeItem.getFeeType());
+		param.put("driverType", driverInfo.getDriverType());
+		param.put("vehicleType", order.getVehicleTypeId());
 		List<DistributionSetting> feeDispatchSettingList = distributionSettingMapper
 				.findDistributionSettingList(param);
-		if (feeDispatchSettingList != null) {
-			Integer distributeType = 0;
+		if (feeDispatchSettingList != null && feeDispatchSettingList.size()>0) {
 			Float distributeTotalFee = 0f;
-			for (DistributionSetting item : feeDispatchSettingList) {
-				if (distributeType.intValue() == 0) {
-					distributeType = item.getDistributionMethod();
-				}
-				if (distributeType.intValue() == 1) {
-					switch (item.getRoleType()) {
-					case Constant.FEE_DISPATCH_ROLE_CLIENT_REFEREE:
-						feeItem.setClientRefereeFee(item.getAmount());
-						distributeTotalFee += feeItem.getClientRefereeFee();
-						break;
-					case Constant.FEE_DISPATCH_ROLE_DRIVER_REFEREE:
-						feeItem.setDriverRefereeFee(item.getAmount());
-						distributeTotalFee += feeItem.getDriverRefereeFee();
-						break;
-					case Constant.FEE_DISPATCH_ROLE_PLATFORM:
-						feeItem.setPlatFormFee(item.getAmount());
-						distributeTotalFee += feeItem.getPlatFormFee();
-						break;
-					default:
-						break;
-					}
-				} else {
-					Float realAmount = item.getAmount()*feeItem.getFeeAmount();
-					BigDecimal bg = new BigDecimal(realAmount).setScale(2, RoundingMode.UP);
-					switch (item.getRoleType()) {
-					case Constant.FEE_DISPATCH_ROLE_CLIENT_REFEREE:
-						feeItem.setClientRefereeFee(bg.floatValue());
-						distributeTotalFee += feeItem.getClientRefereeFee();
-						break;
-					case Constant.FEE_DISPATCH_ROLE_DRIVER_REFEREE:
-						feeItem.setDriverRefereeFee(bg.floatValue());
-						distributeTotalFee += feeItem.getDriverRefereeFee();
-						break;
-					case Constant.FEE_DISPATCH_ROLE_PLATFORM:
-						feeItem.setPlatFormFee(bg.floatValue());
-						distributeTotalFee += feeItem.getPlatFormFee();
-						break;
-					default:
-						break;
-					}
-				}
-			}
+			DistributionSetting distributionSetting = feeDispatchSettingList.get(0);
+			Float clientRefereeRealAmount = distributionSetting.getClientRefereeAmount()*feeItem.getFeeAmount();
+			BigDecimal clientRefereeBg = new BigDecimal(clientRefereeRealAmount).setScale(2, RoundingMode.UP);
+			feeItem.setClientRefereeFee(clientRefereeBg.floatValue());
+			distributeTotalFee += feeItem.getClientRefereeFee();
+			
+			Float driverRefereeRealAmount = distributionSetting.getDriverRefereeAmount()*feeItem.getFeeAmount();
+			BigDecimal driverRefereeBg = new BigDecimal(driverRefereeRealAmount).setScale(2, RoundingMode.UP);
+			feeItem.setDriverRefereeFee(driverRefereeBg.floatValue());
+			distributeTotalFee += feeItem.getDriverRefereeFee();
+			
+			Float platformRealAmount = distributionSetting.getPlatformAmount()*feeItem.getFeeAmount();
+			BigDecimal platformBg = new BigDecimal(platformRealAmount).setScale(2, RoundingMode.UP);
+			feeItem.setPlatFormFee(platformBg.floatValue());
+			distributeTotalFee += feeItem.getPlatFormFee();
 			feeItem.setDriverFee(feeItem.getFeeAmount()-distributeTotalFee);
 		} else {
 			feeItem.setDriverFee(order.getStartFee());
-			feeItem.setPlatFormFee(0f);
-		}
-		if(feeItem.getPlatFormFee()==null){
-			feeItem.setPlatFormFee(0f);
-		}
-		if(feeItem.getClientRefereeFee()==null){
 			feeItem.setClientRefereeFee(0f);
-		}
-		if(feeItem.getDriverRefereeFee()==null){
 			feeItem.setDriverRefereeFee(0f);
+			feeItem.setPlatFormFee(0f);
 		}
 		if(orderUser.getRefereeId()!=null) {
 			feeItem.setClientRefereeId(orderUser.getRefereeId());
@@ -280,12 +252,16 @@ public class OrderServiceImpl implements OrderService {
 					param.clear();
 					param.put("id", order.getDriverId());
 					User driver = this.userMapper.findSingleUser(param);
+					param.clear();
+					param.put("id", order.getUserId());
+					User orderUser = this.userMapper.findSingleUser(param);
 					if(driver!=null) {
 						param.clear();
 						param.put("orderId", order.getId());
 						List<OrderFeeItem> feeItemList = this.orderFeeItemMapper.findOrderFeeItemList(param);
 						if(feeItemList!=null && feeItemList.size()>0) {
 							for(OrderFeeItem feeItem:feeItemList) {
+								distributeOrderFee(orderUser,driver,order, feeItem);
 								feeItem.setDriverId(order.getDriverId());
 								if(feeItem.getDriverRefereeFee()!=null) {
 									if(driver.getRefereeId()!=null) {

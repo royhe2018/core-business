@@ -173,4 +173,12 @@ public class DriverInfo {
 	public void setVehicleTypeId(Long vehicleTypeId) {
 		this.vehicleTypeId = vehicleTypeId;
 	}
+
+	public Integer getDriverType() {
+		return driverType;
+	}
+
+	public void setDriverType(Integer driverType) {
+		this.driverType = driverType;
+	}
 }

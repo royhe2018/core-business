@@ -101,8 +101,14 @@ public class UserServiceImpl implements UserService {
 				DriverInfo driver = driverInfoMapper.findSingleDriver(param);
 				if(driver==null){
 					loginData.put("driverStatus", 0);
+					loginData.put("onDutyStatus", 1);
 				}else {
 					loginData.put("driverStatus",driver.getStatus());
+					if(driver.getOnDutyStatus()==null) {
+						loginData.put("onDutyStatus", 1);
+					}else {
+						loginData.put("onDutyStatus", driver.getOnDutyStatus());
+					}
 					if(driver.getVehicleTypeId()!=null){
 						param.clear();
 						param.put("id", driver.getVehicleTypeId());
