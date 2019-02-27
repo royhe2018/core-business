@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 		result.setData(resultData);
 		result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
-		//sendDispathOrderMessage(order, routePointList);
+		sendDispathOrderMessage(order, routePointList);
 		return result;
 	}
 
@@ -281,6 +281,12 @@ public class OrderServiceImpl implements OrderService {
 					orderInfoMap.put("orderId", dbOrder.getId());
 					this.aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_TAKED_ORDER, orderInfoMap);
 					result.setMessage("抢单成功!");
+					
+					//发送撤回消息，从已推送用户处撤回消息
+					Map<String, Object> orderInfoBackMap = new HashMap<String, Object>();
+					orderInfoBackMap.put("orderId", dbOrder.getId());
+					this.aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_DISMISS_ORDER, orderInfoMap);
+					
 				}
 			}
 		} else {
@@ -374,10 +380,15 @@ public class OrderServiceImpl implements OrderService {
 					result.setCode(MobileResultVO.CODE_FAIL);
 					result.setMessage("取消失败,订单信息已变更!");
 				} else {
-					// 发送取消成功广播
+					// 发送取消成功广播  推送给已接单的司机
 					Map<String, Object> orderInfoMap = new HashMap<String, Object>();
 					orderInfoMap.put("orderId", dbOrder.getId());
 					this.aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_CANCLE_ORDER, orderInfoMap);
+					//发送撤回消息，从已推送用户处撤回消息
+					Map<String, Object> orderInfoBackMap = new HashMap<String, Object>();
+					orderInfoBackMap.put("orderId", dbOrder.getId());
+					this.aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_DISMISS_ORDER, orderInfoMap);
+					
 					result.setMessage("取消成功!");
 				}
 			}

@@ -56,8 +56,8 @@ public class OrderFeeItemController {
 						item.setOrderId(Long.valueOf(orderId));
 						item.setFeeName(feeNode.get("feeName").asText());
 						item.setFeeAmount(Float.valueOf(feeNode.get("feeAmount").asText()));
-						if(feeNode.has("feeId") && StringUtils.isNotEmpty(feeNode.get("feeId").asText())) {
-							item.setId(Long.valueOf(feeNode.get("feeId").asText()));
+						if(feeNode.has("id") && StringUtils.isNotEmpty(feeNode.get("id").asText())) {
+							item.setId(Long.valueOf(feeNode.get("id").asText()));
 						}
 						if(feeNode.has("feeType") && StringUtils.isNotEmpty(feeNode.get("feeType").asText())) {
 							item.setFeeType(Integer.valueOf(feeNode.get("feeType").asText()));

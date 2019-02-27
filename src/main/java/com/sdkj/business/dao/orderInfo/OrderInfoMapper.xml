@@ -60,6 +60,8 @@
 		when 4 then '运途中'
 		when 5 then '到达收货地'
 		when 6 then '已签收'
+		when 8 then '费用单已提交'
+		when 9 then '已支付'
 		else '未知' end as statusName,o.status,
 		d.nick_name as driverName,
 		d.account as driverPhone,
@@ -83,15 +85,15 @@
 				<choose>
 					<when test="driverId != null">
 						<choose>
-							<when test='orderPeriod == 1'><![CDATA[ and o.status <7 and o.cancle_status=0]]></when>
+							<when test='orderPeriod == 1'><![CDATA[ and (o.status <7 or o.status=8 or o.status=9) and o.cancle_status=0]]></when>
 							<when test='orderPeriod == 2'><![CDATA[ and o.status =7 and o.cancle_status=0]]></when>
 							<when test='orderPeriod == 3'><![CDATA[ and o.cancle_status=1]]></when>
 						</choose>
 					</when>
 					<otherwise>
 						<choose>
-							<when test='orderPeriod == 1'><![CDATA[ and o.status <6 and o.cancle_status=0]]></when>
-							<when test='orderPeriod == 2'><![CDATA[ and o.status >= 6 and o.cancle_status=0]]></when>
+							<when test='orderPeriod == 1'><![CDATA[ and (o.status <6 or o.status=8) and o.cancle_status=0]]></when>
+							<when test='orderPeriod == 2'><![CDATA[ and (o.status = 9 or o.status=7) and o.cancle_status=0]]></when>
 							<when test='orderPeriod == 3'><![CDATA[ and o.cancle_status=1]]></when>
 						</choose>
 					</otherwise>
@@ -119,6 +121,8 @@
 		when 4 then '运途中'
 		when 5 then '到达收货地'
 		when 6 then '已签收'
+		when 8 then '费用单已提交'
+		when 9 then '已支付'
 		else '未知' end as statusName,o.status,
 		d.nick_name as driverName,
 		d.account as driverPhone,
@@ -148,15 +152,15 @@
 				<choose>
 					<when test="driverId != null">
 						<choose>
-							<when test='orderPeriod == 1'><![CDATA[ and o.status <7 and o.cancle_status=0]]></when>
+							<when test='orderPeriod == 1'><![CDATA[ and (o.status <7 or o.status=8 or o.status=9) and o.cancle_status=0]]></when>
 							<when test='orderPeriod == 2'><![CDATA[ and o.status =7 and o.cancle_status=0]]></when>
 							<when test='orderPeriod == 3'><![CDATA[ and o.cancle_status=1]]></when>
 						</choose>
 					</when>
 					<otherwise>
 						<choose>
-							<when test='orderPeriod == 1'><![CDATA[ and o.status <6 and o.cancle_status=0]]></when>
-							<when test='orderPeriod == 2'><![CDATA[ and o.status >= 6 and o.cancle_status=0]]></when>
+							<when test='orderPeriod == 1'><![CDATA[ and (o.status <6 or o.status=8 ) and o.cancle_status=0]]></when>
+							<when test='orderPeriod == 2'><![CDATA[ and (o.status = 9 or o.status=7) and o.cancle_status=0]]></when>
 							<when test='orderPeriod == 3'><![CDATA[ and o.cancle_status=1]]></when>
 						</choose>
 					</otherwise>
