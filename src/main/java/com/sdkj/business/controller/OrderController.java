@@ -44,6 +44,7 @@ public class OrderController {
 			StringBuffer errorMsg = setupAndValidParameter(req,order,pointList);
 			if(StringUtilLH.isEmpty(errorMsg.toString())) {
 				result = orderService.submitOrder(order,pointList);
+				orderService.sendDispathOrderMessage(order, pointList);
 			}else {
 				result = new MobileResultVO();
 				result.setCode(MobileResultVO.CODE_FAIL);

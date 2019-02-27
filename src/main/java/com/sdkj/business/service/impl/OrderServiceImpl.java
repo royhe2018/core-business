@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 		result.setData(resultData);
 		result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
-		sendDispathOrderMessage(order, routePointList);
+		//sendDispathOrderMessage(order, routePointList);
 		return result;
 	}
 
@@ -183,51 +183,47 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
-	private void sendDispathOrderMessage(OrderInfo order, List<OrderRoutePoint> routePointList) {
-		try {
-			Map<String, Object> orderInfo = new HashMap<String, Object>();
-			orderInfo.put("orderId", order.getId());
-			orderInfo.put("useTime", order.getUseTruckTime());
-			OrderRoutePoint startPoint = routePointList.get(0);
-			OrderRoutePoint endPoint = routePointList.get(routePointList.size() - 1);
-			orderInfo.put("startPointName", startPoint.getPlaceName());
-			orderInfo.put("startPointAddress", startPoint.getAddress());
-			orderInfo.put("startPointLocation", startPoint.getLat() + "," + startPoint.getLog());
-			orderInfo.put("endPointName", endPoint.getPlaceName());
-			orderInfo.put("endPointAddress", endPoint.getAddress());
-			orderInfo.put("endPointLocation", endPoint.getLat() + "," + endPoint.getLog());
-			orderInfo.put("totalDistance", order.getTotalDistance());
-			Map<String, Object> param = new HashMap<String, Object>();
-			orderInfo.put("specialRequirement", "");
-			if (StringUtilLH.isNotEmpty(order.getSpecialRequirementIds())) {
-				String[] ids = order.getSpecialRequirementIds().split(",");
-				param.put("ids", ids);
-				List<VehicleSpecialRequirement> requirementList = vehicleSpecialRequirementMapper
-						.findVehicleSpecialRequirementList(param);
-				StringBuffer requirement = new StringBuffer();
-				if (requirementList != null && requirementList.size() > 0) {
-					for (VehicleSpecialRequirement item : requirementList) {
-						requirement.append("," + item.getRequireName());
-					}
-					if (requirement.toString().startsWith(",")) {
-						orderInfo.put("specialRequirement", requirement.toString().replaceFirst(",", ""));
-					}
+	public void sendDispathOrderMessage(OrderInfo order, List<OrderRoutePoint> routePointList) {
+		Map<String, Object> orderInfo = new HashMap<String, Object>();
+		orderInfo.put("orderId", order.getId());
+		orderInfo.put("useTime", order.getUseTruckTime());
+		OrderRoutePoint startPoint = routePointList.get(0);
+		OrderRoutePoint endPoint = routePointList.get(routePointList.size() - 1);
+		orderInfo.put("startPointName", startPoint.getPlaceName());
+		orderInfo.put("startPointAddress", startPoint.getAddress());
+		orderInfo.put("startPointLocation", startPoint.getLat() + "," + startPoint.getLog());
+		orderInfo.put("endPointName", endPoint.getPlaceName());
+		orderInfo.put("endPointAddress", endPoint.getAddress());
+		orderInfo.put("endPointLocation", endPoint.getLat() + "," + endPoint.getLog());
+		orderInfo.put("totalDistance", order.getTotalDistance());
+		Map<String, Object> param = new HashMap<String, Object>();
+		orderInfo.put("specialRequirement", "");
+		if (StringUtilLH.isNotEmpty(order.getSpecialRequirementIds())) {
+			String[] ids = order.getSpecialRequirementIds().split(",");
+			param.put("ids", ids);
+			List<VehicleSpecialRequirement> requirementList = vehicleSpecialRequirementMapper
+					.findVehicleSpecialRequirementList(param);
+			StringBuffer requirement = new StringBuffer();
+			if (requirementList != null && requirementList.size() > 0) {
+				for (VehicleSpecialRequirement item : requirementList) {
+					requirement.append("," + item.getRequireName());
+				}
+				if (requirement.toString().startsWith(",")) {
+					orderInfo.put("specialRequirement", requirement.toString().replaceFirst(",", ""));
 				}
 			}
-			orderInfo.put("remark", order.getRemark());
-			param.clear();
-			param.put("orderId", order.getId());
-			Map<String,Object> orderFeeDistribute = orderFeeItemMapper.findOrderFeeDistribute(param);
-			orderInfo.put("totalFee", orderFeeDistribute.get("driverFee"));
-			orderInfo.put("startFee", orderFeeDistribute.get("driverFee"));
-			orderInfo.put("extraFee", orderFeeDistribute.get("driverFee"));
-			orderInfo.put("attachFee", orderFeeDistribute.get("driverFee"));
-			orderInfo.put("payStatus", "0");
-			int sendResult = aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_DISPATCH_ORDER, orderInfo);
-			logger.info("order dispatch sendResult:" + sendResult);
-		} catch (Exception e) {
-			logger.error("推送订单派送消息异常", e);
 		}
+		orderInfo.put("remark", order.getRemark());
+		param.clear();
+		param.put("orderId", order.getId());
+		Map<String,Object> orderFeeDistribute = orderFeeItemMapper.findOrderFeeDistribute(param);
+		orderInfo.put("totalFee", orderFeeDistribute.get("driverFee"));
+		orderInfo.put("startFee", orderFeeDistribute.get("driverFee"));
+		orderInfo.put("extraFee", orderFeeDistribute.get("driverFee"));
+		orderInfo.put("attachFee", orderFeeDistribute.get("driverFee"));
+		orderInfo.put("payStatus", "0");
+		int sendResult = aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_DISPATCH_ORDER, orderInfo);
+		logger.info("order dispatch sendResult:" + sendResult);
 	}
 
 	@Override

@@ -32,4 +32,5 @@ public interface OrderService {
 	public MobileResultVO submitLeaseTruckOrder(LeaseTruckOrder order,List<OrderRoutePoint> routePointList);
 	
 	public MobileResultVO copyOrder(String orderId,String userId);
+	public void sendDispathOrderMessage(OrderInfo order, List<OrderRoutePoint> routePointList);
 }
