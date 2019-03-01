@@ -121,8 +121,9 @@ public class IndexServiceImpl implements IndexService{
 		if(curMinuteStr.length()<2) {
 			curMinuteStr = "0"+curMinuteStr;
 		}
+		ca.add(Calendar.DAY_OF_MONTH, -1);
 		for(int i=0;;i++) {
-			ca.add(Calendar.DAY_OF_MONTH, i);
+			ca.add(Calendar.DAY_OF_MONTH, 1);
 			if(i==0) {
 				List<String> todayHourList = new ArrayList<String>();
 				List<List<String>> totalMinuteList = new ArrayList<List<String>>();
