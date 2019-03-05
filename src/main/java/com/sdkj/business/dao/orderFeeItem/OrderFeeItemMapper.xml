@@ -35,6 +35,12 @@
     <trim prefix="where" prefixOverrides="and">
     	<if test="orderId != null"> and order_id = #{orderId}</if>
     	<if test="status != null "> and status = #{status}</if>
+    	<if test="noFeeTypeList !=null">
+    		and fee_type not in
+    		<foreach collection="noFeeTypeList" open="(" close=")" item="feeType" separator=",">
+    			#{feeType}
+    		</foreach>
+    	</if>
     	<if test="idList !=null">
     		and id in
     		<foreach collection="idList" open="(" close=")" item="id" separator=",">
