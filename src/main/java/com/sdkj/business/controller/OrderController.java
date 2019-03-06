@@ -45,7 +45,7 @@ public class OrderController {
 			if(StringUtilLH.isEmpty(errorMsg.toString())) {
 				result = orderService.submitOrder(order,pointList);
 				logger.info("before dispatch");
-				//orderService.sendDispathOrderMessage(order, pointList);
+			    orderService.sendDispathOrderMessage(order, pointList);
 				logger.info("dispatch end");
 			}else {
 				result = new MobileResultVO();
@@ -372,7 +372,7 @@ public class OrderController {
 		}
 		
 		if(StringUtilLH.isNotEmpty(useTime)) {
-			order.setUseTruckTime(useTime);
+			order.setUseTruckTime(useTime+":00");
 		}else {
 			errorMsg.append("用车时间有误!");
 		}
