@@ -519,4 +519,22 @@ public class OrderController {
 		}
 		return result;
 	}
+    
+    @RequestMapping(value="/find/order/taked/status",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="获取订单接单状态",optCode="findOrderTakedStatus")
+   	public MobileResultVO findOrderTakedStatus(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			String userId = req.getParameter("userId");
+   			String orderId = req.getParameter("orderId");
+   			result = orderService.findOrderTakedStatus(userId,orderId);
+   		}catch(Exception e) {
+   			logger.error("获取订单接单状态异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
 }

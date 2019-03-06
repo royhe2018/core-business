@@ -675,4 +675,19 @@ public class OrderServiceImpl implements OrderService {
 		result.setData(orderResult);
 		return result;
 	}
+
+	@Override
+	public MobileResultVO findOrderTakedStatus(String userId, String orderId) {
+		Map<String,Object> param = new HashMap<String,Object>();
+		MobileResultVO result = new MobileResultVO();
+		result.setCode(MobileResultVO.CODE_SUCCESS);
+		param.put("id", orderId);
+		OrderInfo order = orderInfoMapper.findSingleOrder(param);
+		if(order!=null  && order.getStatus().intValue()>0 && order.getDriverId()!=null) {
+			result.setData(1);
+		}else {
+			result.setData(0);
+		}
+		return result;
+	}
 }

@@ -33,4 +33,6 @@ public interface OrderService {
 	
 	public MobileResultVO copyOrder(String orderId,String userId);
 	public void sendDispathOrderMessage(OrderInfo order, List<OrderRoutePoint> routePointList);
+	
+	public MobileResultVO findOrderTakedStatus(String userId,String orderId);
 }
