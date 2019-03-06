@@ -45,7 +45,7 @@ public class OrderController {
 			if(StringUtilLH.isEmpty(errorMsg.toString())) {
 				result = orderService.submitOrder(order,pointList);
 				logger.info("before dispatch");
-			    orderService.sendDispathOrderMessage(order, pointList);
+				orderService.sendDispathOrderMessage(order, pointList);
 				logger.info("dispatch end");
 			}else {
 				result = new MobileResultVO();

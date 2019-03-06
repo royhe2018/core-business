@@ -80,7 +80,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 						param.clear();
 						param.put("id", target.getId());
 						OrderFeeItem feeItemDB = orderFeeItemMapper.findSingleOrderFeeItem(param);
-						if(feeItemDB.getStatus().intValue()==1||feeItemDB.getFeeType().intValue()==1) {
+						if(feeItemDB.getStatus().intValue()==1||feeItemDB.getFeeType().intValue()==1 ||feeItemDB.getFeeType().intValue()==2) {
 							continue;
 						}
 					}
@@ -118,6 +118,18 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 					}
 				}
 			}
+			
+			
+			param.clear();
+	        param.put("orderId", order.getId());
+	        List<OrderFeeItem> feeItemList = this.orderFeeItemMapper.findOrderFeeItemList(param);
+	        if(feeItemList!=null && feeItemList.size()>0){
+	        	for(OrderFeeItem item:feeItemList){
+	        		if(item.getStatus().intValue()!=1){
+	        			noPaidFee +=item.getFeeAmount();
+	        		}
+	        	}
+	        }
 			
 			if(noPaidFee.floatValue()>0) {
 				order.setStatus(Constant.ORDER_STATUS_CONFIRMFEE);
@@ -253,13 +265,18 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
         	}
         }
         logger.info("payFee:"+payFee);
-        String attachInfo = itemIds+"|"+orderId;
-        payFee=1;//测试，暂时按1分计算
-		WxappPayDto dto = wxPayComponent.preDriverPay(attachInfo, orderNo, payFee, "顺道拉货", "运费支付");
-        if(null!=dto){
-        	result.setData(dto);
+        if(payFee==0){
+        	result.setCode(MobileResultVO.CODE_FAIL);
+        	result.setMessage("该订单费用项已支付!");
+        }else{
+            String attachInfo = itemIds+"|"+orderId;
+            payFee=1;//测试，暂时按1分计算
+    		WxappPayDto dto = wxPayComponent.preDriverPay(attachInfo, orderNo, payFee, "顺道拉货", "运费支付");
+            if(null!=dto){
+            	result.setData(dto);
+            }
+            logger.info("pay order info:"+JsonUtil.convertObjectToJsonStr(result));
         }
-        logger.info("pay order info:"+JsonUtil.convertObjectToJsonStr(result));
 		return result;
 	}
 	
@@ -335,6 +352,11 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 				if(Constant.ORDER_STATUS_CONFIRMFEE==order.getStatus().intValue()) {
 					order.setStatus(Constant.ORDER_STATUS_PAYFINISH);
 				}
+				
+				//通知司机端订单支付
+				Map<String,Object> paymentRemarkMap = new HashMap<String,Object>();
+				paymentRemarkMap.put("orderId", order.getId());
+				this.aliMQProducer.sendMessage(orderDispatchTopic,Constant.MQ_TAG_PAYMENT_ORDER,paymentRemarkMap);
 			}
 			orderInfoMapper.updateById(order);
 			for(OrderFeeItem item:feeItemList){
@@ -404,17 +426,24 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
         		payFee +=item.getFeeAmount();
         	}
         }
-        logger.info("payFee:"+payFee);
-        String attachInfo = itemIds+"|"+orderId;
-        payFee=0.01f;//测试，暂时按1分计算
-		String aliPayInfo = aliPayComponent.generatorAliPayOrderInfo(orderNo,attachInfo, payFee);
-        if(StringUtils.isNotEmpty(aliPayInfo)){
-        	result.setData(aliPayInfo);
-        }else {
+        
+        if(payFee==0){
         	result.setCode(MobileResultVO.CODE_FAIL);
-        	result.setMessage("生成支付信息异常");
+        	result.setMessage("该订单费用项已支付!");
+        }else{
+            String attachInfo = itemIds+"|"+orderId;
+            payFee=0.01f;//测试，暂时按1分计算
+    		String aliPayInfo = aliPayComponent.generatorAliPayOrderInfo(orderNo,attachInfo, payFee);
+            if(StringUtils.isNotEmpty(aliPayInfo)){
+            	result.setData(aliPayInfo);
+            }else {
+            	result.setCode(MobileResultVO.CODE_FAIL);
+            	result.setMessage("生成支付信息异常");
+            }
+            logger.info("pay order info:"+JsonUtil.convertObjectToJsonStr(result));
         }
-        logger.info("pay order info:"+JsonUtil.convertObjectToJsonStr(result));
+        logger.info("payFee:"+payFee);
+
 		return result;
 	}
 
@@ -435,6 +464,10 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 		MobileResultVO result = new MobileResultVO();
 		Map<String,Object> queryMap= new HashMap<String,Object>();
 		queryMap.put("orderId", orderId);
+		List<Integer> noFeeTypeList = new ArrayList<Integer>();
+		noFeeTypeList.add(1);
+		noFeeTypeList.add(2);
+		queryMap.put("noFeeTypeList",noFeeTypeList );
 		List<OrderFeeItem> feeItemList = orderFeeItemMapper.findOrderFeeItemList(queryMap);
 		if(feeItemList!=null && feeItemList.size()>0) {
 			boolean hasOverTimeFee = false;
@@ -449,7 +482,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 				OrderFeeItem overTimeFeeItem = new OrderFeeItem();
 				overTimeFeeItem.setFeeAmount(Float.valueOf(overTimeFee.getData().toString()));
 				overTimeFeeItem.setFeeName("等候逾时费");
-				overTimeFeeItem.setFeeType(2);
+				overTimeFeeItem.setFeeType(3);
 				feeItemList.add(overTimeFeeItem);
 			}
 		}

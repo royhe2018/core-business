@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 		result.setData(resultData);
 		result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
-		sendDispathOrderMessage(order, routePointList);
+		//sendDispathOrderMessage(order, routePointList);
 		return result;
 	}
 
@@ -184,6 +184,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	public void sendDispathOrderMessage(OrderInfo order, List<OrderRoutePoint> routePointList) {
+		logger.info("sendDispathOrderMessage start");
 		Map<String, Object> orderInfo = new HashMap<String, Object>();
 		orderInfo.put("orderId", order.getId());
 		orderInfo.put("useTime", order.getUseTruckTime());
