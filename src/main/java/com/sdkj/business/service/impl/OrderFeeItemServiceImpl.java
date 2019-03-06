@@ -229,18 +229,25 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
         int payFee=0;
         if(feeItemList!=null && feeItemList.size()>0){
         	for(OrderFeeItem item:feeItemList){
-        		item.setPaySerialNum(orderNo);
-        		orderFeeItemMapper.updateByPrimaryKey(item);
-        		logger.info("item.getFeeAmount():"+item.getFeeAmount());
-        		payFee +=item.getFeeAmount()*100;
+        		if(item.getStatus().intValue()==0) {
+        			item.setPaySerialNum(orderNo);
+            		orderFeeItemMapper.updateByPrimaryKey(item);
+            		logger.info("item.getFeeAmount():"+item.getFeeAmount());
+            		payFee +=item.getFeeAmount()*100;
+        		}
         	}
         }
         logger.info("payFee:"+payFee);
-        String attachInfo = itemIds+"|"+orderId;
-        payFee=1;//测试，暂时按1分计算
-		WxappPayDto dto = wxPayComponent.prePay(attachInfo, orderNo, payFee, "顺道拉货", "运费支付");
-        if(null!=dto){
-        	result.setData(dto);
+        if(payFee==0){
+        	result.setCode(MobileResultVO.CODE_FAIL);
+        	result.setMessage("该订单费用项已支付!");
+        }else{
+            String attachInfo = itemIds+"|"+orderId;
+            payFee=1;//测试，暂时按1分计算
+    		WxappPayDto dto = wxPayComponent.prePay(attachInfo, orderNo, payFee, "顺道拉货", "运费支付");
+            if(null!=dto){
+            	result.setData(dto);
+            }
         }
         logger.info("pay order info:"+JsonUtil.convertObjectToJsonStr(result));
 		return result;
@@ -258,10 +265,12 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
         int payFee=0;
         if(feeItemList!=null && feeItemList.size()>0){
         	for(OrderFeeItem item:feeItemList){
-        		item.setPaySerialNum(orderNo);
-        		orderFeeItemMapper.updateByPrimaryKey(item);
-        		logger.info("item.getFeeAmount():"+item.getFeeAmount());
-        		payFee +=item.getFeeAmount()*100;
+        		if(item.getStatus().intValue()==0) {
+        			item.setPaySerialNum(orderNo);
+            		orderFeeItemMapper.updateByPrimaryKey(item);
+            		logger.info("item.getFeeAmount():"+item.getFeeAmount());
+            		payFee +=item.getFeeAmount()*100;
+        		}
         	}
         }
         logger.info("payFee:"+payFee);
@@ -420,10 +429,12 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
         float payFee=0f;
         if(feeItemList!=null && feeItemList.size()>0){
         	for(OrderFeeItem item:feeItemList){
-        		item.setPaySerialNum(orderNo);
-        		orderFeeItemMapper.updateByPrimaryKey(item);
-        		logger.info("item.getFeeAmount():"+item.getFeeAmount());
-        		payFee +=item.getFeeAmount();
+        		if(item.getStatus().intValue()==0) {
+            		item.setPaySerialNum(orderNo);
+            		orderFeeItemMapper.updateByPrimaryKey(item);
+            		logger.info("item.getFeeAmount():"+item.getFeeAmount());
+            		payFee +=item.getFeeAmount();
+        		}
         	}
         }
         
