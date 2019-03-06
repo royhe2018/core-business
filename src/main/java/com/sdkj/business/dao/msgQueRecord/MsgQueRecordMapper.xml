@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.msgQueRecord.MsgQueRecordMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.MsgQueRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="message_id" property="messageId" />
+    <result column="message_type" jdbcType="VARCHAR" property="messageType" />
+    <result column="param" jdbcType="INTEGER" property="param" />
+    <result column="create_time" jdbcType="VARCHAR" property="createTime" />
+    <result column="consume_time" jdbcType="VARCHAR" property="consumeTime" />
+    <result column="use_time" jdbcType="VARCHAR" property="useTime" />
+  </resultMap>
+ 
+  <select id="findMsgQueRecord" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_msg_que_record
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id != null"> and id = #{id}</if>
+    	<if test="messageType != null"> and message_type = #{messageType}</if>
+    </trim>
+  </select>
+  
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.MsgQueRecord" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+     INSERT INTO `sdlh_msg_que_record` (
+				  `message_id`,
+				  `message_type`,
+				  `param`,
+				  `create_time`,
+				  `consume_time`,
+				  `use_time`
+				) 
+				VALUES
+				  (
+				    #{messageId},
+				    #{messageType},
+				    #{param},
+				    #{createTime},
+				    #{consumeTime},
+				    #{useTime}
+				  ) 
+  </insert>
+  
+  <update id="updateByPrimaryKey" parameterType="com.sdkj.business.domain.po.MsgQueRecord">
+    update sdlh_msg_que_record
+    <set>
+      <if test="consumeTime != null">
+        consume_time = #{consumeTime},
+      </if>
+      <if test="useTime != null">
+        use_time = #{useTime},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+</mapper>

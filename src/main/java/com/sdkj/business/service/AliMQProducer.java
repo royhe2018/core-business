@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,9 @@ import com.aliyun.openservices.ons.api.ONSFactory;
 import com.aliyun.openservices.ons.api.Producer;
 import com.aliyun.openservices.ons.api.PropertyKeyConst;
 import com.aliyun.openservices.ons.api.SendResult;
+import com.sdkj.business.dao.msgQueRecord.MsgQueRecordMapper;
+import com.sdkj.business.domain.po.MsgQueRecord;
+import com.sdlh.common.DateUtilLH;
 import com.sdlh.common.JsonUtil;
 
 @Component
@@ -34,7 +38,9 @@ public class AliMQProducer {
 	private String onsaddr;
 
 	private Producer producer;
-
+	@Autowired
+	private MsgQueRecordMapper msgQueRecordMapper;
+	
 	@PostConstruct
 	public void startProducer() {
 		Properties properties = new Properties();
@@ -61,13 +67,23 @@ public class AliMQProducer {
 			param.put("messageType", tag);
 			String bodyStr = JsonUtil.convertObjectToJsonStr(param);
 			message.setBody(bodyStr.getBytes("utf-8"));
+			SendResult sendResult = null;
 			for (int i = 0; i < 3; i++) {
-				SendResult sendResult = producer.send(message);
-				logger.info(message.getTopic() + ":" + sendResult.getMessageId());
-				result = 1;
-				break;
-
+				try {
+					sendResult = producer.send(message);
+					logger.info(message.getTopic() + ":" + sendResult.getMessageId());
+					result = 1;
+					break;
+				}catch(Exception e) {
+					logger.error("ali mq send exception", e);
+				}
 			}
+			MsgQueRecord record = new MsgQueRecord();
+			record.setCreateTime(DateUtilLH.getCurrentTime());
+			record.setMessageId(sendResult.getMessageId());
+			record.setMessageType(tag);
+			record.setParam(bodyStr);
+			msgQueRecordMapper.insert(record);
 		} catch (Exception e) {
 			logger.error("ali mq exception", e);
 		}
