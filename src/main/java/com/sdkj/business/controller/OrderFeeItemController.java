@@ -51,21 +51,22 @@ public class OrderFeeItemController {
 				for(int i=0;i<feeItemList.size();i++) {
 					JsonNode feeNode = feeItemList.get(i);
 					float feeAmount = Float.valueOf(feeNode.get("feeAmount").asText());
-					if(feeAmount>0){
-						OrderFeeItem item = new OrderFeeItem();
-						item.setOrderId(Long.valueOf(orderId));
-						item.setFeeName(feeNode.get("feeName").asText());
-						item.setFeeAmount(Float.valueOf(feeNode.get("feeAmount").asText()));
-						if(feeNode.has("id") && StringUtils.isNotEmpty(feeNode.get("id").asText())) {
-							item.setId(Long.valueOf(feeNode.get("id").asText()));
-						}
-						if(feeNode.has("feeType") && StringUtils.isNotEmpty(feeNode.get("feeType").asText())) {
-							item.setFeeType(Integer.valueOf(feeNode.get("feeType").asText()));
-						}else {
-							item.setFeeType(2);
-						}
-						feeList.add(item);
+					OrderFeeItem item = new OrderFeeItem();
+					item.setOrderId(Long.valueOf(orderId));
+					item.setFeeName(feeNode.get("feeName").asText());
+					item.setFeeAmount(Float.valueOf(feeNode.get("feeAmount").asText()));
+					if(feeNode.has("id") && StringUtils.isNotEmpty(feeNode.get("id").asText())) {
+						item.setId(Long.valueOf(feeNode.get("id").asText()));
 					}
+					if(feeNode.has("feeType") && StringUtils.isNotEmpty(feeNode.get("feeType").asText())) {
+						item.setFeeType(Integer.valueOf(feeNode.get("feeType").asText()));
+					}else {
+						item.setFeeType(2);
+					}
+					feeList.add(item);
+//					if(feeAmount>0){
+//						
+//					}
 				}
 			}
 			if(feeList.size()>0){
