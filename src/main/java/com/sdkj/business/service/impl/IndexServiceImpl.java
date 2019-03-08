@@ -114,7 +114,7 @@ public class IndexServiceImpl implements IndexService{
 		int curHour = ca.get(Calendar.HOUR_OF_DAY);
 		int curMinute = ca.get(Calendar.MINUTE);
 		String curHourStr = curHour+"";
-		if(curHourStr.length()<2) {
+		if(curHour<10) {
 			curHourStr = "0"+curHourStr;
 		}
 		String curMinuteStr = curMinute+"";

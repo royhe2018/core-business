@@ -2,6 +2,7 @@ package com.sdkj.business.util;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,10 @@ public class Test {
 	 */
 	public static void main(String[] args) {
 		//testJson();
-		 String test = "2018-12-25 14:23:22";
-		System.out.println(test.substring(11));
+		 
+		Calendar ca = Calendar.getInstance();
+		int curHour = ca.get(Calendar.HOUR_OF_DAY);
+		System.out.println(curHour);
 	}
 	
 	private static void testJson() {

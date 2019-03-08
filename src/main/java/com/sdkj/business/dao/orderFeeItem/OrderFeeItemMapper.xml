@@ -63,6 +63,16 @@
     group by order_id
   </select>
   
+ 	<select id="findOrderFeeByPayStatus" parameterType="java.util.Map" resultType ="java.util.Map">
+		select status as payStatus,sum(fee_amount) as money
+		from sdlh_order_fee_item
+		<trim prefix="where" prefixOverrides="and">
+			<if test="orderId !=null"> and order_id = #{orderId}</if>
+		</trim>
+		group by status
+	</select>
+  
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from sdlh_order_fee_item
     where id = #{id,jdbcType=BIGINT}

@@ -87,54 +87,110 @@ public class OrderServiceImpl implements OrderService {
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		queryMap.put("id", order.getUserId());
 		User orderUser = userMapper.findSingleUser(queryMap);
-		resultData.put("orderId", order.getId());
-		for (OrderRoutePoint point : routePointList) {
-			point.setOrderId(order.getId());
-			point.setStatus(Constant.ROUTE_POINT_STATUS_NOT_ARRIVE);
-			if (StringUtils.isNotEmpty(point.getContactUserName())) {
-				Map<String, Object> param = new HashMap<String, Object>();
-				param.put("account", point.getContactUserPhone());
-				param.put("userType", Constant.USER_TYPE_CUSTOMER);
-				User dbUser = userMapper.findSingleUser(param);
-				if (dbUser != null) {
-					point.setDealUserId(dbUser.getId());
+		
+		queryMap.clear();
+		queryMap.put("userId", order.getUserId());
+		queryMap.put("cancleStatus", 0);
+		queryMap.put("status", 8);
+		List<OrderInfo> orderForPayList = this.orderInfoMapper.findOrderList(queryMap);
+		//存在未支付的订单，则不让提交新订单
+		if(orderForPayList!=null && orderForPayList.size()>0) {
+			result.setCode(2);
+			result.setMessage("有未完成的支付单");
+			OrderInfo lastNoPayOrder = orderForPayList.get(0);
+			Map<String,Object> lastOrderPayInfo = new HashMap<String,Object>();
+			lastOrderPayInfo.put("orderId", lastNoPayOrder.getId());
+			queryMap.clear();
+			queryMap.put("orderId", lastNoPayOrder.getId());
+			List<Map<String,Object>> feeStatusList = orderFeeItemMapper.findOrderFeeByPayStatus(queryMap);
+			if(feeStatusList!=null && feeStatusList.size()>0){
+				Float totalAmount =0f;
+				Float totalPaidAmount =0f;
+				Float totalForPayAmount = 0f;
+				for(Map<String,Object> item:feeStatusList){
+					Float amount = Float.valueOf(item.get("money").toString());
+					if("0".equals(item.get("payStatus").toString())){
+						totalForPayAmount += amount;
+					}else{
+						totalPaidAmount += amount;
+					}
+					totalAmount +=amount;
+				}
+				lastOrderPayInfo.put("totalAmount", totalAmount);
+				lastOrderPayInfo.put("totalPaidAmount", totalPaidAmount);
+				lastOrderPayInfo.put("totalForPayAmount", totalForPayAmount);
+			}
+			lastOrderPayInfo.put("totalDistance", lastNoPayOrder.getTotalDistance());
+			
+			queryMap.clear();
+			queryMap.put("orderId", lastNoPayOrder.getId());
+			List<OrderRoutePoint> lastOrderRoutePointList = orderRoutePointMapper.findRoutePointList(queryMap);
+			Date startTime = new Date();
+			Date endTime = new Date();
+			if(lastOrderRoutePointList!=null){
+				String startTimeStr = lastOrderRoutePointList.get(0).getArriveTime();
+				if(StringUtils.isNotEmpty(startTimeStr)){
+					startTime = DateUtilLH.convertStr2Date(startTimeStr, "yyyy-MM-dd HH:mm:ss");
+				}
+				String endTimeStr = lastOrderRoutePointList.get(lastOrderRoutePointList.size()-1).getArriveTime();
+				if(StringUtils.isNotEmpty(endTimeStr)){
+					endTime = DateUtilLH.convertStr2Date(endTimeStr, "yyyy-MM-dd HH:mm:ss");
 				}
 			}
-			point.setOverTimeFee(0f);
-			point.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL);
-			orderRoutePointMapper.insert(point);
-		}
+			lastOrderPayInfo.put("totalTimes", (endTime.getTime()-startTime.getTime())/(1000*60)+"");
+			lastOrderPayInfo.put("preContent", "您的订单尚未支付:");
+			lastOrderPayInfo.put("afterContent", "");
+			result.setData(lastOrderPayInfo);
+		}else {
+			resultData.put("orderId", order.getId());
+			for (OrderRoutePoint point : routePointList) {
+				point.setOrderId(order.getId());
+				point.setStatus(Constant.ROUTE_POINT_STATUS_NOT_ARRIVE);
+				if (StringUtils.isNotEmpty(point.getContactUserName())) {
+					Map<String, Object> param = new HashMap<String, Object>();
+					param.put("account", point.getContactUserPhone());
+					param.put("userType", Constant.USER_TYPE_CUSTOMER);
+					User dbUser = userMapper.findSingleUser(param);
+					if (dbUser != null) {
+						point.setDealUserId(dbUser.getId());
+					}
+				}
+				point.setOverTimeFee(0f);
+				point.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL);
+				orderRoutePointMapper.insert(point);
+			}
 
-		if (order.getStartFee() != null && order.getStartFee().floatValue() > 0) {
-			OrderFeeItem startFee = new OrderFeeItem();
-			startFee.setFeeAmount(order.getStartFee());
-			startFee.setFeeName("起步费");
-			startFee.setOrderId(order.getId());
-			startFee.setFeeType(1);
-			startFee.setStatus(0);
-			orderFeeItemMapper.insert(startFee);
+			if (order.getStartFee() != null && order.getStartFee().floatValue() > 0) {
+				OrderFeeItem startFee = new OrderFeeItem();
+				startFee.setFeeAmount(order.getStartFee());
+				startFee.setFeeName("起步费");
+				startFee.setOrderId(order.getId());
+				startFee.setFeeType(1);
+				startFee.setStatus(0);
+				orderFeeItemMapper.insert(startFee);
+			}
+			if (order.getExtraFee() != null && order.getExtraFee().floatValue() > 0) {
+				OrderFeeItem extraFee = new OrderFeeItem();
+				extraFee.setFeeAmount(order.getExtraFee());
+				extraFee.setFeeName("运途费");
+				extraFee.setOrderId(order.getId());
+				extraFee.setFeeType(2);
+				extraFee.setStatus(0);
+				orderFeeItemMapper.insert(extraFee);
+			}
+			if (order.getAttachFee() != null && order.getAttachFee().floatValue() > 0) {
+				OrderFeeItem attachFee = new OrderFeeItem();
+				attachFee.setFeeAmount(order.getAttachFee());
+				attachFee.setFeeName("附加费");
+				attachFee.setOrderId(order.getId());
+				attachFee.setFeeType(3);
+				attachFee.setStatus(0);
+				attachFee.setDriverFee(order.getAttachFee());
+				orderFeeItemMapper.insert(attachFee);
+			}
+			result.setData(resultData);
+			result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
 		}
-		if (order.getExtraFee() != null && order.getExtraFee().floatValue() > 0) {
-			OrderFeeItem extraFee = new OrderFeeItem();
-			extraFee.setFeeAmount(order.getExtraFee());
-			extraFee.setFeeName("运途费");
-			extraFee.setOrderId(order.getId());
-			extraFee.setFeeType(2);
-			extraFee.setStatus(0);
-			orderFeeItemMapper.insert(extraFee);
-		}
-		if (order.getAttachFee() != null && order.getAttachFee().floatValue() > 0) {
-			OrderFeeItem attachFee = new OrderFeeItem();
-			attachFee.setFeeAmount(order.getAttachFee());
-			attachFee.setFeeName("附加费");
-			attachFee.setOrderId(order.getId());
-			attachFee.setFeeType(3);
-			attachFee.setStatus(0);
-			attachFee.setDriverFee(order.getAttachFee());
-			orderFeeItemMapper.insert(attachFee);
-		}
-		result.setData(resultData);
-		result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
 		//sendDispathOrderMessage(order, routePointList);
 		return result;
 	}
