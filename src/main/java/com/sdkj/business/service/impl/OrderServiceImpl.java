@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.aliyuncs.utils.StringUtils;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.pagehelper.PageHelper;
 import com.sdkj.business.dao.distributionSetting.DistributionSettingMapper;
 import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
@@ -41,6 +42,7 @@ import com.sdkj.business.service.AliMQProducer;
 import com.sdkj.business.service.OrderService;
 import com.sdkj.business.util.Constant;
 import com.sdlh.common.DateUtilLH;
+import com.sdlh.common.HttpRequestUtil;
 import com.sdlh.common.JsonUtil;
 import com.sdlh.common.StringUtilLH;
 
@@ -77,6 +79,10 @@ public class OrderServiceImpl implements OrderService {
 	
 	@Autowired
 	private DriverInfoMapper driverInfoMapper;
+	
+	@Value("${road.distance.url}")
+	private String roadDistanceUrl;
+	
 	@Override
 	public MobileResultVO submitOrder(OrderInfo order, List<OrderRoutePoint> routePointList) {
 		MobileResultVO result = new MobileResultVO();
@@ -743,6 +749,24 @@ public class OrderServiceImpl implements OrderService {
 			result.setData(1);
 		}else {
 			result.setData(0);
+		}
+		return result;
+	}
+
+	@Override
+	public MobileResultVO caculateRoutDistance(String origin, String destination, String waypoints) {
+		MobileResultVO result = new MobileResultVO();
+		result.setCode(MobileResultVO.CODE_FAIL);
+		result.setMessage(MobileResultVO.OPT_FAIL_MESSAGE);
+		Map<String,Object> param = new HashMap<String,Object>();
+		param.put("origin", origin);
+		param.put("destination", destination);
+		param.put("waypoints", waypoints);
+		JsonNode distanceResult = HttpRequestUtil.getForJsonResult(roadDistanceUrl, param);
+		if(distanceResult!= null && distanceResult.has("data")) {
+			result.setCode(MobileResultVO.CODE_SUCCESS);
+			result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
+			result.setData(distanceResult.get("data").asInt());
 		}
 		return result;
 	}

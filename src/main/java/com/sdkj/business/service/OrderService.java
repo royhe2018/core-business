@@ -35,4 +35,6 @@ public interface OrderService {
 	public void sendDispathOrderMessage(OrderInfo order, List<OrderRoutePoint> routePointList);
 	
 	public MobileResultVO findOrderTakedStatus(String userId,String orderId);
+	
+	public MobileResultVO caculateRoutDistance(String origin,String destination,String waypoints);
 }

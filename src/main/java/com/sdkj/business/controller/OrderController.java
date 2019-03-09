@@ -537,4 +537,23 @@ public class OrderController {
    		}
    		return result;
    	}
+    
+    @RequestMapping(value="/find/road/distance",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="计算路线距离",optCode="findRoadDistance")
+   	public MobileResultVO findRoadDistance(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+			String origin = req.getParameter("origin");
+			String destination = req.getParameter("destination");
+			String waypoints = req.getParameter("waypoints");
+			result = orderService.caculateRoutDistance(origin, destination,waypoints);
+   		}catch(Exception e) {
+   			logger.error("计算路线距离异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
 }
