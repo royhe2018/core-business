@@ -177,11 +177,11 @@
 		from sdlh_order_info
 		<trim prefix="where" prefixOverrides="and">
 			<if test="id!=null"> and id = #{id}</if>
-			<if test="userId != null"> and user_id = #{id}</if>
+			<if test="userId != null"> and user_id = #{userId}</if>
 			<if test="cancleStatus != null"> and cancle_status = #{cancleStatus}</if>
 			<if test="status != null"> and status = #{status}</if>
 		</trim>
-		order by o.id desc
+		order by id desc
 	</select>
 
 	<delete id="deleteById" parameterType="java.lang.Long">

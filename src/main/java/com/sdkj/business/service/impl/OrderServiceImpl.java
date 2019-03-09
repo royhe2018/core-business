@@ -98,7 +98,9 @@ public class OrderServiceImpl implements OrderService {
 		queryMap.put("userId", order.getUserId());
 		queryMap.put("cancleStatus", 0);
 		queryMap.put("status", 8);
+		logger.info("queryMap:"+JsonUtil.convertObjectToJsonStr(queryMap));
 		List<OrderInfo> orderForPayList = this.orderInfoMapper.findOrderList(queryMap);
+		logger.info("orderForPayList:"+JsonUtil.convertObjectToJsonStr(orderForPayList));
 		//存在未支付的订单，则不让提交新订单
 		if(orderForPayList!=null && orderForPayList.size()>0) {
 			result.setCode(2);
