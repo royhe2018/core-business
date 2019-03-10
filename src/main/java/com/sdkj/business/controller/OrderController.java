@@ -44,9 +44,11 @@ public class OrderController {
 			StringBuffer errorMsg = setupAndValidParameter(req,order,pointList);
 			if(StringUtilLH.isEmpty(errorMsg.toString())) {
 				result = orderService.submitOrder(order,pointList);
-				logger.info("before dispatch");
-				orderService.sendDispathOrderMessage(order, pointList);
-				logger.info("dispatch end");
+				if(result.getCode()==MobileResultVO.CODE_SUCCESS){
+					logger.info("before dispatch");
+					orderService.sendDispathOrderMessage(order, pointList);
+					logger.info("dispatch end");
+				}
 			}else {
 				result = new MobileResultVO();
 				result.setCode(MobileResultVO.CODE_FAIL);
@@ -58,6 +60,7 @@ public class OrderController {
 			result.setCode(MobileResultVO.CODE_FAIL);
 			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
 		}
+		logger.info("orderSubmit result:"+JsonUtil.convertObjectToJsonStr(result));
 		return result;
 	}
     

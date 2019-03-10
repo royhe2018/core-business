@@ -298,7 +298,11 @@ public class OrderServiceImpl implements OrderService {
 		param.put("id", order.getId());
 		OrderInfo dbOrder = orderInfoMapper.findSingleOrder(param);
 		if (dbOrder != null) {
-			if (dbOrder.getStatus().intValue() != Constant.ORDER_STATUS_WEIJIEDAN) {
+			if (dbOrder.getCancleStatus().intValue() == Constant.ORDER_CANCLE_STATUS_CANCLE) {
+				logger.error("接单失败,订单失效：orderid:" + dbOrder.getId() + ";driverId:" + dbOrder.getDriverId());
+				result.setCode(MobileResultVO.CODE_FAIL);
+				result.setMessage("订单已失效");
+			}else if (dbOrder.getStatus().intValue() != Constant.ORDER_STATUS_WEIJIEDAN) {
 				logger.error("接单失败：orderid:" + dbOrder.getId() + ";driverId:" + dbOrder.getDriverId());
 				result.setCode(MobileResultVO.CODE_FAIL);
 				result.setMessage("订单已被接单");
