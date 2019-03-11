@@ -89,10 +89,9 @@ public class OrderServiceImpl implements OrderService {
 		Map<String, Object> resultData = new HashMap<String, Object>();
 		order.setStatus(Constant.ORDER_STATUS_WEIJIEDAN);
 		order.setCreateTime(DateUtilLH.getCurrentTime());
-		orderInfoMapper.insert(order);
 		Map<String, Object> queryMap = new HashMap<String, Object>();
-		queryMap.put("id", order.getUserId());
-		User orderUser = userMapper.findSingleUser(queryMap);
+		//queryMap.put("id", order.getUserId());
+		//User orderUser = userMapper.findSingleUser(queryMap);
 		
 		queryMap.clear();
 		queryMap.put("userId", order.getUserId());
@@ -103,53 +102,15 @@ public class OrderServiceImpl implements OrderService {
 		logger.info("orderForPayList:"+JsonUtil.convertObjectToJsonStr(orderForPayList));
 		//存在未支付的订单，则不让提交新订单
 		if(orderForPayList!=null && orderForPayList.size()>0) {
+			logger.info("有未完成的支付单");
 			result.setCode(2);
 			result.setMessage("有未完成的支付单");
 			OrderInfo lastNoPayOrder = orderForPayList.get(0);
-			Map<String,Object> lastOrderPayInfo = new HashMap<String,Object>();
-			lastOrderPayInfo.put("orderId", lastNoPayOrder.getId());
-			queryMap.clear();
-			queryMap.put("orderId", lastNoPayOrder.getId());
-			List<Map<String,Object>> feeStatusList = orderFeeItemMapper.findOrderFeeByPayStatus(queryMap);
-			if(feeStatusList!=null && feeStatusList.size()>0){
-				Float totalAmount =0f;
-				Float totalPaidAmount =0f;
-				Float totalForPayAmount = 0f;
-				for(Map<String,Object> item:feeStatusList){
-					Float amount = Float.valueOf(item.get("money").toString());
-					if("0".equals(item.get("payStatus").toString())){
-						totalForPayAmount += amount;
-					}else{
-						totalPaidAmount += amount;
-					}
-					totalAmount +=amount;
-				}
-				lastOrderPayInfo.put("totalAmount", totalAmount);
-				lastOrderPayInfo.put("totalPaidAmount", totalPaidAmount);
-				lastOrderPayInfo.put("totalForPayAmount", totalForPayAmount);
-			}
-			lastOrderPayInfo.put("totalDistance", lastNoPayOrder.getTotalDistance());
-			
-			queryMap.clear();
-			queryMap.put("orderId", lastNoPayOrder.getId());
-			List<OrderRoutePoint> lastOrderRoutePointList = orderRoutePointMapper.findRoutePointList(queryMap);
-			Date startTime = new Date();
-			Date endTime = new Date();
-			if(lastOrderRoutePointList!=null){
-				String startTimeStr = lastOrderRoutePointList.get(0).getArriveTime();
-				if(StringUtils.isNotEmpty(startTimeStr)){
-					startTime = DateUtilLH.convertStr2Date(startTimeStr, "yyyy-MM-dd HH:mm:ss");
-				}
-				String endTimeStr = lastOrderRoutePointList.get(lastOrderRoutePointList.size()-1).getArriveTime();
-				if(StringUtils.isNotEmpty(endTimeStr)){
-					endTime = DateUtilLH.convertStr2Date(endTimeStr, "yyyy-MM-dd HH:mm:ss");
-				}
-			}
-			lastOrderPayInfo.put("totalTimes", (endTime.getTime()-startTime.getTime())/(1000*60)+"");
-			lastOrderPayInfo.put("preContent", "您的订单尚未支付:");
-			lastOrderPayInfo.put("afterContent", "");
+			Map<String, Object> lastOrderPayInfo = caculateOrderPayInfo(lastNoPayOrder);
 			result.setData(lastOrderPayInfo);
+			logger.info("lastOrderPayInfo:"+JsonUtil.convertObjectToJsonStr(lastOrderPayInfo));
 		}else {
+			orderInfoMapper.insert(order);
 			resultData.put("orderId", order.getId());
 			for (OrderRoutePoint point : routePointList) {
 				point.setOrderId(order.getId());
@@ -201,6 +162,56 @@ public class OrderServiceImpl implements OrderService {
 		}
 		//sendDispathOrderMessage(order, routePointList);
 		return result;
+	}
+
+	private Map<String, Object> caculateOrderPayInfo(OrderInfo lastNoPayOrder) {
+		logger.info("no pay order id:"+lastNoPayOrder.getId());
+		Map<String,Object> orderPayInfo = new HashMap<String,Object>();
+		Map<String, Object> queryMap = new HashMap<String,Object>();
+		orderPayInfo.put("orderId", lastNoPayOrder.getId());
+		queryMap.put("orderId", lastNoPayOrder.getId());
+		List<Map<String,Object>> feeStatusList = orderFeeItemMapper.findOrderFeeByPayStatus(queryMap);
+		if(feeStatusList!=null && feeStatusList.size()>0){
+			Float totalAmount =0f;
+			Float totalPaidAmount =0f;
+			Float totalForPayAmount = 0f;
+			for(Map<String,Object> item:feeStatusList){
+				Float amount = Float.valueOf(item.get("money").toString());
+				if("0".equals(item.get("payStatus").toString())){
+					totalForPayAmount += amount;
+				}else{
+					totalPaidAmount += amount;
+				}
+				totalAmount +=amount;
+			}
+			orderPayInfo.put("totalAmount", totalAmount);
+			orderPayInfo.put("totalPaidAmount", totalPaidAmount);
+			orderPayInfo.put("totalForPayAmount", totalForPayAmount);
+		}
+		orderPayInfo.put("totalDistance", lastNoPayOrder.getTotalDistance());
+		queryMap.clear();
+		queryMap.put("orderId", lastNoPayOrder.getId());
+		List<OrderRoutePoint> lastOrderRoutePointList = orderRoutePointMapper.findRoutePointList(queryMap);
+		Date startTime = new Date();
+		Date endTime = new Date();
+		if(lastOrderRoutePointList!=null){
+			OrderRoutePoint startPoint = lastOrderRoutePointList.get(0);
+			String startTimeStr = startPoint.getArriveTime();
+			logger.info("startPoint id:"+startPoint.getId()+";"+startTimeStr);
+			if(StringUtils.isNotEmpty(startTimeStr)){
+				startTime = DateUtilLH.convertStr2Date(startTimeStr, "yyyy-MM-dd HH:mm:ss");
+			}
+			OrderRoutePoint endPoint =lastOrderRoutePointList.get(lastOrderRoutePointList.size()-1);
+			String endTimeStr = endPoint.getArriveTime();
+			logger.info("endPoint id:"+endPoint.getId()+";"+endTimeStr);
+			if(StringUtils.isNotEmpty(endTimeStr)){
+				endTime = DateUtilLH.convertStr2Date(endTimeStr, "yyyy-MM-dd HH:mm:ss");
+			}
+		}
+		orderPayInfo.put("totalTimes", (endTime.getTime()-startTime.getTime())/(1000*60)+"");
+		orderPayInfo.put("preContent", "您的订单尚未支付:");
+		orderPayInfo.put("afterContent", "");
+		return orderPayInfo;
 	}
 
 	private void distributeOrderFee(User orderUser,User driver,OrderInfo order, OrderFeeItem feeItem) {
@@ -620,6 +631,14 @@ public class OrderServiceImpl implements OrderService {
 		if (orderItem != null && !orderItem.isEmpty()) {
 			Object orderId = orderItem.get("orderId");
 			Map<String, Object> queryMap = new HashMap<String, Object>();
+			if(Constant.ORDER_STATUS_CONFIRMFEE==Integer.valueOf(orderItem.get("status").toString()).intValue()) {
+				queryMap.clear();
+				queryMap.put("id", orderId);
+			    OrderInfo order = orderInfoMapper.findSingleOrder(queryMap);
+				Map<String,Object> payInfo = this.caculateOrderPayInfo(order);
+				orderItem.put("payInfo", payInfo);
+			}
+			queryMap.clear();
 			queryMap.put("orderId", orderId);
 			List<OrderRoutePoint> placePointList = orderRoutePointMapper.findRoutePointList(queryMap);
 			if (placePointList != null && placePointList.size() > 0) {
