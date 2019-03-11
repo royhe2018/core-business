@@ -133,9 +133,10 @@ public class IndexServiceImpl implements IndexService{
 					}
 				}
 				if(todayHourList.size()>0) {
+					boolean haveJump = false;
 					for(int j=0;j<todayHourList.size();) {
 						List<String> hourMinuteList = new ArrayList<String>();
-						if(j==0) {
+						if(j==0 && !haveJump) {
 							for(String minuteItem:minuteList) {
 								if(curMinuteStr.compareTo(minuteItem)<0) {
 									hourMinuteList.add(minuteItem);
@@ -146,6 +147,7 @@ public class IndexServiceImpl implements IndexService{
 								j++;
 							}else {
 								todayHourList.remove(j);
+								haveJump = true;
 							}
 						}else {
 							totalMinuteList.add(Arrays.asList(minuteList));
