@@ -109,6 +109,7 @@ public class IndexServiceImpl implements IndexService{
 	public List<Map<String, Object>> findAppointmentTimeList() {
 		List<Map<String,Object>> timeList = new ArrayList<Map<String,Object>>();
 		Calendar ca = Calendar.getInstance();
+		ca.add(Calendar.MINUTE, 15);
 		String[] hourList = hourListStr.split(",");
 		String[] minuteList = minuteListStr.split(",");
 		int curHour = ca.get(Calendar.HOUR_OF_DAY);
