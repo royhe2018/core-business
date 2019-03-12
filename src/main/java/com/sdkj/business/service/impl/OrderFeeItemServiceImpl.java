@@ -25,6 +25,7 @@ import com.sdkj.business.domain.po.OrderRoutePoint;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.AliMQProducer;
+import com.sdkj.business.service.BalanceChangeDetailService;
 import com.sdkj.business.service.OrderFeeItemService;
 import com.sdkj.business.service.component.aliPay.ALIPayComponent;
 import com.sdkj.business.service.component.wxPay.WXPayComponent;
@@ -55,6 +56,8 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 	@Autowired
 	private OrderRoutePointMapper orderRoutePointMapper;
 	
+	@Autowired
+	private BalanceChangeDetailService balanceChangeDetailService;
 	@Autowired
 	private AliMQProducer aliMQProducer;
 	@Value("${ali.mq.order.dispatch.topic}")
@@ -359,9 +362,10 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 				logger.info("setPayStatus 2");
 				order.setPayStatus(Constant.ORDER_PAY_STATUS_PAID);//已付清
 				if(Constant.ORDER_STATUS_CONFIRMFEE==order.getStatus().intValue()) {
-					order.setStatus(Constant.ORDER_STATUS_PAYFINISH);
+					order.setStatus(Constant.ORDER_STATUS_FINISH);
+					//分配费用
+					balanceChangeDetailService.distributeOrderFeeToUser(order.getId());
 				}
-				
 				//通知司机端订单支付
 				Map<String,Object> paymentRemarkMap = new HashMap<String,Object>();
 				paymentRemarkMap.put("orderId", order.getId());

@@ -487,9 +487,18 @@ public class OrderServiceImpl implements OrderService {
 				Object orderId = orderItem.get("orderId");
 				queryMap.put("orderId", orderId);
 				List<OrderRoutePoint> placePointList = orderRoutePointMapper.findRoutePointList(queryMap);
+				orderItem.put("receiverType", 1);
 				if (placePointList != null && placePointList.size() > 0) {
 					orderItem.put("placePointList", placePointList);
+					OrderRoutePoint startPoint = placePointList.get(0);
+					if(param.containsKey("userId")){
+						String userId = param.get("userId").toString();
+						if(userId.equals(startPoint.getDealUserId().toString())){
+							orderItem.put("receiverType", 2);
+						}
+					}
 				}
+				
 			}
 		}
 		result.setData(orderDisplayList);
@@ -642,6 +651,14 @@ public class OrderServiceImpl implements OrderService {
 			queryMap.put("orderId", orderId);
 			List<OrderRoutePoint> placePointList = orderRoutePointMapper.findRoutePointList(queryMap);
 			if (placePointList != null && placePointList.size() > 0) {
+				orderItem.put("receiverType", 1);
+				OrderRoutePoint startPoint = placePointList.get(0);
+				if(param.containsKey("userId")){
+					String userId = param.get("userId").toString();
+					if(userId.equals(startPoint.getDealUserId().toString())){
+						orderItem.put("receiverType", 2);
+					}
+				}
 				for(OrderRoutePoint point:placePointList){
 					if(StringUtils.isNotEmpty(point.getArriveTime())){
 						point.setArriveTime(point.getArriveTime().substring(11));

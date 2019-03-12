@@ -35,9 +35,6 @@ public class RoutePointServiceImpl implements RoutePointService {
 	@Value("${ali.mq.order.dispatch.topic}")
 	private String orderDispatchTopic;
 	
-	@Autowired
-	private BalanceChangeDetailService balanceChangeDetailService;
-	
 	@Override
 	public MobileResultVO routePointArrive(OrderRoutePoint point,String driverId) {
 		MobileResultVO result = new MobileResultVO();
@@ -105,13 +102,11 @@ public class RoutePointServiceImpl implements RoutePointService {
 				}else{
 					order.setStatus(Constant.ORDER_STATUS_FINISH);
 					orderInfoMapper.updateById(order);
-					//分配费用
-					balanceChangeDetailService.distributeOrderFeeToUser(order.getId());
 					
 					//账户入账广播
-					Map<String,Object> pointInfoMap = new HashMap<String,Object>();
-					pointInfoMap.put("orderId", pointDB.getOrderId());
-					this.aliMQProducer.sendMessage(orderDispatchTopic,Constant.MQ_TAG_FINISH_ORDER,pointInfoMap);
+					//Map<String,Object> pointInfoMap = new HashMap<String,Object>();
+					//pointInfoMap.put("orderId", pointDB.getOrderId());
+					//this.aliMQProducer.sendMessage(orderDispatchTopic,Constant.MQ_TAG_FINISH_ORDER,pointInfoMap);
 				}
 			}
 			
