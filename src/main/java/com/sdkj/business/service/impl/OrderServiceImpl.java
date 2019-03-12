@@ -493,8 +493,14 @@ public class OrderServiceImpl implements OrderService {
 					OrderRoutePoint startPoint = placePointList.get(0);
 					if(param.containsKey("userId")){
 						String userId = param.get("userId").toString();
-						if(userId.equals(startPoint.getDealUserId().toString())){
-							orderItem.put("receiverType", 2);
+						if(startPoint.getDealUserId()!=null) {
+							if(userId.equals(startPoint.getDealUserId().toString())){
+								orderItem.put("receiverType", 2);
+							}
+						}else {
+							if(userId.equals(orderItem.get("userId").toString())) {
+								orderItem.put("receiverType", 2);
+							}
 						}
 					}
 				}

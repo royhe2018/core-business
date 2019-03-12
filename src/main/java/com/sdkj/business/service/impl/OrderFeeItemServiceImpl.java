@@ -246,7 +246,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
         	result.setMessage("该订单费用项已支付!");
         }else{
             String attachInfo = itemIds+"|"+orderId;
-            payFee=1;//测试，暂时按1分计算
+           // payFee=1;//测试，暂时按1分计算
     		WxappPayDto dto = wxPayComponent.prePay(attachInfo, orderNo, payFee, "顺道拉货", "运费支付");
             if(null!=dto){
             	result.setData(dto);
@@ -282,7 +282,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
         	result.setMessage("该订单费用项已支付!");
         }else{
             String attachInfo = itemIds+"|"+orderId;
-            payFee=1;//测试，暂时按1分计算
+            //payFee=1;//测试，暂时按1分计算
     		WxappPayDto dto = wxPayComponent.preDriverPay(attachInfo, orderNo, payFee, "顺道拉货", "运费支付");
             if(null!=dto){
             	result.setData(dto);
@@ -345,7 +345,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 		logger.info("payFeeFen:"+payFee);
 		logger.info("hasNoPayItem:"+hasNoPayItem);
 		logger.info("feeItemIds:"+feeItemIds);
-		payFee=1;//暂时不计算金额正误，只做测试
+		//payFee=1;//暂时不计算金额正误，只做测试
 		if(!totalFee.equals(payFee+"")){
 			logger.info("金额核对有误："+payFee);
 		}else if(!",".equals(feeItemIds)){
@@ -447,7 +447,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
         	result.setMessage("该订单费用项已支付!");
         }else{
             String attachInfo = itemIds+"|"+orderId;
-            payFee=0.01f;//测试，暂时按1分计算
+            //payFee=0.01f;//测试，暂时按1分计算
     		String aliPayInfo = aliPayComponent.generatorAliPayOrderInfo(orderNo,attachInfo, payFee);
             if(StringUtils.isNotEmpty(aliPayInfo)){
             	result.setData(aliPayInfo);

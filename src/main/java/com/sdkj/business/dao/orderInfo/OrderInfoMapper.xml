@@ -70,7 +70,8 @@
 		d.map_terminal_id as mapTerminalId,
 		'8914' as mapServiceId,
 		case when c.id is null then 0 else 1 end as commentStatus,
-		o.create_time as orderCreateTime
+		o.create_time as orderCreateTime,
+		o.user_id as userId
 		from sdlh_order_info o
 		inner join sdlh_vehicle_type_info t on o.vehicle_type_id = t.id
 		left join sdlh_user d on o.driver_id = d.id

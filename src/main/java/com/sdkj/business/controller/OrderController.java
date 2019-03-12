@@ -1,6 +1,7 @@
 package com.sdkj.business.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import com.sdkj.business.domain.po.OrderRoutePoint;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.OrderService;
 import com.sdkj.business.service.component.optlog.SysLog;
+import com.sdlh.common.DateUtilLH;
 import com.sdlh.common.JsonUtil;
 import com.sdlh.common.StringUtilLH;
 
@@ -375,7 +377,14 @@ public class OrderController {
 		}
 		
 		if(StringUtilLH.isNotEmpty(useTime)) {
-			order.setUseTruckTime(useTime+":00");
+			Calendar ca = Calendar.getInstance();
+			ca.add(Calendar.MINUTE, 15);
+			String startTimeLimit = DateUtilLH.convertDate2Str(ca.getTime(), "yyyy-MM-dd HH:mm");
+			if(useTime.compareTo(startTimeLimit)<0) {
+				useTime=startTimeLimit;
+			}
+			//order.setUseTruckTime(useTime+":00");
+			order.setUseTruckTime(useTime);
 		}else {
 			errorMsg.append("用车时间有误!");
 		}
