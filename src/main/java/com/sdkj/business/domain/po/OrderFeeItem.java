@@ -31,6 +31,10 @@ public class OrderFeeItem {
 
     private Float driverRefereeFee;
     
+    private Long subCompanyId;
+    
+    private Float subCompanyFee;
+    
     private Float platFormFee;
     
     public Long getId() {
@@ -151,6 +155,22 @@ public class OrderFeeItem {
 
 	public void setDriverRefereeFee(Float driverRefereeFee) {
 		this.driverRefereeFee = driverRefereeFee;
+	}
+	
+	public Long getSubCompanyId() {
+		return subCompanyId;
+	}
+
+	public void setSubCompanyId(Long subCompanyId) {
+		this.subCompanyId = subCompanyId;
+	}
+
+	public Float getSubCompanyFee() {
+		return subCompanyFee;
+	}
+
+	public void setSubCompanyFee(Float subCompanyFee) {
+		this.subCompanyFee = subCompanyFee;
 	}
 
 	public Float getPlatFormFee() {

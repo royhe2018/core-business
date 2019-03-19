@@ -129,9 +129,9 @@ public class RoutePointServiceImpl implements RoutePointService {
 			}
 			pointDB.setOverTimeFee(overTimeFee);
 			if(overTimeFee>0){
-				pointDB.setOverTimeFeeStatus(1);
+				pointDB.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_CALED);
 			}else{
-				pointDB.setOverTimeFeeStatus(2);
+				pointDB.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED);
 			}
 			orderRoutePointMapper.updateByPrimaryKeySelective(pointDB);
 			//发送离开途经点广播

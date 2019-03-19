@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.sdkj.business.dao.userBankCard.UserBankCardMapper;
 import com.sdkj.business.domain.po.UserBankCard;
 import com.sdkj.business.domain.vo.MobileResultVO;
+import com.sdkj.business.service.CheckCodeService;
 import com.sdkj.business.service.UserBackCardService;
 import com.sdkj.business.util.Constant;
 import com.sdlh.common.AlipayBankNoCheck;
@@ -29,32 +30,40 @@ public class UserBackCardServiceImpl implements UserBackCardService {
 	
 	@Autowired
 	private UserBankCardMapper userBankCardMapper;
+	
+	@Autowired
+	private CheckCodeService checkCodeService;
 	@Override
 	public MobileResultVO bindUserBackCard(UserBankCard bindCard,String checkCode) {
 		MobileResultVO result = new MobileResultVO();
 		result.setCode(MobileResultVO.CODE_FAIL);
 		result.setMessage("绑定失败");
-		String checkResultStr = AlipayBankNoCheck.checkUserBankCardInfo(bindCard.getCardNum(), bindCard.getOwnerCardNum(), bindCard.getOwnerName(), bindCard.getReservePhone());
-		logger.info("checkResultStr:"+checkResultStr);
-		if(StringUtilLH.isNotEmpty(checkResultStr)){
-			JsonNode checkResult = JsonUtil.convertStrToJson(checkResultStr);
-			if(checkResult!=null){
-				String respCode = checkResult.get("respCode").asText();
-				String respMessage = checkResult.get("respMessage").asText();
-				if("0000".equals(respCode)){
-					String bankName = checkResult.get("bankName").asText();
-					String bankType = checkResult.get("bankType").asText();
-					bindCard.setBankName(bankName);
-					bindCard.setCardType(bankType);
-					bindCard.setCreateTime(DateUtilLH.getCurrentTime());
-					bindCard.setStatus(1);
-					userBankCardMapper.insert(bindCard);
-					result.setCode(MobileResultVO.CODE_SUCCESS);
-					result.setMessage("绑定成功");
-				}else{
-					result.setMessage(respMessage);
+		if(checkCodeService.validCheckCode(bindCard.getReservePhone(), checkCode)){
+			String checkResultStr = AlipayBankNoCheck.checkUserBankCardInfo(bindCard.getCardNum(), bindCard.getOwnerCardNum(), bindCard.getOwnerName(), bindCard.getReservePhone());
+			logger.info("checkResultStr:"+checkResultStr);
+			if(StringUtilLH.isNotEmpty(checkResultStr)){
+				JsonNode checkResult = JsonUtil.convertStrToJson(checkResultStr);
+				if(checkResult!=null){
+					String respCode = checkResult.get("respCode").asText();
+					String respMessage = checkResult.get("respMessage").asText();
+					if("0000".equals(respCode)){
+						String bankName = checkResult.get("bankName").asText();
+						String bankType = checkResult.get("bankType").asText();
+						bindCard.setBankName(bankName);
+						bindCard.setCardType(bankType);
+						bindCard.setCreateTime(DateUtilLH.getCurrentTime());
+						bindCard.setStatus(1);
+						bindCard.setCardBackImg("bg_lan.png");
+						userBankCardMapper.insert(bindCard);
+						result.setCode(MobileResultVO.CODE_SUCCESS);
+						result.setMessage("绑定成功");
+					}else{
+						result.setMessage(respMessage);
+					}
 				}
 			}
+		}else{
+			result.setMessage("验证码错误!");
 		}
 		return result;
 	}

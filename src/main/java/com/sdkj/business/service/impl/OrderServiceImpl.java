@@ -24,6 +24,7 @@ import com.sdkj.business.dao.leaseTruckOrder.LeaseTruckOrderMapper;
 import com.sdkj.business.dao.orderFeeItem.OrderFeeItemMapper;
 import com.sdkj.business.dao.orderInfo.OrderInfoMapper;
 import com.sdkj.business.dao.orderRoutePoint.OrderRoutePointMapper;
+import com.sdkj.business.dao.subCompany.SubCompanyMapper;
 import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.dao.vehicleSpecialRequirement.VehicleSpecialRequirementMapper;
 import com.sdkj.business.dao.vehicleTypeInfo.VehicleTypeInfoMapper;
@@ -33,6 +34,7 @@ import com.sdkj.business.domain.po.LeaseTruckOrder;
 import com.sdkj.business.domain.po.OrderFeeItem;
 import com.sdkj.business.domain.po.OrderInfo;
 import com.sdkj.business.domain.po.OrderRoutePoint;
+import com.sdkj.business.domain.po.SubCompany;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.po.VehicleSpecialRequirement;
 import com.sdkj.business.domain.po.VehicleTypeInfo;
@@ -82,6 +84,9 @@ public class OrderServiceImpl implements OrderService {
 	
 	@Value("${road.distance.url}")
 	private String roadDistanceUrl;
+	
+	@Autowired
+	private SubCompanyMapper subCompanyMapper;
 	
 	@Override
 	public MobileResultVO submitOrder(OrderInfo order, List<OrderRoutePoint> routePointList) {
@@ -243,12 +248,25 @@ public class OrderServiceImpl implements OrderService {
 			BigDecimal platformBg = new BigDecimal(platformRealAmount).setScale(2, RoundingMode.UP);
 			feeItem.setPlatFormFee(platformBg.floatValue());
 			distributeTotalFee += feeItem.getPlatFormFee();
+			
+			Float subcompanyRealAmount = distributionSetting.getSubcompanyAmount()*feeItem.getFeeAmount();
+			BigDecimal subcompanyBg = new BigDecimal(subcompanyRealAmount).setScale(2, RoundingMode.UP);
+			feeItem.setSubCompanyFee(subcompanyBg.floatValue());
+			distributeTotalFee += feeItem.getSubCompanyFee();
+			param.clear();
+			param.put("manageCity", order.getCityName());
+			SubCompany subCompany = subCompanyMapper.findSingleSubCompany(param);
+			if(subCompany!=null){
+				feeItem.setSubCompanyId(subCompany.getId());
+			}
+			
 			feeItem.setDriverFee(feeItem.getFeeAmount()-distributeTotalFee);
 		} else {
 			feeItem.setDriverFee(order.getStartFee());
 			feeItem.setClientRefereeFee(0f);
 			feeItem.setDriverRefereeFee(0f);
 			feeItem.setPlatFormFee(0f);
+			feeItem.setSubCompanyFee(0f);
 		}
 		if(orderUser.getRefereeId()!=null) {
 			feeItem.setClientRefereeId(orderUser.getRefereeId());

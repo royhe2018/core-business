@@ -39,11 +39,11 @@
     insert into sdlh_user_bank_card (id, bank_name, card_type, 
       card_num, owner_name, owner_card_num, 
       reserve_phone, user_id, create_time, 
-      status)
+      status,card_back_img)
     values (#{id,jdbcType=BIGINT}, #{bankName,jdbcType=VARCHAR}, #{cardType,jdbcType=VARCHAR}, 
       #{cardNum,jdbcType=VARCHAR}, #{ownerName,jdbcType=VARCHAR}, #{ownerCardNum,jdbcType=VARCHAR}, 
       #{reservePhone,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT}, #{createTime,jdbcType=VARCHAR}, 
-      #{status,jdbcType=INTEGER})
+      #{status,jdbcType=INTEGER},#{cardBackImg})
   </insert>
    
   <update id="updateById" parameterType="com.sdkj.business.domain.po.UserBankCard">

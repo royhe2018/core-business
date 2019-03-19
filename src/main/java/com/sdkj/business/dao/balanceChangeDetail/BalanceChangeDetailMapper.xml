@@ -21,9 +21,9 @@
   </select>
   <select id="findBalanceChangeList" parameterType="java.util.Map" resultMap="BaseResultMap">
     select *
-    from sdlh_balance_change_detail
+    from sdlh_balance_change_detail c
     <trim prefix="where" prefixOverrides="and">
-    	<if test="userId != null">and user_id = #{userId}</if>
+    	<if test="userId != null">and c.`belong_type`=1 and c.`belong_id` = #{userId}</if>
     </trim>
     order by id desc
   </select>
@@ -32,7 +32,8 @@
     SELECT SUM(c.`change_amount`) AS totalChange
 	FROM `sdlh_balance_change_detail` c
     <trim prefix="where" prefixOverrides="and">
-    	<if test="userId != null">and c.`user_id` = #{userId}</if>
+    	and c.change_type IN (1,2)
+    	<if test="userId != null">and c.`belong_type`=1 and c.`belong_id` = #{userId}</if>
     	<if test="startTime != null"><![CDATA[and c.`change_time`> #{startTime}]]></if>
     	<if test="endTime != null"><![CDATA[AND c.`change_time`< #{endTime}]]></if>
     </trim>
@@ -45,7 +46,7 @@
 	INNER JOIN `sdlh_user` u ON o.`user_id`=u.id
     <trim prefix="where" prefixOverrides="and">
     	and c.change_type IN (1,2)
-    	<if test="userId != null">and c.`user_id` = #{userId}</if>
+    	<if test="userId != null">and c.`belong_type`=1 and c.`belong_id` = #{userId}</if>
     	<if test="startTime != null"><![CDATA[and c.`change_time`> #{startTime}]]></if>
     	<if test="endTime != null"><![CDATA[AND c.`change_time`< #{endTime}]]></if>
     </trim>
@@ -57,19 +58,16 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.sdkj.business.domain.po.BalanceChangeDetail" useGeneratedKeys="true" >
-    insert into sdlh_balance_change_detail (id, user_id, balance_before_change, 
+        insert into sdlh_balance_change_detail (id, belong_id,belong_type, balance_before_change, 
       balance_after_change, change_amount, change_time, 
       change_type,item_id)
-    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{balanceBeforeChange,jdbcType=REAL}, 
+    values (#{id,jdbcType=BIGINT}, #{belongId,jdbcType=BIGINT}, #{belongType,jdbcType=BIGINT}, #{balanceBeforeChange,jdbcType=REAL}, 
       #{balanceAfterChange,jdbcType=REAL}, #{changeAmount,jdbcType=REAL}, #{changeTime,jdbcType=VARCHAR}, 
       #{changeType,jdbcType=INTEGER},#{itemId})
   </insert>
   <update id="update" parameterType="com.sdkj.business.domain.po.BalanceChangeDetail">
     update sdlh_balance_change_detail
-    <set>
-      <if test="userId != null">
-        user_id = #{userId,jdbcType=BIGINT},
-      </if>
+    <set>      
       <if test="balanceBeforeChange != null">
         balance_before_change = #{balanceBeforeChange,jdbcType=REAL},
       </if>

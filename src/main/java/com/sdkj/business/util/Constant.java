@@ -82,4 +82,9 @@ public class Constant {
 	public static final int ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL=0;
 	public static final int ROUTE_POINT_OVER_TIME_FEE_STATUS_CALED=1;
 	public static final int ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED=2;
+	/**
+	 * 余额变更归属类型 1用户；2公司
+	 */
+	public static final int BALANCE_CHANGE_BELONG_TYPE_USER =1;
+	public static final int BALANCE_CHANGE_BELONG_TYPE_COMPANY =2;
 }

@@ -16,6 +16,8 @@
 			property="clientRefereeAmount" />
 		<result column="driver_referee_amount"
 			property="driverRefereeAmount" />
+		<result column="subcompany_amount"
+			property="subcompanyAmount" />	
 		<result column="platform_amount" property="platformAmount" />
 	</resultMap>
 

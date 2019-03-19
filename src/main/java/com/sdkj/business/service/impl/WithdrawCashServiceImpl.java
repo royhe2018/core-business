@@ -45,7 +45,8 @@ public class WithdrawCashServiceImpl implements WithdrawCashService {
 				changeDetail.setChangeAmount(record.getCashAmount().floatValue());
 				changeDetail.setChangeTime(DateUtilLH.getCurrentTime());
 				changeDetail.setChangeType(Constant.BALANCE_CHANGE_TYPE_WITHDRAW);
-				changeDetail.setUserId(record.getUserId());
+				changeDetail.setBelongId(record.getUserId());
+				changeDetail.setBelongType(Constant.BALANCE_CHANGE_BELONG_TYPE_USER);
 				balanceChangeDetailMapper.insert(changeDetail);
 				user.setBalance(oldBalance-record.getCashAmount().floatValue());
 				userMapper.updateById(user);

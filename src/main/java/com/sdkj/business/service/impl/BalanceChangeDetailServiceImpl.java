@@ -14,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageHelper;
 import com.sdkj.business.dao.balanceChangeDetail.BalanceChangeDetailMapper;
 import com.sdkj.business.dao.orderFeeItem.OrderFeeItemMapper;
+import com.sdkj.business.dao.subCompany.SubCompanyMapper;
 import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.domain.po.BalanceChangeDetail;
+import com.sdkj.business.domain.po.SubCompany;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.BalanceChangeDetailService;
@@ -38,6 +40,9 @@ public class BalanceChangeDetailServiceImpl implements
 	
 	@Autowired
 	private OrderFeeItemMapper orderFeeItemMapper;
+	
+	@Autowired
+	private SubCompanyMapper subCompanyMapper;
 	
 	@Override
 	public MobileResultVO findUserBalanceInfo(Integer userId) {
@@ -94,13 +99,17 @@ public class BalanceChangeDetailServiceImpl implements
 			}
 			//给平台分款
 			if(orderFeeDistribute.containsKey("platFormFee")) {
-				distributeFeeToUserAccount(orderId,orderFeeDistribute,"platFormId","platFormFee",Constant.BALANCE_CAHNGE_TYPE_PERFORMANCEDRAWING);
+				distributeFeeToCompany(orderId,orderFeeDistribute,"platFormId","platFormFee",Constant.BALANCE_CAHNGE_TYPE_PERFORMANCEDRAWING);
+			}
+			
+			//给平台分款
+			if(orderFeeDistribute.containsKey("subCompanyFee")) {
+				distributeFeeToCompany(orderId,orderFeeDistribute,"subCompanyId","subCompanyFee",Constant.BALANCE_CAHNGE_TYPE_PERFORMANCEDRAWING);
 			}
 		}
 	}
 
 	private void distributeFeeToUserAccount(Long orderId,Map<String, Object> orderFeeDistribute,String userIdKey,String userFeeKey,int changeType) {
-		
 		Long driverId = Long.valueOf(orderFeeDistribute.get(userIdKey)+"");
 		Float driverFee = Float.valueOf(orderFeeDistribute.get(userFeeKey)+"");
 		logger.info("userId:"+driverId+";user fee:"+driverFee);
@@ -121,10 +130,38 @@ public class BalanceChangeDetailServiceImpl implements
 		changeDetail.setChangeTime(DateUtilLH.getCurrentTime());
 		changeDetail.setChangeType(changeType);
 		changeDetail.setItemId(orderId);
-		changeDetail.setUserId(driverId);
+		changeDetail.setBelongId(driverId);
+		changeDetail.setBelongType(Constant.BALANCE_CHANGE_BELONG_TYPE_USER);
 		balanceChangeDetailMapper.insert(changeDetail);
 	}
 
+	
+	private void distributeFeeToCompany(Long orderId,Map<String, Object> orderFeeDistribute,String companyIdKey,String companyFeeKey,int changeType) {
+		Long companyId = Long.valueOf(orderFeeDistribute.get(companyIdKey)+"");
+		Float companyFee = Float.valueOf(orderFeeDistribute.get(companyFeeKey)+"");
+		logger.info("companyId:"+companyId+";company fee:"+companyFee);
+		 Map<String, Object> param = new HashMap<String,Object>();
+		param.put("id", companyId);
+		SubCompany subCompany = subCompanyMapper.findSingleSubCompany(param);
+		Float beforeBlance =0f;
+		if(subCompany.getBalance()!=null) {
+			beforeBlance = subCompany.getBalance();
+		}
+		logger.info("beforeBlance:"+beforeBlance);
+		param.put("amount", companyFee);
+		subCompanyMapper.addCompanyBalance(param);
+		BalanceChangeDetail changeDetail = new BalanceChangeDetail();
+		changeDetail.setBalanceBeforeChange(beforeBlance);
+		changeDetail.setBalanceAfterChange(beforeBlance+companyFee);
+		changeDetail.setChangeAmount(companyFee);
+		changeDetail.setChangeTime(DateUtilLH.getCurrentTime());
+		changeDetail.setChangeType(changeType);
+		changeDetail.setItemId(orderId);
+		changeDetail.setBelongId(companyId);
+		changeDetail.setBelongType(Constant.BALANCE_CHANGE_BELONG_TYPE_COMPANY);
+		balanceChangeDetailMapper.insert(changeDetail);
+	}
+	
 	@Override
 	public MobileResultVO findUserPerformance(Map<String, Object> param) {
 		MobileResultVO result = new MobileResultVO();

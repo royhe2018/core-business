@@ -3,7 +3,9 @@ package com.sdkj.business.domain.po;
 public class BalanceChangeDetail {
     private Long id;
 
-    private Long userId;
+    private Integer belongType;
+    
+    private Long belongId;
 
     private Float balanceBeforeChange;
 
@@ -24,16 +26,24 @@ public class BalanceChangeDetail {
     public void setId(Long id) {
         this.id = id;
     }
+ 
+    public Integer getBelongType() {
+		return belongType;
+	}
 
-    public Long getUserId() {
-        return userId;
-    }
+	public void setBelongType(Integer belongType) {
+		this.belongType = belongType;
+	}
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+	public Long getBelongId() {
+		return belongId;
+	}
 
-    public Float getBalanceBeforeChange() {
+	public void setBelongId(Long belongId) {
+		this.belongId = belongId;
+	}
+
+	public Float getBalanceBeforeChange() {
         return balanceBeforeChange;
     }
 

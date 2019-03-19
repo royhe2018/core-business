@@ -31,7 +31,5 @@ public interface OrderFeeItemService {
 	
 	public MobileResultVO aliPayNotify(Map notifyInfo);
 	
-	public MobileResultVO findOrderOverTimeFee(String orderId);
-	
 	public MobileResultVO findOrderFeeItemPayInfoList(String orderId);
 }

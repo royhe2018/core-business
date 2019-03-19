@@ -54,7 +54,8 @@
     select order_id as orderId,driver_id as driverId,sum(driver_fee) as driverFee,
     client_referee_id as clientRefereeId,sum(client_referee_fee) as clientRefereeFee,
     driver_referee_id as driverRefereeId,sum(driver_referee_fee) as driverRefereeFee,
-    1 as platFormId,sum(plat_form_fee) as platFormFee
+    1 as platFormId,sum(plat_form_fee) as platFormFee,
+    sub_company_id as subCompanyId,sum(sub_company_fee) as subCompanyFee
     from sdlh_order_fee_item
     <trim prefix="where" prefixOverrides="and">
     	<if test="orderId != null"> and order_id = #{orderId}</if>
@@ -132,6 +133,15 @@
       </if>
       <if test="driverFee != null">
         driver_fee = #{driverFee},
+      </if>
+      <if test="driverFee != null">
+        driver_fee = #{driverFee},
+      </if>
+      <if test="subCompanyId != null">
+        sub_company_id = #{subCompanyId},
+      </if>
+      <if test="subCompanyFee != null">
+        sub_company_fee = #{subCompanyFee},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

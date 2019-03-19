@@ -107,13 +107,9 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 							if(routPointList!=null && routPointList.size()>0){
 								for(int i=0;i<routPointList.size();i++){
 									OrderRoutePoint routePoint = routPointList.get(i);
-									if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_CALED){
+									if(routePoint.getOverTimeFeeStatus()!=Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED){
 										routePoint.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED);
 										orderRoutePointMapper.updateByPrimaryKeySelective(routePoint);
-									}else if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL){
-										routePoint.setOverTimeFeeStatus(Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_FEED);
-										orderRoutePointMapper.updateByPrimaryKeySelective(routePoint);
-										break;
 									}
 								}
 							}
@@ -246,7 +242,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
         	result.setMessage("该订单费用项已支付!");
         }else{
             String attachInfo = itemIds+"|"+orderId;
-           // payFee=1;//测试，暂时按1分计算
+            //payFee=1;//测试，暂时按1分计算
     		WxappPayDto dto = wxPayComponent.prePay(attachInfo, orderNo, payFee, "顺道拉货", "运费支付");
             if(null!=dto){
             	result.setData(dto);
@@ -383,11 +379,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 		}
 	}
 
-	@Override
-	public MobileResultVO findOrderOverTimeFee(String orderId) {
-		MobileResultVO result = new MobileResultVO();
-		result.setCode(MobileResultVO.CODE_SUCCESS);
-		result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
+	private Float findOrderOverTimeFee(String orderId) {
 		Map<String,Object> param = new HashMap<String,Object>();
 		param.put("orderId", orderId);
 		List<OrderRoutePoint> routPointList = orderRoutePointMapper.findRoutePointList(param);
@@ -399,26 +391,34 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 					if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_CALED){
 						overTimeFee+=routePoint.getOverTimeFee();
 					}else if(routePoint.getOverTimeFeeStatus()==Constant.ROUTE_POINT_OVER_TIME_FEE_STATUS_NO_CAL){
-						if(routePoint.getStatus().intValue()==Constant.ROUTE_POINT_STATUS_ARRIVED){
+						if(StringUtils.isNotEmpty(routePoint.getArriveTime()) && i == routPointList.size()-1 ){
 							Date now = new Date();
 							Date arriveTime = DateUtilLH.convertStr2Date(routePoint.getArriveTime(), "yyyy-MM-dd HH:mm:ss");
 							long between = (now.getTime() - arriveTime.getTime())/1000;
 							long min = between/60;
-							if(i<2){
+							//第一个卸货点
+							if(routePoint.getOrderNum().intValue()==2){
 								min = min-45;
 							}
 							if(min>0){
 								double reuslt = Math.ceil(min/15.0);
-								overTimeFee = overTimeFee +(int)reuslt*10;
+								routePoint.setOverTimeFee((float)reuslt*10);
+								overTimeFee = overTimeFee +routePoint.getOverTimeFee();
 							}
+							routePoint.setLeaveTime(DateUtilLH.getCurrentTime());
+							Date leavedTime = new Date();
+							Integer waitMinite = (int)(leavedTime.getTime()-arriveTime.getTime())/(60*1000);
+							routePoint.setWaitTime(waitMinite);
+							//routePoint.setStatus(Constant.ROUTE_POINT_STATUS_LEAVED);
+							
+							orderRoutePointMapper.updateByPrimaryKeySelective(routePoint); 
 						}
 						break;
 					}
 				}
 			}
 		}
-		result.setData(overTimeFee);
-		return result;
+		return overTimeFee;
 	}
 
 	@Override
@@ -484,24 +484,24 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 		noFeeTypeList.add(2);
 		queryMap.put("noFeeTypeList",noFeeTypeList );
 		List<OrderFeeItem> feeItemList = orderFeeItemMapper.findOrderFeeItemList(queryMap);
+		boolean hasOverTimeFee = false;
 		if(feeItemList!=null && feeItemList.size()>0) {
-			boolean hasOverTimeFee = false;
 			for(OrderFeeItem feeItem:feeItemList) {
 				if("等候逾时费".equals(feeItem.getFeeName())) {
 					hasOverTimeFee = true;
 					break;
 				}
 			}
-			if(!hasOverTimeFee) {
-				MobileResultVO overTimeFee = findOrderOverTimeFee(orderId);
-				OrderFeeItem overTimeFeeItem = new OrderFeeItem();
-				overTimeFeeItem.setFeeAmount(Float.valueOf(overTimeFee.getData().toString()));
-				overTimeFeeItem.setFeeName("等候逾时费");
-				overTimeFeeItem.setFeeType(3);
-				feeItemList.add(overTimeFeeItem);
-			}
 		}
-		
+		if(!hasOverTimeFee) {
+			Float overTimeFee = findOrderOverTimeFee(orderId);
+			logger.info("overTimeFee:"+overTimeFee);
+			OrderFeeItem overTimeFeeItem = new OrderFeeItem();
+			overTimeFeeItem.setFeeAmount(overTimeFee);
+			overTimeFeeItem.setFeeName("等候逾时费");
+			overTimeFeeItem.setFeeType(3);
+			feeItemList.add(overTimeFeeItem);
+		}
 		result.setData(feeItemList);
 		result.setCode(MobileResultVO.CODE_SUCCESS);
 		result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);

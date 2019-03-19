@@ -273,6 +273,7 @@ public class OrderController {
 		String cityName = req.getParameter("cityName");
 		String totalDistance = req.getParameter("totalDistance");
 		String vehicleTypeInfoId = req.getParameter("vehicleTypeInfoId");
+		String useTimeType = req.getParameter("useTimeType");
 		if(StringUtilLH.isNotEmpty(totalDistance)) {
 			order.setTotalDistance(Float.valueOf(totalDistance));
 		} 
@@ -387,6 +388,10 @@ public class OrderController {
 			order.setUseTruckTime(useTime);
 		}else {
 			errorMsg.append("用车时间有误!");
+		}
+		
+		if(StringUtilLH.isNotEmpty(useTimeType)){
+			order.setUseTimeType(Integer.valueOf(useTimeType));
 		}
 		return errorMsg;
 	}

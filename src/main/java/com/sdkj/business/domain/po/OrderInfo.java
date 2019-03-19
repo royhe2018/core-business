@@ -5,7 +5,9 @@ public class OrderInfo {
     private Long id;
 
     private Long userId;
-
+    
+    private Integer useTimeType;
+    
     private String useTruckTime;
 
     private String contactName;
@@ -78,7 +80,16 @@ public class OrderInfo {
         this.userId = userId;
     }
 
-    public String getUseTruckTime() {
+    
+    public Integer getUseTimeType() {
+		return useTimeType;
+	}
+
+	public void setUseTimeType(Integer useTimeType) {
+		this.useTimeType = useTimeType;
+	}
+
+	public String getUseTruckTime() {
         return useTruckTime;
     }
 

@@ -11,6 +11,7 @@ public class DistributionSetting {
 	private Float driverAmount;
 	private Float clientRefereeAmount;
 	private Float driverRefereeAmount;
+	private Float subcompanyAmount;
 	private Float platformAmount;
 	
 	
@@ -67,6 +68,12 @@ public class DistributionSetting {
 	}
 	public void setDriverRefereeAmount(Float driverRefereeAmount) {
 		this.driverRefereeAmount = driverRefereeAmount;
+	}
+	public Float getSubcompanyAmount() {
+		return subcompanyAmount;
+	}
+	public void setSubcompanyAmount(Float subcompanyAmount) {
+		this.subcompanyAmount = subcompanyAmount;
 	}
 	public Float getPlatformAmount() {
 		return platformAmount;

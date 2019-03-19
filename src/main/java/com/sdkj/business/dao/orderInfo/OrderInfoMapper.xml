@@ -34,6 +34,7 @@
 		<result column="sign_receive_time" property="signReceiveTime" />
 		<result column="city_name" property="cityName" />
 		<result column="total_distance" property="totalDistance" />
+		<result column="use_time_type" property="useTimeType" />
 	</resultMap>
 
 	<select id="findSingleOrder" parameterType="java.util.Map"
@@ -71,7 +72,8 @@
 		'8914' as mapServiceId,
 		case when c.id is null then 0 else 1 end as commentStatus,
 		o.create_time as orderCreateTime,
-		o.user_id as userId
+		o.user_id as userId,
+		o.use_time_type as useTimeType
 		from sdlh_order_info o
 		inner join sdlh_vehicle_type_info t on o.vehicle_type_id = t.id
 		left join sdlh_user d on o.driver_id = d.id
@@ -136,7 +138,8 @@
 		o.create_time as orderCreateTime,
 		sum(f.fee_amount) as orderTotalFee,
 		sum(f.driver_fee) as driverFee,
-		dr.car_no as carNo
+		dr.car_no as carNo,
+		o.use_time_type as useTimeType
 		from sdlh_order_info o
 		inner join sdlh_vehicle_type_info t on o.vehicle_type_id = t.id
 		left join sdlh_user d on o.driver_id = d.id
@@ -197,7 +200,7 @@
 		special_requirement_ids, start_fee, extra_fee,
 		insurance_fee, attach_fee, total_fee,
 		driver_id, create_time, finish_time,
-		status,remark,city_name,total_distance)
+		status,remark,city_name,total_distance,use_time_type)
 		values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
 		#{useTruckTime,jdbcType=VARCHAR},
 		#{contactName,jdbcType=VARCHAR}, #{contactPhone,jdbcType=VARCHAR}, #{vehicleTypeId,jdbcType=BIGINT},
@@ -208,7 +211,7 @@
 		#{insuranceFee,jdbcType=REAL}, #{attachFee,jdbcType=REAL}, #{totalFee,jdbcType=REAL},
 		#{driverId,jdbcType=BIGINT}, #{createTime,jdbcType=VARCHAR},
 		#{finishTime,jdbcType=VARCHAR},
-		#{status,jdbcType=INTEGER},#{remark},#{cityName},#{totalDistance})
+		#{status,jdbcType=INTEGER},#{remark},#{cityName},#{totalDistance},#{useTimeType})
 	</insert>
 
 	<update id="updateById" parameterType="com.sdkj.business.domain.po.OrderInfo">

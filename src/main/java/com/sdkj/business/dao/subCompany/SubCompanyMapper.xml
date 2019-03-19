@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.subCompany.SubCompanyMapper">
+	<resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.SubCompany">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="company_name" property="companyName" />
+		<result column="manage_city" property="manageCity" />
+		<result column="contacts_name" property="contactsName" />
+		<result column="contacts_phone" property="contactsPhone" />
+		<result column="address" property="address" />
+		<result column="balance" property="balance" />
+		<result column="parent_id" jdbcType="BIGINT" property="parentId" />
+		<result column="level" jdbcType="VARCHAR" property="level" />
+		<result column="create_time" jdbcType="VARCHAR" property="createTime" />
+	</resultMap>
+	<select id="findSingleSubCompany" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select *
+		from sdlh_sub_company
+		<trim prefix="where" prefixOverrides="and">
+			<if test="manageCity != null">
+				and manage_city = #{manageCity}
+			</if>
+			<if test="id != null">
+				and id = #{id}
+			</if>
+		</trim>
+		limit 0,1
+	</select>
+	<update id="addCompanyBalance" parameterType="java.util.Map">
+		update sdlh_sub_company
+		<set>
+			<if test="amount != null">
+				balance = balance + #{amount}
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="deductCompanyBalance" parameterType="java.util.Map">
+		update sdlh_sub_company
+		<set>
+			<if test="amount != null">
+				balance = balance - #{amount}
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+</mapper>
