@@ -40,10 +40,18 @@ public class DriverInfoController {
 			String idCardBackImage = req.getParameter("idCardBackImage");
 			String drivingLicenseFileNo = req.getParameter("drivingLicenseFileNo");
 			String drivingLicenseImage = req.getParameter("drivingLicenseImage");
+			String registerCity = req.getParameter("registerCity");
 			String carNo = req.getParameter("carNo");
 			String carDrivingImage = req.getParameter("carDrivingImage");
-			String registerCity = req.getParameter("registerCity");
+			
+			String driverType = req.getParameter("driverType");
+			String vehicleTypeId = req.getParameter("vehicleTypeId");
+			String driverName = req.getParameter("driverName");
+			String carFrontPhoto = req.getParameter("carFrontPhoto");
+			String carLateralPhoto = req.getParameter("carLateralPhoto");
+			String carRearPhoto = req.getParameter("carRearPhoto");
 			DriverInfo driverInfo = new DriverInfo();
+			
 			if(StringUtilLH.isEmpty(userId) || StringUtilLH.isEmpty(idCardNo) ||StringUtilLH.isEmpty(idCardImage) 
 					||StringUtilLH.isEmpty(drivingLicenseFileNo) ||StringUtilLH.isEmpty(drivingLicenseImage) ||StringUtilLH.isEmpty(carNo) ||
 					StringUtilLH.isEmpty(carDrivingImage) ||StringUtilLH.isEmpty(idCardBackImage)){
@@ -60,6 +68,13 @@ public class DriverInfoController {
 				driverInfo.setCarNo(carNo);
 				driverInfo.setCarDrivingImage(carDrivingImage);
 				driverInfo.setRegisterCity(registerCity);
+				
+				driverInfo.setDriverType(Integer.valueOf(driverType));
+				driverInfo.setVehicleTypeId(Long.valueOf(vehicleTypeId));
+				driverInfo.setDriverName(driverName);
+				driverInfo.setCarFrontPhoto(carFrontPhoto);
+				driverInfo.setCarLateralPhoto(carLateralPhoto);
+				driverInfo.setCarRearPhoto(carRearPhoto);
 				result = this.driverInfoService.registerDriverInfo(driverInfo);
 			}
 		}catch(Exception e) {

@@ -37,6 +37,15 @@ public class DriverInfo {
     
     private Long vehicleTypeId;
     
+    private String driverName;
+    
+    private String carFrontPhoto;
+    
+    private String carLateralPhoto;
+    
+    private String carRearPhoto;
+    
+    
     public Long getId() {
         return id;
     }
@@ -181,4 +190,37 @@ public class DriverInfo {
 	public void setDriverType(Integer driverType) {
 		this.driverType = driverType;
 	}
+
+	public String getDriverName() {
+		return driverName;
+	}
+
+	public void setDriverName(String driverName) {
+		this.driverName = driverName;
+	}
+
+	public String getCarFrontPhoto() {
+		return carFrontPhoto;
+	}
+
+	public void setCarFrontPhoto(String carFrontPhoto) {
+		this.carFrontPhoto = carFrontPhoto;
+	}
+
+	public String getCarLateralPhoto() {
+		return carLateralPhoto;
+	}
+
+	public void setCarLateralPhoto(String carLateralPhoto) {
+		this.carLateralPhoto = carLateralPhoto;
+	}
+
+	public String getCarRearPhoto() {
+		return carRearPhoto;
+	}
+
+	public void setCarRearPhoto(String carRearPhoto) {
+		this.carRearPhoto = carRearPhoto;
+	}
+	
 }

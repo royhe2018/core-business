@@ -62,13 +62,13 @@
       id_card_type, driving_license_no, driving_license_file_no, 
       driving_license_type, driving_license_image, 
       id_card_image, id_card_back_image, car_no, 
-      car_driving_image, create_time, status,register_city,driver_type
+      car_driving_image, create_time, status,register_city,driver_type,vehicle_type_id,driver_name,car_front_photo,car_lateral_photo,car_rear_photo
       )
     values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{idCardNo,jdbcType=VARCHAR}, 
       #{idCardType,jdbcType=INTEGER}, #{drivingLicenseNo,jdbcType=VARCHAR}, #{drivingLicenseFileNo,jdbcType=VARCHAR}, 
       #{drivingLicenseType,jdbcType=VARCHAR}, #{drivingLicenseImage,jdbcType=VARCHAR}, 
       #{idCardImage,jdbcType=VARCHAR}, #{idCardBackImage,jdbcType=VARCHAR}, #{carNo,jdbcType=VARCHAR}, 
-      #{carDrivingImage,jdbcType=VARCHAR}, #{createTime,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},#{registerCity},1
+      #{carDrivingImage,jdbcType=VARCHAR}, #{createTime,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},#{registerCity},#{driverType},#{vehicleTypeId},#{driverName},#{carFrontPhoto},#{carLateralPhoto},#{carRearPhoto}
       )
   </insert>
   
