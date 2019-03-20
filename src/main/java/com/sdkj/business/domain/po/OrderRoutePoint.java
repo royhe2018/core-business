@@ -17,8 +17,12 @@ public class OrderRoutePoint {
 
     private String arriveTime;
 
+    private String arriveLocation;
+    
     private String leaveTime;
-
+    
+    private String leaveLocation;
+    
     private Integer waitTime;
 
     private Integer status;
@@ -110,8 +114,24 @@ public class OrderRoutePoint {
     public void setLeaveTime(String leaveTime) {
         this.leaveTime = leaveTime == null ? null : leaveTime.trim();
     }
+    
+    public String getArriveLocation() {
+		return arriveLocation;
+	}
 
-    public Integer getWaitTime() {
+	public void setArriveLocation(String arriveLocation) {
+		this.arriveLocation = arriveLocation;
+	}
+
+	public String getLeaveLocation() {
+		return leaveLocation;
+	}
+
+	public void setLeaveLocation(String leaveLocation) {
+		this.leaveLocation = leaveLocation;
+	}
+
+	public Integer getWaitTime() {
         return waitTime;
     }
 

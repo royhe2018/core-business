@@ -99,6 +99,12 @@
       <if test="overTimeFee != null">
         over_time_fee = #{overTimeFee},
       </if>
+      <if test="arriveLocation != null">
+        arrive_location = #{arriveLocation},
+      </if>
+      <if test="leaveLocation != null">
+        leave_location = #{leaveLocation},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
