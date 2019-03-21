@@ -78,11 +78,14 @@ public class BalanceController {
        	MobileResultVO result = null;
    		try {
    			String userId = req.getParameter("userId");
+   			String driverId = req.getParameter("driverId");
    			String startTime = req.getParameter("startTime");
    			String endTime = req.getParameter("endTime");
    			Map<String,Object> param = new HashMap<String,Object>();
    			if(StringUtil.isNotEmpty(userId)){
    				param.put("userId", userId);
+   			}else if(StringUtil.isNotEmpty(driverId)) {
+   				param.put("userId", driverId);
    			}
    			if(StringUtil.isNotEmpty(startTime)){
    				param.put("startTime", startTime);
