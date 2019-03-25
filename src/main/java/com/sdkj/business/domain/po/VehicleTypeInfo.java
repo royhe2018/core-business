@@ -17,7 +17,11 @@ public class VehicleTypeInfo {
     private Float volume;
 
     private String image;
-
+    
+    private Integer displayFlag;
+    
+    private Integer orderNum;
+    
     public Long getId() {
         return id;
     }
@@ -81,4 +85,20 @@ public class VehicleTypeInfo {
     public void setImage(String image) {
         this.image = image;
     }
+
+	public Integer getDisplayFlag() {
+		return displayFlag;
+	}
+
+	public void setDisplayFlag(Integer displayFlag) {
+		this.displayFlag = displayFlag;
+	}
+
+	public Integer getOrderNum() {
+		return orderNum;
+	}
+
+	public void setOrderNum(Integer orderNum) {
+		this.orderNum = orderNum;
+	}
 }

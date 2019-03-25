@@ -45,7 +45,9 @@ public class IndexServiceImpl implements IndexService{
 	public Map<String,Object> findIndexPageInfo(Map<String, Object> param) {
 		List<DistributionFee> distributionFeeList = distributionFeeMapper.findDistributionFeeList(param);
 		Map<String,Object> result = new HashMap<String,Object>();
-		List<VehicleTypeInfo> vehicleTypeList = vehicleTypeInfoMapper.findVehicleTypeInfoList(param);
+		Map<String, Object> queryMap = new HashMap<String,Object>();
+		queryMap.put("displayFlag", 1);
+		List<VehicleTypeInfo> vehicleTypeList = vehicleTypeInfoMapper.findVehicleTypeInfoList(queryMap);
 		List<Map<String,Object>> vehicleTypeInfoList = new ArrayList<Map<String,Object>>();
 		for(VehicleTypeInfo type:vehicleTypeList){
 			Map<String,Object> typeItem = new HashMap<String,Object>();

@@ -24,7 +24,9 @@
     from sdlh_vehicle_type_info
     <trim prefix="where" prefixOverrides="and">
     	<if test="id != null"> and id = #{id}</if>
+    	<if test="displayFlag != null"> and display_flag = #{displayFlag}</if>
     </trim>
+    order by order_num asc
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from sdlh_vehicle_type_info
