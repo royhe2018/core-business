@@ -56,6 +56,9 @@ public class DriverInfoServiceImpl implements DriverInfoService{
 			target.setIdCardBackImage(Constant.ALI_OSS_ACCESS_PREFIX+target.getIdCardBackImage());
 			target.setDrivingLicenseImage(Constant.ALI_OSS_ACCESS_PREFIX+target.getDrivingLicenseImage());
 			target.setCarDrivingImage(Constant.ALI_OSS_ACCESS_PREFIX+target.getCarDrivingImage());
+			target.setCarFrontPhoto(Constant.ALI_OSS_ACCESS_PREFIX+target.getCarFrontPhoto());
+			target.setCarLateralPhoto(Constant.ALI_OSS_ACCESS_PREFIX+target.getCarLateralPhoto());
+			target.setCarRearPhoto(Constant.ALI_OSS_ACCESS_PREFIX+target.getCarRearPhoto());
 			result.setData(target);
 		}
 		return result;
@@ -73,6 +76,9 @@ public class DriverInfoServiceImpl implements DriverInfoService{
 			driver.setIdCardBackImage(Constant.ALI_OSS_ACCESS_PREFIX+driver.getIdCardBackImage());
 			driver.setDrivingLicenseImage(Constant.ALI_OSS_ACCESS_PREFIX+driver.getDrivingLicenseImage());
 			driver.setCarDrivingImage(Constant.ALI_OSS_ACCESS_PREFIX+driver.getCarDrivingImage());
+			driver.setCarFrontPhoto(Constant.ALI_OSS_ACCESS_PREFIX+driver.getCarFrontPhoto());
+			driver.setCarLateralPhoto(Constant.ALI_OSS_ACCESS_PREFIX+driver.getCarLateralPhoto());
+			driver.setCarRearPhoto(Constant.ALI_OSS_ACCESS_PREFIX+driver.getCarRearPhoto());
 			result.setData(driver);
 		}
 		return result;

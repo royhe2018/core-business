@@ -53,8 +53,7 @@ public class DriverInfoController {
 			DriverInfo driverInfo = new DriverInfo();
 			
 			if(StringUtilLH.isEmpty(userId) || StringUtilLH.isEmpty(idCardNo) ||StringUtilLH.isEmpty(idCardImage) 
-					||StringUtilLH.isEmpty(drivingLicenseFileNo) ||StringUtilLH.isEmpty(drivingLicenseImage) ||StringUtilLH.isEmpty(carNo) ||
-					StringUtilLH.isEmpty(carDrivingImage) ||StringUtilLH.isEmpty(idCardBackImage)){
+					||StringUtilLH.isEmpty(drivingLicenseFileNo) ||StringUtilLH.isEmpty(drivingLicenseImage)  ||StringUtilLH.isEmpty(idCardBackImage)){
 				result = new MobileResultVO();
 				result.setCode(MobileResultVO.CODE_FAIL);
 				result.setMessage("信息不完整");

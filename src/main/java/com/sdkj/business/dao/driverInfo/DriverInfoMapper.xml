@@ -20,6 +20,10 @@
     <result column="register_city" property="registerCity" />
     <result column="driver_type" property="driverType" />
     <result column="vehicle_type_id" property="vehicleTypeId" />
+    <result column="driver_name" property="driverName" />
+    <result column="car_front_photo" property="carFrontPhoto" />
+    <result column="car_lateral_photo" property="carLateralPhoto" />
+    <result column="car_rear_photo" property="carRearPhoto" />
   </resultMap>
  
   <select id="findSingleDriver" parameterType="java.util.Map" resultMap="BaseResultMap">
