@@ -45,6 +45,12 @@ public class OrderFeeItemController {
    			String orderId = req.getParameter("orderId");
    			String driverId = req.getParameter("driverId");
    			String feeItemListStr = req.getParameter("feeItemList");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+				driverId = paramMap.get("driverId");
+				feeItemListStr = paramMap.get("feeItemListStr");
+			}
    			ArrayNode feeItemList = JsonUtil.convertStrToJsonArray(feeItemListStr);
    			List<OrderFeeItem> feeList = new ArrayList<OrderFeeItem>();
 			if(feeItemList!=null && feeItemList.size()>0) {
@@ -92,6 +98,10 @@ public class OrderFeeItemController {
     	MobileResultVO result = null;
    		try {
    			String orderId = req.getParameter("orderId");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+			}
 			result = orderFeeItemService.findOrderFeeItemPayInfoList(orderId);
    		}catch(Exception e) {
    			logger.error("查询订单费用明细列表异常", e);
@@ -111,6 +121,11 @@ public class OrderFeeItemController {
    		try {
    			String orderId = req.getParameter("orderId");
    			String driverId = req.getParameter("driverId");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+				driverId = paramMap.get("driverId");
+			}
    			result = orderFeeItemService.findOrderFeeItemList(orderId);
    		}catch(Exception e) {
    			logger.error("添加额外费用异常", e);
@@ -131,6 +146,12 @@ public class OrderFeeItemController {
    			String orderId = req.getParameter("orderId");
    			String driverId = req.getParameter("driverId");
    			String feeItemIds = req.getParameter("feeItemIds");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+				driverId = paramMap.get("driverId");
+				feeItemIds = paramMap.get("feeItemIds");
+			}
    			feeItemIds = ","+feeItemIds+",";
    			result = orderFeeItemService.payFeeItem(feeItemIds, orderId);
    		}catch(Exception e) {
@@ -151,6 +172,12 @@ public class OrderFeeItemController {
     		String orderId = req.getParameter("orderId");
    			String driverId = req.getParameter("driverId");
    			String feeItemIds = req.getParameter("feeItemIds");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+				driverId = paramMap.get("driverId");
+				feeItemIds = paramMap.get("feeItemIds");
+			}
             logger.info("orderId:"+orderId);
             logger.info("feeItemIds:"+feeItemIds);
             result = orderFeeItemService.getWXPrePayInfo(orderId,feeItemIds);
@@ -172,6 +199,12 @@ public class OrderFeeItemController {
     		String orderId = req.getParameter("orderId");
    			String driverId = req.getParameter("driverId");
    			String feeItemIds = req.getParameter("feeItemIds");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+				driverId = paramMap.get("driverId");
+				feeItemIds = paramMap.get("feeItemIds");
+			}
             logger.info("orderId:"+orderId);
             logger.info("feeItemIds:"+feeItemIds);
             result = orderFeeItemService.getWXDriverPrePayInfo(orderId,feeItemIds);
@@ -229,6 +262,12 @@ public class OrderFeeItemController {
     		String orderId = req.getParameter("orderId");
    			String driverId = req.getParameter("driverId");
    			String feeItemIds = req.getParameter("feeItemIds");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+				driverId = paramMap.get("driverId");
+				feeItemIds = paramMap.get("feeItemIds");
+			}
             logger.info("orderId:"+orderId);
             logger.info("feeItemIds:"+feeItemIds);
             result = orderFeeItemService.getAliPrePayInfo(orderId,feeItemIds);

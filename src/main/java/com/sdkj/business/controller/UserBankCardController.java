@@ -1,5 +1,7 @@
 package com.sdkj.business.controller;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -34,6 +36,15 @@ public class UserBankCardController {
    			String ownerCardNum = req.getParameter("ownerCardNum");
    			String reservePhone = req.getParameter("reservePhone");
    			String checkCode = req.getParameter("checkCode");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userId = paramMap.get("userId");
+				ownerName = paramMap.get("ownerName");
+				cardNum = paramMap.get("cardNum");
+				ownerCardNum = paramMap.get("ownerCardNum");
+				reservePhone = paramMap.get("reservePhone");
+				checkCode = paramMap.get("checkCode");
+			}
    			UserBankCard userCard = new UserBankCard();
    			userCard.setUserId(Long.valueOf(userId));
    			userCard.setOwnerName(ownerName);
@@ -57,6 +68,10 @@ public class UserBankCardController {
        	MobileResultVO result = null;
    		try {
    			String userId = req.getParameter("userId");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userId = paramMap.get("userId");
+			}
    			result = userBackCardService.findUserCardList(userId);
    		}catch(Exception e) {
    			logger.error("查询银行卡列表", e);
@@ -75,6 +90,11 @@ public class UserBankCardController {
    		try {
    			String userId = req.getParameter("userId");
    			String cardId = req.getParameter("cardId");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userId = paramMap.get("userId");
+				cardId = paramMap.get("cardId");
+			}
    			result = userBackCardService.unBindUserCard(userId, cardId);
    		}catch(Exception e) {
    			logger.error("解绑银行卡异常", e);

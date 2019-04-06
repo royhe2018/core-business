@@ -34,6 +34,10 @@ public class BalanceController {
        	MobileResultVO result = null;
    		try {
    			String userId = req.getParameter("userId");
+   			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				userId = paramMap.get("userId");
+   			}
    			result = balanceChangeDetailService.findUserBalanceInfo(Integer.valueOf(userId));
    		}catch(Exception e) {
    			logger.error("查询用户余额异常", e);
@@ -53,6 +57,12 @@ public class BalanceController {
    			String userId = req.getParameter("userId");
    			String pageNumStr = req.getParameter("pageNum");
    			String pageSizeStr = req.getParameter("pageSize");
+   			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				userId = paramMap.get("userId");
+   				pageNumStr = paramMap.get("pageNum");
+   				pageSizeStr = paramMap.get("pageSize");
+   			}
    			int pageNum =1;
    			int pageSize = 10;
    			if(StringUtil.isNotEmpty(pageNumStr)){
@@ -81,6 +91,13 @@ public class BalanceController {
    			String driverId = req.getParameter("driverId");
    			String startTime = req.getParameter("startTime");
    			String endTime = req.getParameter("endTime");
+   			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				userId = paramMap.get("userId");
+   				driverId = paramMap.get("driverId");
+   				startTime = paramMap.get("startTime");
+   				endTime = paramMap.get("endTime");
+   			}
    			Map<String,Object> param = new HashMap<String,Object>();
    			if(StringUtil.isNotEmpty(userId)){
    				param.put("userId", userId);

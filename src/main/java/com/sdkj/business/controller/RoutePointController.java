@@ -1,5 +1,7 @@
 package com.sdkj.business.controller;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -34,6 +36,14 @@ public class RoutePointController {
    			String driverId = req.getParameter("driverId");
    			String lat = req.getParameter("lat");
    			String log = req.getParameter("log");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+				pointId = paramMap.get("pointId");
+				driverId = paramMap.get("driverId");
+				lat = paramMap.get("lat");
+				log = paramMap.get("log");
+			}
    			OrderRoutePoint point = new OrderRoutePoint(); 
    			point.setOrderId(Long.valueOf(orderId));
    			point.setId(Long.valueOf(pointId));
@@ -60,6 +70,14 @@ public class RoutePointController {
    			String driverId = req.getParameter("driverId");
    			String lat = req.getParameter("lat");
    			String log = req.getParameter("log");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+				pointId = paramMap.get("pointId");
+				driverId = paramMap.get("driverId");
+				lat = paramMap.get("lat");
+				log = paramMap.get("log");
+			}
    			OrderRoutePoint point = new OrderRoutePoint(); 
    			point.setOrderId(Long.valueOf(orderId));
    			point.setId(Long.valueOf(pointId));

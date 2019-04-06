@@ -1,5 +1,7 @@
 package com.sdkj.business.controller;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -31,6 +33,11 @@ public class ClientVersionController {
 		try {  
 			String clientType = req.getParameter("clientType");
 			String versionNum = req.getParameter("versionNum");
+			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				clientType = paramMap.get("clientType");
+   				versionNum = paramMap.get("versionNum");
+   			}
 			if(StringUtilLH.isEmpty(clientType) || StringUtilLH.isEmpty(versionNum)){
 				result = new MobileResultVO();
 				result.setCode(MobileResultVO.CODE_FAIL);

@@ -33,6 +33,12 @@ public class IndexController {
 		try {
 			String userId = req.getParameter("userId");
 			String city = req.getParameter("city");
+			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				userId = paramMap.get("userId");
+   				city = paramMap.get("city");
+   			}
+   			
 			Map<String,Object> param = new HashMap<String,Object>();
 			param.put("userId",userId);
 			param.put("city",city);
@@ -55,6 +61,11 @@ public class IndexController {
 		try {
 			String userId = req.getParameter("userId");
 			String city = req.getParameter("city");
+			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				userId = paramMap.get("userId");
+   				city = paramMap.get("city");
+   			}
 			Map<String,Object> param = new HashMap<String,Object>();
 			param.put("userId",userId);
 			param.put("city",city);

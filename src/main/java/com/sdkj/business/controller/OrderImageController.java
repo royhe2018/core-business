@@ -37,6 +37,12 @@ public class OrderImageController {
    			String orderId = req.getParameter("orderId");
    			String imagePath = req.getParameter("imagePath");
    			String imageType = req.getParameter("imageType");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+				imagePath = paramMap.get("imagePath");
+				imageType = paramMap.get("imageType");
+			}
    			if(StringUtils.isEmpty(orderId) || StringUtils.isEmpty(imagePath) || StringUtils.isEmpty(imageType)) {
    				result = new MobileResultVO();
    	   			result.setCode(MobileResultVO.CODE_FAIL);
@@ -61,11 +67,15 @@ public class OrderImageController {
 	
 	@RequestMapping(value="/find/order/image",method=RequestMethod.POST)
    	@ResponseBody
-   	@SysLog(description="上传订单图片",optCode="uploadOrderImage")
+   	@SysLog(description="查询订单图片",optCode="uploadOrderImage")
    	public MobileResultVO findOrderImage(HttpServletRequest req) {
        	MobileResultVO result = null;
    		try {
    			String orderId = req.getParameter("orderId");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+			}
    			if(StringUtils.isEmpty(orderId)) {
    				result = new MobileResultVO();
    	   			result.setCode(MobileResultVO.CODE_FAIL);

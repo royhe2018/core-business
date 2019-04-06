@@ -37,6 +37,10 @@ public class UserController {
        	MobileResultVO result = null;
    		try {
    			String userPhone = req.getParameter("userPhone");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userPhone = paramMap.get("userPhone");
+			}
    			result = checkCodeService.sendCheckCode(userPhone);
    		}catch(Exception e) {
    			logger.error("发送验证码异常", e);
@@ -59,7 +63,18 @@ public class UserController {
    			String passWord = req.getParameter("passWord");
    			String loginType = req.getParameter("loginType");
    			String registrionId = req.getParameter("registrionId");
-   			result = userService.userLogin(userPhone, userType, checkCode,passWord,loginType,registrionId);
+   			String cityName = req.getParameter("cityName");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userPhone = paramMap.get("userPhone");
+				userType = paramMap.get("userType");
+				checkCode = paramMap.get("checkCode");
+				passWord = paramMap.get("passWord");
+				loginType = paramMap.get("loginType");
+				registrionId = paramMap.get("registrionId");
+				cityName = paramMap.get("cityName");
+			}
+   			result = userService.userLogin(userPhone, userType, checkCode,passWord,loginType,registrionId,cityName);
    		}catch(Exception e) {
    			logger.error("用户登陆异常", e);
    			result = new MobileResultVO();
@@ -80,6 +95,15 @@ public class UserController {
    			String nickName = req.getParameter("nickName");
    			String sex = req.getParameter("sex");
    			String registrionId = req.getParameter("registrionId");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userId = paramMap.get("userId");
+				headImg = paramMap.get("headImg");
+				nickName = paramMap.get("nickName");
+				sex = paramMap.get("sex");
+				registrionId = paramMap.get("registrionId");
+			}
+   			
    			logger.info("userId:"+userId+";headImg:"+headImg+";sex:"+sex+";registrionId:"+registrionId);
    			User user = new User();
    			user.setId(Long.valueOf(userId));
@@ -107,6 +131,11 @@ public class UserController {
    		try {
    			String refereePhone = req.getParameter("refereePhone");
    			String userId = req.getParameter("userId");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userId = paramMap.get("userId");
+				refereePhone = paramMap.get("refereePhone");
+			}
    			result = checkCodeService.sendBindingCheckCode(refereePhone,userId);
    		}catch(Exception e) {
    			logger.error("发送推荐人验证码异常", e);
@@ -126,6 +155,12 @@ public class UserController {
    			String userId = req.getParameter("userId");
    			String refereePhone = req.getParameter("refereePhone");
    			String checkCode = req.getParameter("checkCode");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userId = paramMap.get("userId");
+				refereePhone = paramMap.get("refereePhone");
+				checkCode = paramMap.get("checkCode");
+			}
    			logger.info("userId:"+userId+";refereePhone:"+refereePhone+";checkCode:"+checkCode);
    			result = userService.bindingReferee(userId,refereePhone,checkCode);
    		}catch(Exception e) {
@@ -145,6 +180,11 @@ public class UserController {
    		try {
    			String cityName = req.getParameter("cityName");
    			String type = req.getParameter("type");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				cityName = paramMap.get("cityName");
+				type = paramMap.get("type");
+			}
    			Map<String,Object> param = new HashMap<String,Object>();
    			if(StringUtils.isNotEmpty(type)) {
    				param.put("clientType", type);

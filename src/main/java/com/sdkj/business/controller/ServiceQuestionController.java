@@ -33,6 +33,10 @@ public class ServiceQuestionController {
        	MobileResultVO result = null;
    		try {
    			String type = req.getParameter("type");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				type = paramMap.get("type");
+			}
    			Map<String,Object> param = new HashMap<String,Object>();
    			if(StringUtil.isNotEmpty(type)){
    				param.put("type", type);

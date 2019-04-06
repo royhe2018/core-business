@@ -1,5 +1,7 @@
 package com.sdkj.business.controller;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -32,6 +34,12 @@ public class WithdrasCashController {
    			String userId = req.getParameter("userId");
    			String cardId = req.getParameter("cardId");
    			String cashAmount = req.getParameter("cashAmount");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userId = paramMap.get("userId");
+				cardId = paramMap.get("cardId");
+				cashAmount = paramMap.get("cashAmount");
+			}
    			WithdrawCashRecord withdraw = new WithdrawCashRecord();
    			withdraw.setCardId(Long.valueOf(cardId));
    			withdraw.setCashAmount(Float.valueOf(cashAmount));
@@ -53,6 +61,10 @@ public class WithdrasCashController {
        	MobileResultVO result = null;
    		try {
    			String userId = req.getParameter("userId");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userId = paramMap.get("userId");
+			}
    			result = withdrawCashService.findUserWithdrawCashRecord(userId);
    		}catch(Exception e){
    			logger.error("查询提现记录异常", e);

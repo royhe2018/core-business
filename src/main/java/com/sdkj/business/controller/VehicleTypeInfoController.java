@@ -31,6 +31,10 @@ public class VehicleTypeInfoController {
        	MobileResultVO result = null;
    		try {
    			String cityName = req.getParameter("cityName");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				cityName = paramMap.get("cityName");
+			}
    			Map<String,Object> param = new HashMap<String,Object>();
    			param.put("cityName", cityName);
    			result = vehicleTypeInfoService.findVehicleTypeInfo(param);

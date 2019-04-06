@@ -43,13 +43,33 @@ public class DriverInfoController {
 			String registerCity = req.getParameter("registerCity");
 			String carNo = req.getParameter("carNo");
 			String carDrivingImage = req.getParameter("carDrivingImage");
-			
 			String driverType = req.getParameter("driverType");
 			String vehicleTypeId = req.getParameter("vehicleTypeId");
 			String driverName = req.getParameter("driverName");
 			String carFrontPhoto = req.getParameter("carFrontPhoto");
 			String carLateralPhoto = req.getParameter("carLateralPhoto");
 			String carRearPhoto = req.getParameter("carRearPhoto");
+			
+			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				userId = paramMap.get("userId");
+   				idCardNo = paramMap.get("idCardNo");
+   				idCardImage = paramMap.get("idCardImage");
+   				idCardBackImage = paramMap.get("idCardBackImage");
+   				drivingLicenseFileNo = paramMap.get("drivingLicenseFileNo");
+   				drivingLicenseImage = paramMap.get("drivingLicenseImage");
+   				registerCity = paramMap.get("registerCity");
+   				carNo = paramMap.get("carNo");
+   				carDrivingImage = paramMap.get("carDrivingImage");
+   				driverType = paramMap.get("driverType");
+   				vehicleTypeId = paramMap.get("vehicleTypeId");
+   				driverName = paramMap.get("driverName");
+   				carFrontPhoto = paramMap.get("carFrontPhoto");
+   				carLateralPhoto = paramMap.get("carLateralPhoto");
+   				carRearPhoto = paramMap.get("carRearPhoto");
+   			}
+			
+			
 			DriverInfo driverInfo = new DriverInfo();
 			
 			if(StringUtilLH.isEmpty(userId) || StringUtilLH.isEmpty(idCardNo) ||StringUtilLH.isEmpty(idCardImage) 
@@ -95,6 +115,13 @@ public class DriverInfoController {
 		try {
 			String userId = req.getParameter("userId");
 			String id = req.getParameter("id");
+			
+			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				userId = paramMap.get("userId");
+   				id = paramMap.get("id");
+   			}
+			
 			Map<String,Object> param = new HashMap<String,Object>();
 			param.put("userId", userId);
 			param.put("id", id);
@@ -116,6 +143,11 @@ public class DriverInfoController {
 		try {
 			String userId = req.getParameter("userId");
 			String onDutyStatus = req.getParameter("onDutyStatus");
+			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				userId = paramMap.get("userId");
+   				onDutyStatus = paramMap.get("onDutyStatus");
+   			}
 			if(StringUtilLH.isNotEmpty(userId)&&StringUtilLH.isNotEmpty(onDutyStatus)){
 				DriverInfo driverInfo = new DriverInfo();
 				driverInfo.setUserId(Long.valueOf(userId));
@@ -142,6 +174,10 @@ public class DriverInfoController {
        	MobileResultVO result = null;
    		try {
    			String driverId = req.getParameter("driverId");
+   			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				driverId = paramMap.get("driverId");
+   			}
    			Map<String,Object> param = new HashMap<String,Object>();
    			if(StringUtils.isNotEmpty(driverId)) {
    				param.put("driverId", driverId);

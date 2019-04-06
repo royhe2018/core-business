@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.net.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.github.pagehelper.StringUtil;
 import com.sdkj.business.dao.clientConfig.ClientConfigMapper;
 import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
 import com.sdkj.business.dao.user.UserMapper;
@@ -50,7 +52,7 @@ public class UserServiceImpl implements UserService {
 	private String orderDispatchTopic;
 	
 	@Override
-	public MobileResultVO userLogin(String userPhone,String userType,String checkCode,String passWord,String loginType,String registrionId) {
+	public MobileResultVO userLogin(String userPhone,String userType,String checkCode,String passWord,String loginType,String registrionId,String cityName) throws Exception{
 		MobileResultVO result = new MobileResultVO();
 		Map<String,Object> param = new HashMap<String,Object>();
 		param.put("account", userPhone);
@@ -120,6 +122,19 @@ public class UserServiceImpl implements UserService {
 				}
 				loginData.put("mapServiceId", "8914");
 			}
+			if(StringUtil.isEmpty(cityName)){
+				cityName="西安市";
+			}
+			if(!cityName.endsWith("市")){
+				cityName = cityName+"市";
+			}
+			param.clear();
+			param.put("cityName",cityName);
+			param.put("clientType", userType);
+			MobileResultVO sysconfig = this.getSysConfig(param);
+			loginData.put("sysconfig", sysconfig.getData());
+			String token = "userId="+dbUser.getId();
+			loginData.put("token", Base64.encodeBase64String(token.getBytes("UTF-8")));
 			result.setData(loginData);
 		}
 		return result;

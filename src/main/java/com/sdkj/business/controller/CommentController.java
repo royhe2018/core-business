@@ -38,6 +38,14 @@ public class CommentController {
    			String mannerScore = req.getParameter("mannerScore");
    			String efficiencyScore = req.getParameter("efficiencyScore");
    			String content = req.getParameter("content");
+   			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				userId = paramMap.get("userId");
+   				orderId = paramMap.get("orderId");
+   				vehicleScore = paramMap.get("vehicleScore");
+   				efficiencyScore = paramMap.get("efficiencyScore");
+   				content = paramMap.get("content");
+   			}
    			Comment comment = new Comment();
    			comment.setOrderId(Long.valueOf(orderId));
    			comment.setUserId(Long.valueOf(userId));
@@ -71,6 +79,14 @@ public class CommentController {
    			String orderId = req.getParameter("orderId");
    			String pageNumStr = req.getParameter("pageNum");
    			String pageSizeStr = req.getParameter("pageSize");
+   			Map<String,String> paramMap = (Map<String,String>)req.getAttribute("paramMap");
+   			if(paramMap!=null){
+   				userId = paramMap.get("userId");
+   				driverId = paramMap.get("driverId");
+   				orderId = paramMap.get("orderId");
+   				pageNumStr = paramMap.get("pageNum");
+   				pageSizeStr = paramMap.get("pageSize");
+   			}
    			int pageSize =10;
    			int pageNum =1;
    			if(StringUtilLH.isNotEmpty(pageNumStr)){
