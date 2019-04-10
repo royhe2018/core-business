@@ -16,10 +16,10 @@ public class Test {
 	 */
 	public static void main(String[] args) {
 		//testJson();
+		 String token = "userId=14&userType=1";
 		 
-		Calendar ca = Calendar.getInstance();
-		int curHour = ca.get(Calendar.HOUR_OF_DAY);
-		System.out.println(curHour);
+		 
+		System.out.println(token.split("\\&")[1]);
 	}
 	
 	private static void testJson() {
