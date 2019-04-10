@@ -45,14 +45,15 @@ public class WithdrawCashServiceImpl implements WithdrawCashService {
 				changeDetail.setChangeAmount(record.getCashAmount().floatValue());
 				changeDetail.setChangeTime(DateUtilLH.getCurrentTime());
 				changeDetail.setChangeType(Constant.BALANCE_CHANGE_TYPE_WITHDRAW);
-				changeDetail.setBelongId(record.getUserId());
 				changeDetail.setBelongType(Constant.BALANCE_CHANGE_BELONG_TYPE_USER);
-				balanceChangeDetailMapper.insert(changeDetail);
+				changeDetail.setBelongId(record.getUserId());
 				user.setBalance(oldBalance-record.getCashAmount().floatValue());
 				userMapper.updateById(user);
 				record.setCreateTime(DateUtilLH.getCurrentTime());
 				record.setStatus(1);
 				withdrawCashRecordMapper.insert(record);
+				changeDetail.setItemId(record.getId());
+				balanceChangeDetailMapper.insert(changeDetail);
 				result.setCode(MobileResultVO.CODE_SUCCESS);
 				result.setMessage("提现成功");
 			}else{

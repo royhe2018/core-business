@@ -188,6 +188,7 @@ public class OrderController {
 			String orderPeriod = req.getParameter("orderPeriod");
 			String pageNumStr = req.getParameter("pageNum");
 			String pageSizeStr = req.getParameter("pageSize");
+			String userType = req.getParameter("userType");
 			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
 			if (paramMap != null) {
 				driverId = paramMap.get("driverId");
@@ -195,6 +196,7 @@ public class OrderController {
 				orderPeriod = paramMap.get("orderPeriod");
 				pageNumStr = paramMap.get("pageNum");
 				pageSizeStr = paramMap.get("pageSize");
+				userType = paramMap.get("userType");
 			}
 			
 			int pageSize = 10;
@@ -214,6 +216,14 @@ public class OrderController {
 			}
 			if (StringUtilLH.isNotEmpty(driverId)) {
 				param.put("driverId", driverId);
+			}
+			
+			if(StringUtilLH.isNotEmpty(userType)){
+				if("1".equals(userType)){
+					param.remove("driverId");
+				}else if("2".equals(userType)){
+					param.remove("userId");
+				}
 			}
 			result = orderService.findOrderList(pageNum, pageSize, param);
 		} catch (Exception e) {

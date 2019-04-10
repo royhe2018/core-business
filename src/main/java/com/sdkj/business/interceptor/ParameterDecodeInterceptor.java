@@ -33,11 +33,16 @@ public class ParameterDecodeInterceptor extends HandlerInterceptorAdapter {
 		}
 		if(StringUtil.isNotEmpty(token)){
 			token =new String(Base64.decodeBase64(token));
-			if(StringUtil.isNotEmpty(token) && token.indexOf("=")!=-1){
-				String[] tokenArr=token.split("=");
-				if(tokenArr!=null && tokenArr.length>1){
-					logger.info("decode token:"+tokenArr[0]+"="+tokenArr[1]);
-					paramMap.put(tokenArr[0], tokenArr[1]);
+			logger.info("decode token:"+token);
+			if(StringUtil.isNotEmpty(token)){
+				String[] tokenArr = token.split("\\&");
+				for(String tokenItem:tokenArr){
+					if( tokenItem.indexOf("=")!=-1){
+						String[] tokenParamArr=tokenItem.split("=");
+						if(tokenParamArr!=null && tokenParamArr.length>1){
+							paramMap.put(tokenParamArr[0], tokenParamArr[1]);
+						}
+					}
 				}
 			}
 		}

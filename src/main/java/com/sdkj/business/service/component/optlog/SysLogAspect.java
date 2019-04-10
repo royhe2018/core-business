@@ -63,6 +63,10 @@ public class SysLogAspect {
 								}
 							}
 						}
+						Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+						if(paramMap!=null && !paramMap.isEmpty()){
+							param.putAll(paramMap);
+						}
 						requestHost =getRemortIP(req);
 					}
 				}

@@ -79,7 +79,6 @@ public class UserServiceImpl implements UserService {
 				userInfoMap.put("userType", dbUser.getUserType());
 				userInfoMap.put("registrionId", dbUser.getRegistrionId());
 				this.aliMQProducer.sendMessage(orderDispatchTopic, Constant.MQ_TAG_FORCE_OFFLINE,userInfoMap);
-				dbUser.setRegistrionId(registrionId);
 			}
 			if(dbUser==null){
 				dbUser = new User();
@@ -90,8 +89,9 @@ public class UserServiceImpl implements UserService {
 			}
 			if(StringUtils.isEmpty(dbUser.getPassWord())){
 				dbUser.setPassWord(StringUtilLH.getStringRandom(16));
-				userMapper.updateById(dbUser);
 			}
+			dbUser.setRegistrionId(registrionId);
+			userMapper.updateById(dbUser);
 			if(StringUtilLH.isNotEmpty(dbUser.getHeadImg())){
 				dbUser.setHeadImg(Constant.ALI_OSS_ACCESS_PREFIX+dbUser.getHeadImg());
 			}
@@ -133,7 +133,7 @@ public class UserServiceImpl implements UserService {
 			param.put("clientType", userType);
 			MobileResultVO sysconfig = this.getSysConfig(param);
 			loginData.put("sysconfig", sysconfig.getData());
-			String token = "userId="+dbUser.getId();
+			String token = "userId="+dbUser.getId()+"&userType="+userType;
 			loginData.put("token", Base64.encodeBase64String(token.getBytes("UTF-8")));
 			result.setData(loginData);
 		}
