@@ -64,6 +64,8 @@ public class OrderInfo {
     
     private Float totalDistance;
     
+    private String cancelReason;
+    
     public Long getId() {
         return id;
     }
@@ -312,4 +314,13 @@ public class OrderInfo {
 	public void setTotalDistance(Float totalDistance) {
 		this.totalDistance = totalDistance;
 	}
+
+	public String getCancelReason() {
+		return cancelReason;
+	}
+
+	public void setCancelReason(String cancelReason) {
+		this.cancelReason = cancelReason;
+	}
+	
 }

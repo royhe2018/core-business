@@ -292,6 +292,10 @@
 			<if test="receiveUserId != null">
 				receive_user_id = #{receiveUserId},
 			</if>
+			<if test="cancelReason != null">
+				cancel_reason = #{cancelReason},
+			</if>
+			
 			data_version = #{dataVersion,jdbcType=INTEGER}+1,
 		</set>
 		where id = #{id,jdbcType=BIGINT} and data_version = #{dataVersion}

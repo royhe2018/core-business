@@ -472,6 +472,7 @@ public class OrderServiceImpl implements OrderService {
 				result.setMessage("订单状态变更,不可取消!");
 			} else {
 				dbOrder.setCancleStatus(Constant.ORDER_CANCLE_STATUS_CANCLE);
+				dbOrder.setCancelReason(order.getCancelReason());
 				int updateCount = orderInfoMapper.updateById(dbOrder);
 				if (updateCount != 1) {
 					logger.error("取消失败：orderid:" + dbOrder.getId() + ";driverId:" + dbOrder.getDriverId());

@@ -133,11 +133,14 @@ public class OrderController {
 		try {
 			OrderInfo order = new OrderInfo();
 			String orderId = req.getParameter("orderId");
+			String cancelReason = req.getParameter("cancelReason");
 			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
 			if (paramMap != null) {
 				orderId = paramMap.get("orderId");
+				cancelReason = paramMap.get("cancelReason");
 			}
 			order.setId(Long.valueOf(orderId));
+			order.setCancelReason(cancelReason);
 			result = orderService.orderCancle(order);
 		} catch (Exception e) {
 			logger.error("订单接单异常", e);
@@ -623,6 +626,11 @@ public class OrderController {
 		try {
 			String userId = req.getParameter("userId");
 			String orderId = req.getParameter("orderId");
+			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				orderId = paramMap.get("orderId");
+				userId = paramMap.get("userId");
+			}
 			result = orderService.findOrderTakedStatus(userId, orderId);
 		} catch (Exception e) {
 			logger.error("获取订单接单状态异常", e);
