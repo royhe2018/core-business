@@ -513,7 +513,7 @@ public class OrderServiceImpl implements OrderService {
 					if(param.containsKey("userId")){
 						String userId = param.get("userId").toString();
 						if(startPoint.getDealUserId()!=null) {
-							if(userId.equals(startPoint.getDealUserId().toString())){
+							if(startPoint.getDealUserId()!=null && userId.equals(startPoint.getDealUserId().toString())){
 								orderItem.put("receiverType", 2);
 							}
 						}else {
@@ -661,6 +661,7 @@ public class OrderServiceImpl implements OrderService {
 	public MobileResultVO findOrderRoutePointDetailInfo(Map<String, Object> param) {
 		MobileResultVO result = new MobileResultVO();
 		result.setCode(MobileResultVO.CODE_FAIL);
+		logger.info(JsonUtil.convertObjectToJsonStr(param));
 		Map<String, Object> orderItem = orderInfoMapper.findSingleOrderInfoDisplay(param);
 		if (orderItem != null && !orderItem.isEmpty()) {
 			Object orderId = orderItem.get("orderId");
@@ -680,7 +681,7 @@ public class OrderServiceImpl implements OrderService {
 				OrderRoutePoint startPoint = placePointList.get(0);
 				if(param.containsKey("userId")){
 					String userId = param.get("userId").toString();
-					if(userId.equals(startPoint.getDealUserId().toString())){
+					if(startPoint.getDealUserId()!=null && userId.equals(startPoint.getDealUserId().toString())){
 						orderItem.put("receiverType", 2);
 					}
 				}

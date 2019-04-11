@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.github.pagehelper.StringUtil;
 import com.sdkj.business.domain.po.OrderFeeItem;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.OrderFeeItemService;
@@ -43,13 +44,17 @@ public class OrderFeeItemController {
     	MobileResultVO result = null;
    		try {
    			String orderId = req.getParameter("orderId");
-   			String driverId = req.getParameter("driverId");
    			String feeItemListStr = req.getParameter("feeItemList");
+   			logger.info("feeItemListStr:"+feeItemListStr);
    			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
 			if (paramMap != null) {
 				orderId = paramMap.get("orderId");
-				driverId = paramMap.get("driverId");
-				feeItemListStr = paramMap.get("feeItemListStr");
+				if(paramMap.containsKey("feeItemList") && StringUtil.isNotEmpty(paramMap.get("feeItemList"))){
+					feeItemListStr = paramMap.get("feeItemList");
+					logger.info("paramMap feeItemList:"+feeItemListStr);
+				}else{
+					logger.info("feeItemListStr is null");
+				}
 			}
    			ArrayNode feeItemList = JsonUtil.convertStrToJsonArray(feeItemListStr);
    			List<OrderFeeItem> feeList = new ArrayList<OrderFeeItem>();

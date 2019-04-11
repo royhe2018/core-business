@@ -285,6 +285,8 @@ public class OrderController {
 			String userId = req.getParameter("userId");
 			String id = req.getParameter("orderId");
 			String driverId = req.getParameter("driverId");
+			String userType = req.getParameter("userType");
+			
 			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
 			if (paramMap != null) {
 				driverId = paramMap.get("driverId");
@@ -293,15 +295,26 @@ public class OrderController {
 			}
 			
 			Map<String, Object> param = new HashMap<String, Object>();
-			if (StringUtilLH.isNotEmpty(userId)) {
-				param.put("userId", userId);
-			}
-			if (StringUtilLH.isNotEmpty(driverId)) {
-				param.put("driverId", driverId);
-			}
 			if (StringUtilLH.isNotEmpty(id)) {
 				param.put("id", id);
 			}
+//			if (StringUtilLH.isNotEmpty(userId)) {
+//				param.put("userId", userId);
+//			}
+//			if (StringUtilLH.isNotEmpty(driverId)) {
+//				param.put("driverId", driverId);
+//			}
+//			
+//			if(StringUtilLH.isNotEmpty(userType)){
+//				if("1".equals(userType)){
+//					param.remove("driverId");
+//				}else if("2".equals(userType)){
+//					param.remove("userId");
+//					if(StringUtils.isEmpty(driverId)){
+//						param.put("driverId", userId);
+//					}
+//				}
+//			}
 			result = orderService.findOrderRoutePointDetailInfo(param);
 		} catch (Exception e) {
 			logger.error("订单详情异常", e);
