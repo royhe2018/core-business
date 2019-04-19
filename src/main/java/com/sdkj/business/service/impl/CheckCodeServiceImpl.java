@@ -100,7 +100,7 @@ public class CheckCodeServiceImpl implements CheckCodeService {
 					checkCodeMapper.insert(checkCode);
 				}else {
 					result.setCode(MobileResultVO.CODE_FAIL);
-					result.setMessage("发送异常");
+					result.setMessage("发送绑定验证码失败");
 				}
 			}
 		}else {

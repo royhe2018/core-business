@@ -63,6 +63,7 @@ public class SmsUtil {
      */
     public static boolean sendSms(String phoneNumber,String template,Map<String,String> param){
     	try {
+    		logger.info("phoneNumber:"+phoneNumber);
         	//组装请求对象-具体描述见控制台-文档部分内容
             SendSmsRequest request = new SendSmsRequest();
             //必填:待发送手机号
@@ -81,6 +82,7 @@ public class SmsUtil {
             request.setOutId("yourOutId");
             //hint 此处可能会抛出异常，注意catch
             SendSmsResponse sendSmsResponse = acsClient.getAcsResponse(request);
+            logger.info("sendSmsResponse:"+JsonUtil.convertObjectToJsonStr(sendSmsResponse));
             if(sendSmsResponse.getCode() != null && sendSmsResponse.getCode().equals("OK")) {
             	return true;
             }
