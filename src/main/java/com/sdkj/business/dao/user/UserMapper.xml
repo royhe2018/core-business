@@ -15,6 +15,7 @@
     <result column="map_terminal_id" property="mapTerminalId" />
     <result column="refereeName" property="refereeName" />
     <result column="comment_score" property="commentScore" />
+    <result column="newest_trace_id" property="newestTraceId" />
   </resultMap>
   
   <select id="findSingleUser" parameterType="java.util.Map" resultMap="BaseResultMap">
@@ -71,6 +72,12 @@
       </if>
       <if test="commentScore != null">
         comment_score = #{commentScore},
+      </if>
+      <if test="newestTraceId != null">
+        newest_trace_id = #{newestTraceId},
+      </if>
+      <if test="mapTerminalId != null">
+        map_terminal_id = #{mapTerminalId},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

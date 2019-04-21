@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.aliyun.openservices.shade.com.alibaba.rocketmq.logging.inner.Logger;
 import com.sdkj.business.dao.checkCode.CheckCodeMapper;
 import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.domain.po.CheckCode;
@@ -23,7 +24,7 @@ import com.sdlh.common.DateUtilLH;
 @Service
 @Transactional
 public class CheckCodeServiceImpl implements CheckCodeService {
-	Logger logger = Logger.getLogger(CheckCodeServiceImpl.class);
+	Logger logger = LoggerFactory.getLogger(CheckCodeServiceImpl.class);
 	
 	@Autowired
 	private CheckCodeMapper checkCodeMapper;
@@ -86,6 +87,7 @@ public class CheckCodeServiceImpl implements CheckCodeService {
 				result.setMessage("推荐人不能为自己!");
 			}else{
 				String code = SmsUtil.getRandomNumber(6);
+				logger.info("推荐人验证码"+phoneNumber+":"+code);
 				param.clear();
 				Map<String,String> smsParam = new HashMap<String,String>();
 				smsParam.put("checkCode", code);

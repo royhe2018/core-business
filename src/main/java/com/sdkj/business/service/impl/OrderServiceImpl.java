@@ -262,7 +262,7 @@ public class OrderServiceImpl implements OrderService {
 			
 			feeItem.setDriverFee(feeItem.getFeeAmount()-distributeTotalFee);
 		} else {
-			feeItem.setDriverFee(order.getStartFee());
+			feeItem.setDriverFee(feeItem.getFeeAmount());
 			feeItem.setClientRefereeFee(0f);
 			feeItem.setDriverRefereeFee(0f);
 			feeItem.setPlatFormFee(0f);

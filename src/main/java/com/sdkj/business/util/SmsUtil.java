@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import com.aliyun.openservices.shade.com.alibaba.rocketmq.logging.inner.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.IAcsClient;
 import com.aliyuncs.dysmsapi.model.v20170525.QuerySendDetailsRequest;
@@ -30,7 +32,7 @@ import com.sdlh.common.JsonUtil;
  * 国际短信发送请勿参照此DEMO
  */
 public class SmsUtil {
-	static Logger logger = Logger.getLogger(SmsUtil.class);
+	static Logger logger = LoggerFactory.getLogger(SmsUtil.class);
     //产品名称:云通信短信API产品,开发者无需替换
     static final String product = "Dysmsapi";
     //产品域名,开发者无需替换

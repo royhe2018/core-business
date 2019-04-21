@@ -5,8 +5,8 @@
 		<id column="id" jdbcType="BIGINT" property="id" />
 		<result column="company_name" property="companyName" />
 		<result column="manage_city" property="manageCity" />
-		<result column="contacts_name" property="contactsName" />
-		<result column="contacts_phone" property="contactsPhone" />
+		<result column="contacts_name" property="contanctsName" />
+		<result column="contacts_phone" property="contanctsPhone" />
 		<result column="address" property="address" />
 		<result column="balance" property="balance" />
 		<result column="parent_id" jdbcType="BIGINT" property="parentId" />

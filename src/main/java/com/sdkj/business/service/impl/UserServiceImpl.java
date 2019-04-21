@@ -12,13 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.pagehelper.StringUtil;
 import com.sdkj.business.dao.clientConfig.ClientConfigMapper;
 import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
+import com.sdkj.business.dao.driverTrace.DriverTraceMapper;
 import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.dao.vehicleTypeInfo.VehicleTypeInfoMapper;
 import com.sdkj.business.domain.po.ClientConfig;
 import com.sdkj.business.domain.po.DriverInfo;
+import com.sdkj.business.domain.po.DriverTrace;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.po.VehicleTypeInfo;
 import com.sdkj.business.domain.vo.MobileResultVO;
@@ -26,6 +29,10 @@ import com.sdkj.business.service.AliMQProducer;
 import com.sdkj.business.service.CheckCodeService;
 import com.sdkj.business.service.UserService;
 import com.sdkj.business.util.Constant;
+import com.sdlh.common.DateUtilLH;
+import com.sdlh.common.HttpRequestUtil;
+import com.sdlh.common.HttpsUtil;
+import com.sdlh.common.JsonUtil;
 import com.sdlh.common.StringUtilLH;
 
 @Service
@@ -51,6 +58,11 @@ public class UserServiceImpl implements UserService {
 	@Value("${ali.mq.order.dispatch.topic}")
 	private String orderDispatchTopic;
 	
+	@Value("${map.service.url}")
+	private String mapServiceUrl;
+	
+	@Autowired
+	private DriverTraceMapper driverTraceMapper;
 	@Override
 	public MobileResultVO userLogin(String userPhone,String userType,String checkCode,String passWord,String loginType,String registrionId,String cityName) throws Exception{
 		MobileResultVO result = new MobileResultVO();
@@ -61,7 +73,7 @@ public class UserServiceImpl implements UserService {
 		logger.info("loginType:"+loginType);
 		logger.info("userPhone:"+userPhone);
 		logger.info("checkCode:"+checkCode);
-		logger.info("passWord:"+passWord);
+		logger.info("passWord1111111:"+passWord);
 		
 		if("2".equals(loginType) && dbUser!=null &&
 				StringUtilLH.isNotEmpty(passWord) && !passWord.equals(dbUser.getPassWord())) {
@@ -91,6 +103,51 @@ public class UserServiceImpl implements UserService {
 				dbUser.setPassWord(StringUtilLH.getStringRandom(16));
 			}
 			dbUser.setRegistrionId(registrionId);
+			if(dbUser.getUserType().intValue()==2){
+				logger.info("getUserType:2");
+				try{
+					if(StringUtils.isEmpty(dbUser.getMapTerminalId())){
+						String terminalResultStr= HttpRequestUtil.post(mapServiceUrl+"/add/terminal?phoneNumber="+dbUser.getAccount(),"");
+						if(StringUtils.isNotEmpty(terminalResultStr)){
+							logger.info("terminalResultStr:"+terminalResultStr);
+							JsonNode terminalResult =JsonUtil.convertStrToJson(terminalResultStr);
+							if(terminalResult!=null && terminalResult.has("data") && terminalResult.get("data")!=null){
+								 JsonNode tidData = terminalResult.get("data");
+								 if(tidData!=null){
+									 dbUser.setMapTerminalId(tidData.get("tid").asText());
+								 }
+							}
+						}
+					}
+					logger.info("MapTerminalId:2"+dbUser.getMapTerminalId());
+					param.clear();
+					param.put("driverPhone", dbUser.getAccount());
+					param.put("date", DateUtilLH.getCurrentDate());
+					DriverTrace trace = this.driverTraceMapper.findSingleTrace(param);
+					logger.info("trace:"+trace);
+					if(trace==null){
+						param.clear();
+						param.put("phoneNumber", dbUser.getAccount());
+						String traceResultStr= HttpRequestUtil.post(mapServiceUrl+"/find/terminal/trace?phoneNumber="+dbUser.getAccount(),"");
+						if(StringUtils.isNotEmpty(traceResultStr)){
+							logger.info("traceResultStr:"+traceResultStr);
+							JsonNode traceResult = JsonUtil.convertStrToJson(traceResultStr);
+							if(traceResult!=null && traceResult.has("data") && traceResult.get("data")!=null){
+								 JsonNode tidData = traceResult.get("data");
+								 if(tidData!=null){
+									 dbUser.setNewestTraceId(tidData.get("trid").asText());
+								 }
+							}
+						}
+					}else{
+						dbUser.setNewestTraceId(trace.getTraceId());
+					}
+				}catch(Exception e){
+					logger.error("补充地图信息异常", e);
+				}
+			}
+			logger.info("mapTerminalId: "+dbUser.getMapTerminalId());
+			logger.info("newestTraceId:"+dbUser.getNewestTraceId());
 			userMapper.updateById(dbUser);
 			if(StringUtilLH.isNotEmpty(dbUser.getHeadImg())){
 				dbUser.setHeadImg(Constant.ALI_OSS_ACCESS_PREFIX+dbUser.getHeadImg());
@@ -120,6 +177,7 @@ public class UserServiceImpl implements UserService {
 						}
 					}
 				}
+				
 				loginData.put("mapServiceId", "8914");
 			}
 			if(StringUtil.isEmpty(cityName)){

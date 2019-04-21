@@ -126,7 +126,8 @@
 		when 6 then '已签收'
 		when 8 then '费用单已提交'
 		when 9 then '已支付'
-		else '未知' end as statusName,o.status,
+		else '未知' end as statusName,
+		case when cancle_status= 1 then -1 else o.status end as status,
 		d.nick_name as driverName,
 		d.account as driverPhone,
 		u.nick_name as userName,

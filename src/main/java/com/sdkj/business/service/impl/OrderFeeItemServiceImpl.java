@@ -1,5 +1,7 @@
 package com.sdkj.business.service.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,13 +17,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sdkj.business.dao.distributionSetting.DistributionSettingMapper;
+import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
 import com.sdkj.business.dao.orderFeeItem.OrderFeeItemMapper;
 import com.sdkj.business.dao.orderInfo.OrderInfoMapper;
 import com.sdkj.business.dao.orderRoutePoint.OrderRoutePointMapper;
+import com.sdkj.business.dao.subCompany.SubCompanyMapper;
 import com.sdkj.business.dao.user.UserMapper;
+import com.sdkj.business.domain.po.DistributionSetting;
+import com.sdkj.business.domain.po.DriverInfo;
 import com.sdkj.business.domain.po.OrderFeeItem;
 import com.sdkj.business.domain.po.OrderInfo;
 import com.sdkj.business.domain.po.OrderRoutePoint;
+import com.sdkj.business.domain.po.SubCompany;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.AliMQProducer;
@@ -58,6 +66,17 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 	
 	@Autowired
 	private BalanceChangeDetailService balanceChangeDetailService;
+	
+	@Autowired
+	private DistributionSettingMapper distributionSettingMapper;
+	
+	@Autowired
+	private DriverInfoMapper driverInfoMapper;
+	
+	@Autowired
+	private SubCompanyMapper subCompanyMapper;
+	
+	
 	@Autowired
 	private AliMQProducer aliMQProducer;
 	@Value("${ali.mq.order.dispatch.topic}")
@@ -88,13 +107,17 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 						}
 					}
 					noPaidFee +=target.getFeeAmount();
-					target.setDriverFee(target.getFeeAmount());
 					target.setDriverId(driverUser.getId());
 					target.setClientRefereeId(clientUser.getRefereeId());
-					target.setClientRefereeFee(0f);
 					target.setDriverRefereeId(driverUser.getRefereeId());
-					target.setDriverRefereeFee(0f);
-					target.setPlatFormFee(0f);
+//					target.setDriverFee(target.getFeeAmount());
+//					target.setClientRefereeFee(0f);
+//					target.setDriverRefereeFee(0f);
+//					target.setPlatFormFee(0f);
+					if(target.getFeeType()==null){
+						target.setFeeType(4);
+					}
+					distributeOrderFee(clientUser,driverUser,order, target) ;
 					target.setStatus(Constant.FEE_ITEM_PAY_STATUS_NOPAY);
 					if(target.getId()!=null) {
 						orderFeeItemMapper.updateByPrimaryKey(target);
@@ -319,6 +342,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 		queryMap.put("orderId", orderId);
 		queryMap.put("status", 0);//查找未付款项
 		List<OrderFeeItem> feeItemList = orderFeeItemMapper.findOrderFeeItemList(queryMap);
+		List<Long> payFeeItemIdList = new ArrayList<>();
 		boolean  hasNoPayItem = false;
 		int payFee=0;
 		if(feeItemList!=null && feeItemList.size()>0){
@@ -329,6 +353,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 					item.setPayTime(DateUtilLH.getCurrentTime());
 					item.setStatus(1);
 		    		orderFeeItemMapper.updateByPrimaryKey(item);
+		    		payFeeItemIdList.add(item.getId());
 		    		logger.info("payFee amount:"+item.getFeeAmount());
 		    		payFee +=item.getFeeAmount()*100;
 		    		logger.info("payFee item:"+payFee);
@@ -360,7 +385,7 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 				if(Constant.ORDER_STATUS_CONFIRMFEE==order.getStatus().intValue()) {
 					order.setStatus(Constant.ORDER_STATUS_FINISH);
 					//分配费用
-					balanceChangeDetailService.distributeOrderFeeToUser(order.getId());
+					balanceChangeDetailService.distributeOrderFeeToUser(order.getId(),payFeeItemIdList);
 				}
 				//通知司机端订单支付
 				Map<String,Object> paymentRemarkMap = new HashMap<String,Object>();
@@ -506,6 +531,64 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 		result.setCode(MobileResultVO.CODE_SUCCESS);
 		result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
 		return result;
+	}
+	
+	
+	private void distributeOrderFee(User orderUser,User driver,OrderInfo order, OrderFeeItem feeItem) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("userId", driver.getId());
+		DriverInfo driverInfo = driverInfoMapper.findSingleDriver(param);
+		param.clear();
+		param.put("city", order.getCityName());
+		param.put("feeType", feeItem.getFeeType());
+		param.put("driverType", driverInfo.getDriverType());
+		param.put("vehicleType", order.getVehicleTypeId());
+		logger.info("param:"+JsonUtil.convertObjectToJsonStr(param));
+		List<DistributionSetting> feeDispatchSettingList = distributionSettingMapper
+				.findDistributionSettingList(param);
+		if (feeDispatchSettingList != null && feeDispatchSettingList.size()>0) {
+			Float distributeTotalFee = 0f;
+			DistributionSetting distributionSetting = feeDispatchSettingList.get(0);
+			Float clientRefereeRealAmount = distributionSetting.getClientRefereeAmount()*feeItem.getFeeAmount();
+			BigDecimal clientRefereeBg = new BigDecimal(clientRefereeRealAmount).setScale(2, RoundingMode.UP);
+			feeItem.setClientRefereeFee(clientRefereeBg.floatValue());
+			distributeTotalFee += feeItem.getClientRefereeFee();
+			
+			Float driverRefereeRealAmount = distributionSetting.getDriverRefereeAmount()*feeItem.getFeeAmount();
+			BigDecimal driverRefereeBg = new BigDecimal(driverRefereeRealAmount).setScale(2, RoundingMode.UP);
+			feeItem.setDriverRefereeFee(driverRefereeBg.floatValue());
+			distributeTotalFee += feeItem.getDriverRefereeFee();
+			
+			Float platformRealAmount = distributionSetting.getPlatformAmount()*feeItem.getFeeAmount();
+			BigDecimal platformBg = new BigDecimal(platformRealAmount).setScale(2, RoundingMode.UP);
+			feeItem.setPlatFormFee(platformBg.floatValue());
+			distributeTotalFee += feeItem.getPlatFormFee();
+			
+			Float subcompanyRealAmount = distributionSetting.getSubcompanyAmount()*feeItem.getFeeAmount();
+			BigDecimal subcompanyBg = new BigDecimal(subcompanyRealAmount).setScale(2, RoundingMode.UP);
+			feeItem.setSubCompanyFee(subcompanyBg.floatValue());
+			distributeTotalFee += feeItem.getSubCompanyFee();
+			param.clear();
+			param.put("manageCity", order.getCityName());
+			SubCompany subCompany = subCompanyMapper.findSingleSubCompany(param);
+			if(subCompany!=null){
+				feeItem.setSubCompanyId(subCompany.getId());
+			}
+			
+			feeItem.setDriverFee(feeItem.getFeeAmount()-distributeTotalFee);
+		} else {
+			feeItem.setDriverFee(feeItem.getFeeAmount());
+			feeItem.setClientRefereeFee(0f);
+			feeItem.setDriverRefereeFee(0f);
+			feeItem.setPlatFormFee(0f);
+			feeItem.setSubCompanyFee(0f);
+		}
+		if(orderUser.getRefereeId()!=null) {
+			feeItem.setClientRefereeId(orderUser.getRefereeId());
+		}else if(feeItem.getClientRefereeFee()!=null) {
+			feeItem.setPlatFormFee(feeItem.getPlatFormFee()+feeItem.getClientRefereeFee());
+			feeItem.setClientRefereeFee(0f);
+		}
 	}
 
 }

@@ -28,6 +28,8 @@ public class User {
     
     private Float commentScore;
     
+    private String newestTraceId;
+    
     public Long getId() {
         return id;
     }
@@ -131,5 +133,12 @@ public class User {
 	public void setCommentScore(Float commentScore) {
 		this.commentScore = commentScore;
 	}
-	
+
+	public String getNewestTraceId() {
+		return newestTraceId;
+	}
+
+	public void setNewestTraceId(String newestTraceId) {
+		this.newestTraceId = newestTraceId;
+	}
 }

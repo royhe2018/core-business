@@ -60,6 +60,12 @@
     <trim prefix="where" prefixOverrides="and">
     	<if test="orderId != null"> and order_id = #{orderId}</if>
     	<if test="status != null "> and status = #{status}</if>
+    	<if test="payItemIdList != null">
+    		and id in
+    		<foreach collection="payItemIdList" open="(" close=")" item="id" separator=",">
+    			#{id}
+    		</foreach>
+    	</if>
     </trim>
     group by order_id
   </select>
@@ -142,6 +148,9 @@
       </if>
       <if test="subCompanyFee != null">
         sub_company_fee = #{subCompanyFee},
+      </if>
+      <if test="feeType != null">
+        fee_type = #{feeType},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

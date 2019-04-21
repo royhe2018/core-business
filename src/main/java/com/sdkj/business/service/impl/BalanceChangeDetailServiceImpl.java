@@ -11,12 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.druid.util.StringUtils;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.StringUtil;
 import com.sdkj.business.dao.balanceChangeDetail.BalanceChangeDetailMapper;
 import com.sdkj.business.dao.orderFeeItem.OrderFeeItemMapper;
 import com.sdkj.business.dao.subCompany.SubCompanyMapper;
 import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.domain.po.BalanceChangeDetail;
+import com.sdkj.business.domain.po.OrderFeeItem;
 import com.sdkj.business.domain.po.SubCompany;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
@@ -78,9 +81,10 @@ public class BalanceChangeDetailServiceImpl implements
 	}
 
 	@Override
-	public void distributeOrderFeeToUser(Long orderId) {
+	public void distributeOrderFeeToUser(Long orderId,List<Long> payItemIdList) {
 		Map<String,Object> param = new HashMap<String,Object>();
-		param.put("orderId", orderId);
+		//param.put("orderId", orderId);
+		param.put("payItemIdList", payItemIdList);
 		param.put("status", Constant.FEE_ITEM_PAY_STATUS_PAIED);
 		Map<String,Object> orderFeeDistribute = orderFeeItemMapper.findOrderFeeDistribute(param);
 		logger.info("orderFeeDistribute:"+JsonUtil.convertObjectToJsonStr(orderFeeDistribute));
@@ -137,29 +141,35 @@ public class BalanceChangeDetailServiceImpl implements
 
 	
 	private void distributeFeeToCompany(Long orderId,Map<String, Object> orderFeeDistribute,String companyIdKey,String companyFeeKey,int changeType) {
-		Long companyId = Long.valueOf(orderFeeDistribute.get(companyIdKey)+"");
 		Float companyFee = Float.valueOf(orderFeeDistribute.get(companyFeeKey)+"");
-		logger.info("companyId:"+companyId+";company fee:"+companyFee);
-		 Map<String, Object> param = new HashMap<String,Object>();
-		param.put("id", companyId);
-		SubCompany subCompany = subCompanyMapper.findSingleSubCompany(param);
-		Float beforeBlance =0f;
-		if(subCompany.getBalance()!=null) {
-			beforeBlance = subCompany.getBalance();
+		if(companyFee.floatValue()>0f){
+			if(orderFeeDistribute.get(companyIdKey)!=null && StringUtil.isNotEmpty(orderFeeDistribute.get(companyIdKey).toString())){
+				Long companyId = Long.valueOf(orderFeeDistribute.get(companyIdKey)+"");
+				logger.info("companyId:"+companyId+";company fee:"+companyFee);
+				 Map<String, Object> param = new HashMap<String,Object>();
+				param.put("id", companyId);
+				SubCompany subCompany = subCompanyMapper.findSingleSubCompany(param);
+				Float beforeBlance =0f;
+				if(subCompany.getBalance()!=null) {
+					beforeBlance = subCompany.getBalance();
+				}
+				logger.info("beforeBlance:"+beforeBlance);
+				param.put("amount", companyFee);
+				subCompanyMapper.addCompanyBalance(param);
+				BalanceChangeDetail changeDetail = new BalanceChangeDetail();
+				changeDetail.setBalanceBeforeChange(beforeBlance);
+				changeDetail.setBalanceAfterChange(beforeBlance+companyFee);
+				changeDetail.setChangeAmount(companyFee);
+				changeDetail.setChangeTime(DateUtilLH.getCurrentTime());
+				changeDetail.setChangeType(changeType);
+				changeDetail.setItemId(orderId);
+				changeDetail.setBelongId(companyId);
+				changeDetail.setBelongType(Constant.BALANCE_CHANGE_BELONG_TYPE_COMPANY);
+				balanceChangeDetailMapper.insert(changeDetail);
+			}else{
+				logger.info("orderId:"+orderId+" companyIdKey is null,company fee is:"+companyFee);
+			}
 		}
-		logger.info("beforeBlance:"+beforeBlance);
-		param.put("amount", companyFee);
-		subCompanyMapper.addCompanyBalance(param);
-		BalanceChangeDetail changeDetail = new BalanceChangeDetail();
-		changeDetail.setBalanceBeforeChange(beforeBlance);
-		changeDetail.setBalanceAfterChange(beforeBlance+companyFee);
-		changeDetail.setChangeAmount(companyFee);
-		changeDetail.setChangeTime(DateUtilLH.getCurrentTime());
-		changeDetail.setChangeType(changeType);
-		changeDetail.setItemId(orderId);
-		changeDetail.setBelongId(companyId);
-		changeDetail.setBelongType(Constant.BALANCE_CHANGE_BELONG_TYPE_COMPANY);
-		balanceChangeDetailMapper.insert(changeDetail);
 	}
 	
 	@Override

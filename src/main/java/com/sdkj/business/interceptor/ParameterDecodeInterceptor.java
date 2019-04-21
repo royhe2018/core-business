@@ -23,9 +23,11 @@ public class ParameterDecodeInterceptor extends HandlerInterceptorAdapter {
 		String requestUri = request.getRequestURI();
 		String token = request.getParameter("token");
 		String param = request.getParameter("param");
-		logger.info("token:"+token);
-		logger.info("param:"+param);
-		logger.info("requestUri:"+requestUri);
+		if(!requestUri.endsWith("/order/list")){
+//			logger.info("token:"+token);
+//			logger.info("param:"+param);
+//			logger.info("requestUri:"+requestUri);
+		}
 		Map<String,String> paramMap =null;
 		if(StringUtil.isNotEmpty(param)){
 			String decodeParam = RSAUtil.decryptByPrivateKey(param);
@@ -33,7 +35,7 @@ public class ParameterDecodeInterceptor extends HandlerInterceptorAdapter {
 		}
 		if(StringUtil.isNotEmpty(token)){
 			token =new String(Base64.decodeBase64(token));
-			logger.info("decode token:"+token);
+			//logger.info("decode token:"+token);
 			if(StringUtil.isNotEmpty(token)){
 				String[] tokenArr = token.split("\\&");
 				for(String tokenItem:tokenArr){
