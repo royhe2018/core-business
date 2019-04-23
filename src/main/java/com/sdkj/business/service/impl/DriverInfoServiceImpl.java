@@ -10,11 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.aliyuncs.utils.StringUtils;
 import com.sdkj.business.dao.comment.CommentMapper;
 import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
+import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.domain.po.Comment;
 import com.sdkj.business.domain.po.DriverInfo;
+import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.DriverInfoService;
 import com.sdkj.business.util.Constant;
@@ -30,6 +31,8 @@ public class DriverInfoServiceImpl implements DriverInfoService{
 	@Autowired
 	private DriverInfoMapper driverInfoMapper;
 	
+	@Autowired
+	private UserMapper userMapper;
 	@Autowired
 	private CommentMapper commentMapper;
 	@Override
@@ -50,6 +53,11 @@ public class DriverInfoServiceImpl implements DriverInfoService{
 			target.setIdCardType(1);
 			target.setDrivingLicenseNo(target.getIdCardNo());
 			driverInfoMapper.insert(target);
+			Map<String,Object> param = new HashMap<String,Object>();
+			param.put("id", target.getUserId());
+			User user = userMapper.findSingleUser(param);
+			user.setRegisterCity(target.getRegisterCity());
+			userMapper.updateById(user);
 			result.setCode(MobileResultVO.CODE_SUCCESS);
 			result.setMessage(MobileResultVO.OPT_SUCCESS_MESSAGE);
 			target.setIdCardImage(Constant.ALI_OSS_ACCESS_PREFIX+target.getIdCardImage());

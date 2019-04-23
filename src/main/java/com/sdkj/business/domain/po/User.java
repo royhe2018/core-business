@@ -30,6 +30,8 @@ public class User {
     
     private String newestTraceId;
     
+    private String registerCity;
+    
     public Long getId() {
         return id;
     }
@@ -141,4 +143,13 @@ public class User {
 	public void setNewestTraceId(String newestTraceId) {
 		this.newestTraceId = newestTraceId;
 	}
+
+	public String getRegisterCity() {
+		return registerCity;
+	}
+
+	public void setRegisterCity(String registerCity) {
+		this.registerCity = registerCity;
+	}
+	
 }

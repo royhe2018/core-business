@@ -2,11 +2,12 @@ package com.sdkj.business.util;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sdlh.common.DateUtilLH;
 import com.sdlh.common.JsonUtil;
 
 public class Test {
@@ -18,8 +19,9 @@ public class Test {
 		//testJson();
 		 String token = "userId=14&userType=1";
 		 
-		 
-		System.out.println(token.split("\\&")[1]);
+		 Date now = new Date();
+		 now.setTime(1555942421807l);
+		System.out.println(DateUtilLH.convertDate2Str(now, "yyyy-MM-dd HH:mm:ss"));
 	}
 	
 	private static void testJson() {

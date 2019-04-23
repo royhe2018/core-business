@@ -79,6 +79,9 @@
       <if test="mapTerminalId != null">
         map_terminal_id = #{mapTerminalId},
       </if>
+      <if test="registerCity != null">
+        register_city = #{registerCity},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
