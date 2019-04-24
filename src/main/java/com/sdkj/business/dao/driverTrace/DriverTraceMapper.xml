@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.driverTrace.DriverTraceMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.DriverTrace">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="driver_phone" jdbcType="VARCHAR" property="driverPhone" />
+    <result column="date" jdbcType="VARCHAR" property="date" />
+    <result column="trace_id" jdbcType="VARCHAR" property="traceId" />
+  </resultMap>
+   <select id="findSingleTrace" parameterType="java.util.Map" resultMap="BaseResultMap">
+   		select *
+   		from sdlh_driver_trace
+   		<trim prefix="where" prefixOverrides="and">
+   			<if test="driverPhone != null"> and driver_phone = #{driverPhone}</if>
+   			<if test="date != null"> and date = #{date}</if>
+   		</trim>
+   		limit 0,1
+   </select>
+   
+   <insert id="insert" parameterType="com.sdkj.business.domain.po.DriverTrace" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+   	INSERT INTO `sdlh_driver_trace`
+            (`driver_phone`,
+             `date`,
+             `trace_id`)
+	VALUES (#{driverPhone},
+	        #{date},
+	        #{traceId});
+   </insert>
+</mapper>
