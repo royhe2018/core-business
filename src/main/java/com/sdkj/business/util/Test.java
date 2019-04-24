@@ -18,19 +18,9 @@ public class Test {
 	 */
 	public static void main(String[] args) {
 		//testJson();
-<<<<<<< .mine
 		 Date now = new Date();
 		 now.setTime(1554704779514l);
 		System.out.println(DateUtilLH.convertDate2Str(now, "yyyy-MM-dd HH:mm:ss"));
-
-
-=======
-		 String token = "userId=14&userType=1";
-		 
-		 Date now = new Date();
-		 now.setTime(1555942421807l);
-		System.out.println(DateUtilLH.convertDate2Str(now, "yyyy-MM-dd HH:mm:ss"));
->>>>>>> .theirs
 	}
 	
 	private static void testJson() {
