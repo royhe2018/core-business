@@ -10,6 +10,7 @@ public class ClientVersion {
 	private String filePath;
 	private Integer status;
 	private String createTime;
+	private Integer isForceUpdate;
 	public Long getId() {
 		return id;
 	}
@@ -57,6 +58,12 @@ public class ClientVersion {
 	}
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
+	}
+	public Integer getIsForceUpdate() {
+		return isForceUpdate;
+	}
+	public void setIsForceUpdate(Integer isForceUpdate) {
+		this.isForceUpdate = isForceUpdate;
 	}
 	
 }

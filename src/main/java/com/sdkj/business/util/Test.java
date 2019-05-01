@@ -19,9 +19,10 @@ public class Test {
 		//testJson();
 		 String token = "userId=14&userType=1";
 		 
-		 Date now = new Date();
-		 now.setTime(1555942421807l);
-		System.out.println(DateUtilLH.convertDate2Str(now, "yyyy-MM-dd HH:mm:ss"));
+		 Date start = DateUtilLH.convertStr2Date("2019-04-27 00:00", "yyyy-MM-dd HH:mm");
+		 Date end = DateUtilLH.convertStr2Date("2019-04-27 23:59", "yyyy-MM-dd HH:mm");
+		System.out.println(start.getTime());
+		System.out.println(end.getTime());
 	}
 	
 	private static void testJson() {

@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.ClientVersion">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="client_type" property="clientType" />
+    <result column="is_force_update" property="isForceUpdate" />
     <result column="version" property="version" />
     <result column="upgrade_desc" property="upgradeDesc" />
     <result column="setup_file_name" property="setupFileName" />

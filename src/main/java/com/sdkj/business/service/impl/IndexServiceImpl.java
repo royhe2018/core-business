@@ -11,12 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.aliyuncs.utils.StringUtils;
 import com.sdkj.business.dao.distributionFee.DistributionFeeMapper;
 import com.sdkj.business.dao.serviceStation.ServiceStationMapper;
+import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.dao.vehicleSpecialRequirement.VehicleSpecialRequirementMapper;
 import com.sdkj.business.dao.vehicleTypeInfo.VehicleTypeInfoMapper;
 import com.sdkj.business.domain.po.DistributionFee;
 import com.sdkj.business.domain.po.ServiceStation;
+import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.po.VehicleSpecialRequirement;
 import com.sdkj.business.domain.po.VehicleTypeInfo;
 import com.sdkj.business.service.IndexService;
@@ -38,11 +41,15 @@ public class IndexServiceImpl implements IndexService{
 	
 	@Value("${appointment.minute.list.str}")
 	private String minuteListStr;
- 
+	
+	@Autowired
+	private UserMapper userMapper;
 	@Autowired
 	private ServiceStationMapper serviceStationMapper;
 	@Override
 	public Map<String,Object> findIndexPageInfo(Map<String, Object> param) {
+		String userId = param.get("userId")+"";
+		String city = param.get("city")+"";
 		List<DistributionFee> distributionFeeList = distributionFeeMapper.findDistributionFeeList(param);
 		Map<String,Object> result = new HashMap<String,Object>();
 		Map<String, Object> queryMap = new HashMap<String,Object>();
@@ -79,6 +86,13 @@ public class IndexServiceImpl implements IndexService{
 		remarkList.add("一人跟车");
 		remarkList.add("两人跟车");
 		result.put("remarkList", remarkList);
+		param.clear();
+		param.put("id", userId);
+		User user = userMapper.findSingleUser(param);
+		if(user!=null && StringUtils.isEmpty(user.getRegisterCity())){
+			user.setRegisterCity(city);
+			userMapper.updateById(user);
+		}
 		return result;
 	}
 	@Override
