@@ -45,6 +45,7 @@ public class DriverInfo {
     
     private String carRearPhoto;
     
+    private String vehicleTypeName;
     
     public Long getId() {
         return id;
@@ -221,6 +222,14 @@ public class DriverInfo {
 
 	public void setCarRearPhoto(String carRearPhoto) {
 		this.carRearPhoto = carRearPhoto;
+	}
+
+	public String getVehicleTypeName() {
+		return vehicleTypeName;
+	}
+
+	public void setVehicleTypeName(String vehicleTypeName) {
+		this.vehicleTypeName = vehicleTypeName;
 	}
 	
 }

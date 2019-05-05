@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.aliyuncs.utils.StringUtils;
 import com.sdkj.business.dao.orderImage.OrderImageMapper;
+import com.sdkj.business.dao.orderInfo.OrderInfoMapper;
 import com.sdkj.business.domain.po.OrderImage;
+import com.sdkj.business.domain.po.OrderInfo;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.OrderImageService;
 import com.sdkj.business.util.Constant;
@@ -23,6 +25,9 @@ public class OrderImageServiceImpl implements OrderImageService {
 	Logger logger = LoggerFactory.getLogger(OrderImageServiceImpl.class);
 	@Autowired
 	private OrderImageMapper orderImageMapper;
+	
+	@Autowired
+	private OrderInfoMapper orderInfoMapper;
 	
 	@Override
 	public MobileResultVO addOrderImage(OrderImage target) {
@@ -49,6 +54,7 @@ public class OrderImageServiceImpl implements OrderImageService {
 	@Override
 	public MobileResultVO findOrderImageInfo(Map<String, Object> params) {
 		MobileResultVO result = new MobileResultVO();
+		Object orderId = params.get("orderId");
 		result.setCode(MobileResultVO.CODE_SUCCESS);
 		result.setMessage("操作成功");
 		params.put("imageType", 1);
@@ -72,6 +78,14 @@ public class OrderImageServiceImpl implements OrderImageService {
 			}
 		}
 		imageInfo.put("coverImage", coverImage);
+		params.clear();
+		params.put("id", orderId);
+		OrderInfo order = orderInfoMapper.findSingleOrder(params);
+		if(order!=null){
+			imageInfo.put("orderStatus", order.getStatus());
+		}else{
+			imageInfo.put("orderStatus", 0);
+		}
 		result.setData(imageInfo);
 		return result;
 	}

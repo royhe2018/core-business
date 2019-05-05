@@ -13,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sdkj.business.dao.comment.CommentMapper;
 import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
 import com.sdkj.business.dao.user.UserMapper;
+import com.sdkj.business.dao.vehicleTypeInfo.VehicleTypeInfoMapper;
 import com.sdkj.business.domain.po.Comment;
 import com.sdkj.business.domain.po.DriverInfo;
 import com.sdkj.business.domain.po.User;
+import com.sdkj.business.domain.po.VehicleTypeInfo;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.DriverInfoService;
 import com.sdkj.business.util.Constant;
@@ -35,6 +37,8 @@ public class DriverInfoServiceImpl implements DriverInfoService{
 	private UserMapper userMapper;
 	@Autowired
 	private CommentMapper commentMapper;
+	@Autowired
+	private VehicleTypeInfoMapper vehicleTypeInfoMapper;
 	@Override
 	public MobileResultVO registerDriverInfo(DriverInfo target) {
 		MobileResultVO result = new MobileResultVO();
@@ -87,6 +91,11 @@ public class DriverInfoServiceImpl implements DriverInfoService{
 			driver.setCarFrontPhoto(Constant.ALI_OSS_ACCESS_PREFIX+driver.getCarFrontPhoto());
 			driver.setCarLateralPhoto(Constant.ALI_OSS_ACCESS_PREFIX+driver.getCarLateralPhoto());
 			driver.setCarRearPhoto(Constant.ALI_OSS_ACCESS_PREFIX+driver.getCarRearPhoto());
+			if(driver.getVehicleTypeId()!=null){
+				param.put("id", driver.getVehicleTypeId());
+				VehicleTypeInfo vehicleType = vehicleTypeInfoMapper.findSingleVehicleTypeInfo(param);
+				driver.setVehicleTypeName(vehicleType.getTypeName());
+			}
 			result.setData(driver);
 		}
 		return result;
