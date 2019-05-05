@@ -3,7 +3,6 @@ package com.sdkj.business.util;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,17 +17,14 @@ public class Test {
 	 */
 	public static void main(String[] args) {
 		//testJson();
-<<<<<<< .mine
 		 Date start = DateUtilLH.convertStr2Date("2019-04-27 00:00", "yyyy-MM-dd HH:mm");
 		 Date end = DateUtilLH.convertStr2Date("2019-04-27 23:59", "yyyy-MM-dd HH:mm");
 		System.out.println(start.getTime());
 		System.out.println(end.getTime());
-=======
 		 Date now = new Date();
 		 now.setTime(1554704779514l);
 		System.out.println(DateUtilLH.convertDate2Str(now, "yyyy-MM-dd HH:mm:ss"));
 
->>>>>>> .theirs
 	}
 	
 	private static void testJson() {
