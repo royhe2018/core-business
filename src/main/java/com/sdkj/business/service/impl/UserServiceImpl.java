@@ -120,12 +120,7 @@ public class UserServiceImpl implements UserService {
 						}
 					}
 					logger.info("MapTerminalId:2"+dbUser.getMapTerminalId());
-					param.clear();
-					param.put("driverPhone", dbUser.getAccount());
-					param.put("date", DateUtilLH.getCurrentDate());
-					DriverTrace trace = this.driverTraceMapper.findSingleTrace(param);
-					logger.info("trace:"+trace);
-					if(trace==null){
+					if(StringUtils.isEmpty(dbUser.getNewestTraceId())){
 						param.clear();
 						param.put("phoneNumber", dbUser.getAccount());
 						String traceResultStr= HttpRequestUtil.post(mapServiceUrl+"/find/terminal/trace?phoneNumber="+dbUser.getAccount(),"");
@@ -139,8 +134,6 @@ public class UserServiceImpl implements UserService {
 								 }
 							}
 						}
-					}else{
-						dbUser.setNewestTraceId(trace.getTraceId());
 					}
 				}catch(Exception e){
 					logger.error("补充地图信息异常", e);
