@@ -470,6 +470,9 @@ public class OrderServiceImpl implements OrderService {
 			if (dbOrder.getStatus().intValue() > Constant.ORDER_STATUS_JIEDAN) {
 				result.setCode(MobileResultVO.CODE_FAIL);
 				result.setMessage("订单状态变更,不可取消!");
+			}else if(dbOrder.getPayStatus()!=null && dbOrder.getPayStatus().intValue()!=Constant.ORDER_PAY_STATUS_NOPAY) {
+				result.setCode(MobileResultVO.CODE_FAIL);
+				result.setMessage("订单已支付,不可取消!");
 			} else {
 				dbOrder.setCancleStatus(Constant.ORDER_CANCLE_STATUS_CANCLE);
 				dbOrder.setCancelReason(order.getCancelReason());

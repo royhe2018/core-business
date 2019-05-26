@@ -13,7 +13,7 @@
     select *
     from sdlh_client_config
     <trim prefix="where" prefixOverrides="and">
-    	<if test="cityName != null">and city_name = #{cityName}</if>
+    	<if test="cityName != null">and (city_name = #{cityName} or city_name is null or city_name='') </if>
     	<if test="clientType != null">and client_type = #{clientType}</if>
     	<if test="key != null">and key>=#{key}</if>
     </trim>
