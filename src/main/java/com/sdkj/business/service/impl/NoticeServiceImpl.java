@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.aliyuncs.utils.StringUtils;
 import com.github.pagehelper.PageHelper;
 import com.sdkj.business.dao.area.AreaMapper;
 import com.sdkj.business.dao.notice.NoticeMapper;
@@ -27,6 +29,13 @@ public class NoticeServiceImpl implements NoticeService {
 	private UserMapper userMapper;
 	@Autowired
 	private AreaMapper areaMapper;
+	
+	@Value("${image.pre.fix}")
+	private String imagePreFix;
+	
+	@Value("${detail.pre.fix}")
+	private String detailPreFix;
+	
 	@Override
 	public MobileResultVO findNoticeList(int pageNum, int pageSize, Map<String, Object> param) {
 		String userId = ""+param.get("userId");
@@ -51,6 +60,16 @@ public class NoticeServiceImpl implements NoticeService {
 		result.setMessage("操作成功");
 		PageHelper.startPage(pageNum, pageSize, false);
 		List<Notice> noticeList = noticeMapper.findNoticeList(param);
+		if(noticeList!=null && noticeList.size()>0){
+			for(Notice item:noticeList){
+				if(StringUtils.isNotEmpty(item.getFaceImg())){
+					item.setFaceImg(imagePreFix+item.getFaceImg());
+				}
+				if(StringUtils.isNotEmpty(item.getDetailUrl())){
+					item.setDetailUrl(detailPreFix+item.getDetailUrl());
+				}
+			}
+		}
 		result.setData(noticeList);
 		return result;
 	}

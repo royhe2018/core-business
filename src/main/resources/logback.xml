@@ -19,11 +19,11 @@
     	</encoder>
   	</appender>
 	
-	<logger name="com.sdkj.map" level="INFO" additivity="false">
+	<logger name="com.sdkj.map" level="DEBUG" additivity="false">
 		<appender-ref ref="application" />
 		<appender-ref ref="STDOUT" />
 	</logger>
-	<root level="INFO">
+	<root level="DEBUG">
 		<appender-ref ref="application" />
 		<appender-ref ref="STDOUT" />
 	</root>

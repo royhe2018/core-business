@@ -16,6 +16,7 @@
     <result column="refereeName" property="refereeName" />
     <result column="comment_score" property="commentScore" />
     <result column="newest_trace_id" property="newestTraceId" />
+    <result column="register_city" property="registerCity" />
   </resultMap>
   
   <select id="findSingleUser" parameterType="java.util.Map" resultMap="BaseResultMap">

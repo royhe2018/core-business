@@ -15,9 +15,11 @@
     select *
     from sdlh_notice
     <trim prefix="where" prefixOverrides="and">
-    	<if test="city != null"> and city = #{city}</if>
-    	<if test="province != null"> and (province = #{province} and city is not null )</if>
-    	or province = '' or province is null
+    	<if test="userType != null"> and client_type = #{userType}</if>
+    	and (
+    	<if test="city != null"> city = #{city}</if>
+    	<if test="province != null"> or (province = #{province} and (city is null or city = '') )</if>
+    	or province = '' or province is null)
     </trim>
   </select>
 </mapper>
