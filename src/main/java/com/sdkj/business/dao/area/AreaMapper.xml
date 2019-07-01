@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.area.AreaMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.Area">
+    <id column="areaId" jdbcType="BIGINT" property="areaId" />
+    <result column="areaName" property="areaName" />
+    <result column="parentId" property="parentId" />
+  </resultMap>
+ 
+  <select id="findSingleArea" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from t_area
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="areaId != null">and areaId = #{areaId}</if>
+    	<if test="areaName != null">and areaName = #{areaName}</if>
+    </trim>
+  </select>
+</mapper>
