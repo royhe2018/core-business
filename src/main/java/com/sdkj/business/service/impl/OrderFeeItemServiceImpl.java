@@ -384,9 +384,9 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 				order.setPayStatus(Constant.ORDER_PAY_STATUS_PAID);//已付清
 				if(Constant.ORDER_STATUS_CONFIRMFEE==order.getStatus().intValue()) {
 					order.setStatus(Constant.ORDER_STATUS_FINISH);
-					//分配费用
-					balanceChangeDetailService.distributeOrderFeeToUser(order.getId(),payFeeItemIdList);
 				}
+				//分配费用
+				balanceChangeDetailService.distributeOrderFeeToUser(order.getId(),payFeeItemIdList);
 				//通知司机端订单支付
 				Map<String,Object> paymentRemarkMap = new HashMap<String,Object>();
 				paymentRemarkMap.put("orderId", order.getId());

@@ -502,7 +502,18 @@ public class OrderServiceImpl implements OrderService {
 	public MobileResultVO findOrderList(int pageNum, int pageSize, Map<String, Object> param) {
 		MobileResultVO result = new MobileResultVO();
 		PageHelper.startPage(pageNum, pageSize, false);
-		List<Map<String, Object>> orderDisplayList = orderInfoMapper.findOrderInfoListDisplay(param);
+		List<Map<String, Object>> orderDisplayList = null;
+		if(param.containsKey("orderPeriod") && "4".equals(param.get("orderPeriod")+"")){
+			Map<String,Object> queryMap = new HashMap<String,Object>();
+			queryMap.put("id", param.get("driverId"));
+			User driver = userMapper.findSingleUser(queryMap);
+			if(driver!=null && StringUtils.isNotEmpty(driver.getRegisterCity())){
+				param.put("driverCity", driver.getRegisterCity());
+				orderDisplayList = orderInfoMapper.findRoadBackOrderList(param);	
+			}
+		}else{
+			orderDisplayList = orderInfoMapper.findOrderInfoListDisplay(param);
+		}
 		if (orderDisplayList != null) {
 			Map<String, Object> queryMap = new HashMap<String, Object>();
 			for (Map<String, Object> orderItem : orderDisplayList) {

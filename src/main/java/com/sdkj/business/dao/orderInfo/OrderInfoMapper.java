@@ -19,4 +19,6 @@ public interface OrderInfoMapper {
     Map<String,Object> findSingleOrderInfoDisplay(Map<String,Object> param);
     
     int updateById(OrderInfo record);
+    
+    public List<Map<String,Object>> findRoadBackOrderList(Map<String,Object> param);
 }
