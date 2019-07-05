@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.orderComplaint.OrderComplaintMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.OrderComplaint">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="face_img" property="faceImg" />
+    <result column="province" property="province" />
+    <result column="city" property="city" />
+    <result column="title"  property="title" />
+    <result column="client_type" property="clientType" />
+    <result column="detail_url"  property="detailUrl" />
+  </resultMap>
+ 
+  <select id="findOrderComplaintList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_notice
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="orderId != null"> and order_id = #{orderId}</if>
+    </trim>
+  </select>
+</mapper>
