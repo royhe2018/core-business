@@ -91,6 +91,7 @@
 							<when test='orderPeriod == 1'><![CDATA[ and (o.status <7 or o.status=8 or o.status=9) and o.cancle_status=0]]></when>
 							<when test='orderPeriod == 2'><![CDATA[ and o.status =7 and o.cancle_status=0]]></when>
 							<when test='orderPeriod == 3'><![CDATA[ and o.cancle_status=1]]></when>
+							<when test='orderPeriod == 4'><![CDATA[ and o.cancle_status=0 and o.service_vehicle_level_id=2 and o.status=0 and DATE_FORMAT(NOW(), '%Y-%m-%d') <=left(o.use_truck_time,10) ]]></when>
 						</choose>
 					</when>
 					<otherwise>
@@ -106,7 +107,45 @@
 		group by o.id
 		order by o.id desc
 	</select>
-
+	
+    <select id="findRoadBackOrderList" parameterType="java.util.Map"
+		resultType="java.util.Map">
+		select o.id as orderId,o.use_truck_time as userTime,
+		t.type_name as vehicleTypeName,'1' as orderType,
+		o.total_fee as totalFee,
+		o.pay_status as payStatus,
+		case o.status
+		when 0 then '未接单'
+		when 1 then '已接单'
+		when 2 then '到达装货地'
+		when 3 then '装货完成'
+		when 4 then '运途中'
+		when 5 then '到达收货地'
+		when 6 then '已签收'
+		when 8 then '费用单已提交'
+		when 9 then '已支付'
+		else '未知' end as statusName,o.status,
+		d.nick_name as driverName,
+		d.account as driverPhone,
+		d.id as driverId,
+		'4.8' as driverScore,
+		d.map_terminal_id as mapTerminalId,
+		'8914' as mapServiceId,
+		case when c.id is null then 0 else 1 end as commentStatus,
+		o.create_time as orderCreateTime,
+		o.user_id as userId,
+		o.use_time_type as useTimeType
+		from sdlh_order_info o
+		inner join sdlh_vehicle_type_info t on o.vehicle_type_id = t.id
+		left join sdlh_user d on o.driver_id = d.id
+		left join sdlh_comment c on o.id=c.order_id
+		<trim prefix="where" prefixOverrides="and">
+			<![CDATA[ and o.cancle_status=0 and o.service_vehicle_level_id=2 and o.status=0 and DATE_FORMAT(NOW(), '%Y-%m-%d') <=left(o.use_truck_time,10)]]>
+			 <if test="driverCity != null "> and o.city_name = #{driverCity}</if>
+		</trim>
+		group by o.id
+		order by o.id desc
+	</select>
 
 	<select id="findSingleOrderInfoDisplay" parameterType="java.util.Map"
 		resultType="java.util.Map">
