@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.suggestion.SuggestionMapper">
+  
+  <insert id="addSuggestion" useGeneratedKeys="true" keyProperty="id" parameterType="com.sdkj.business.domain.po.Suggestion">
+  	INSERT INTO `sdlh_suggestion`
+            (`user_id`,
+             `title`,
+             `description`,
+             `photo1`,
+             `photo2`,
+             `photo3`,
+             `create_time`)
+	VALUES (#{userId},
+	        #{title},
+	        #{description},
+	        #{photo1},
+	        #{photo2},
+	        #{photo3},
+	        #{createTime})
+  </insert>
+</mapper>

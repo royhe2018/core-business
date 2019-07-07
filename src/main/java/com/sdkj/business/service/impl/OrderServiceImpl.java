@@ -509,6 +509,43 @@ public class OrderServiceImpl implements OrderService {
 			User driver = userMapper.findSingleUser(queryMap);
 			if(driver!=null && StringUtils.isNotEmpty(driver.getRegisterCity())){
 				param.put("driverCity", driver.getRegisterCity());
+				queryMap.clear();
+				queryMap.put("userId", driver.getId());
+				DriverInfo driverInfo = driverInfoMapper.findSingleDriver(queryMap);
+				if(driverInfo!=null){
+					List<Integer> vehicleTypeList = new ArrayList<Integer>();
+					if(driverInfo.getVehicleTypeId().intValue()==6){
+						vehicleTypeList.add(6);
+					}if(driverInfo.getVehicleTypeId().intValue()==7){
+						vehicleTypeList.add(6);
+						vehicleTypeList.add(7);
+					}if(driverInfo.getVehicleTypeId().intValue()==8){
+						vehicleTypeList.add(6);
+						vehicleTypeList.add(7);
+						vehicleTypeList.add(8);
+					}if(driverInfo.getVehicleTypeId().intValue()==5){
+						vehicleTypeList.add(5);
+						vehicleTypeList.add(6);
+						vehicleTypeList.add(7);
+						vehicleTypeList.add(8);
+					}if(driverInfo.getVehicleTypeId().intValue()==9){
+						vehicleTypeList.add(5);
+						vehicleTypeList.add(6);
+						vehicleTypeList.add(7);
+						vehicleTypeList.add(8);
+						vehicleTypeList.add(9);
+					}if(driverInfo.getVehicleTypeId().intValue()==10){
+						vehicleTypeList.add(5);
+						vehicleTypeList.add(6);
+						vehicleTypeList.add(7);
+						vehicleTypeList.add(8);
+						vehicleTypeList.add(9);
+						vehicleTypeList.add(10);
+					}
+					if(vehicleTypeList.size()>0){
+						param.put("vehicleTypeList", vehicleTypeList);
+					}
+				}
 				orderDisplayList = orderInfoMapper.findRoadBackOrderList(param);	
 			}
 		}else{

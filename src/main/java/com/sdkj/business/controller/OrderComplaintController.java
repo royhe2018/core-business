@@ -83,4 +83,19 @@ public class OrderComplaintController {
    		}
    		return result;
    	}
+    
+    @RequestMapping(value="/find/complaint/title",method=RequestMethod.POST)
+   	@ResponseBody
+   	public MobileResultVO findComplaintTitle(HttpServletRequest req) {
+       	MobileResultVO result = null;
+   		try {
+   			result = orderComplaintService.findComplaintTitleList();
+   		}catch(Exception e) {
+   			logger.error("查询信息异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
 }

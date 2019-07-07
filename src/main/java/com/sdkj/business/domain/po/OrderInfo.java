@@ -66,6 +66,8 @@ public class OrderInfo {
     
     private String cancelReason;
     
+    private Integer complaintStatus;
+    
     public Long getId() {
         return id;
     }
@@ -321,6 +323,14 @@ public class OrderInfo {
 
 	public void setCancelReason(String cancelReason) {
 		this.cancelReason = cancelReason;
+	}
+
+	public Integer getComplaintStatus() {
+		return complaintStatus;
+	}
+
+	public void setComplaintStatus(Integer complaintStatus) {
+		this.complaintStatus = complaintStatus;
 	}
 	
 }

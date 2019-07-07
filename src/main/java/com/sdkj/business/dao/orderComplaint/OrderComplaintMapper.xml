@@ -3,17 +3,50 @@
 <mapper namespace="com.sdkj.business.dao.orderComplaint.OrderComplaintMapper">
   <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.OrderComplaint">
     <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="face_img" property="faceImg" />
-    <result column="province" property="province" />
-    <result column="city" property="city" />
+    <result column="complaint_type" property="complaintType" />
+    <result column="order_id" property="orderId" />
+    <result column="user_id" property="userId" />
     <result column="title"  property="title" />
     <result column="client_type" property="clientType" />
     <result column="detail_url"  property="detailUrl" />
+    <result column="create_time"  property="createTime" />
   </resultMap>
+  
+  <resultMap id="titletMap" type="com.sdkj.business.domain.po.ComplaintTitle">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="title" property="title" />
+    <result column="create_time" property="createTime" />
+  </resultMap>
+  
+  <insert id="addOrderComplaint" useGeneratedKeys="true" keyProperty="id" parameterType="com.sdkj.business.domain.po.OrderComplaint">
+  	INSERT INTO `sdlh_order_complaint`
+            (`complaint_type`,
+             `user_id`,
+             `order_id`,
+             `title`,
+             `description`,
+             `photo1`,
+             `photo2`,
+             `photo3`,
+             `create_time`)
+	VALUES (#{complaintType},
+	        #{userId},
+	        #{orderId},
+	        #{title},
+	        #{description},
+	        #{photo1},
+	        #{photo2},
+	        #{photo3},
+	        #{createTime})
+  </insert>
  
+  <select id="findComplaintTitleList" parameterType="java.util.Map" resultMap="titletMap">
+ 	select *
+ 	from sdlh_order_complaint_title
+  </select>
   <select id="findOrderComplaintList" parameterType="java.util.Map" resultMap="BaseResultMap">
     select *
-    from sdlh_notice
+    from sdlh_order_complaint
     <trim prefix="where" prefixOverrides="and">
     	<if test="orderId != null"> and order_id = #{orderId}</if>
     </trim>

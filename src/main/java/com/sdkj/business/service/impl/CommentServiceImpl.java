@@ -59,6 +59,8 @@ public class CommentServiceImpl implements CommentService {
 		OrderInfo order  = orderInfoMapper.findSingleOrder(param);
 		if(order!=null) {
 			target.setDriverId(order.getDriverId());
+			order.setComplaintStatus(-1);
+			orderInfoMapper.updateById(order);
 		}
 		target.setCreateTime(DateUtilLH.getCurrentTime());
 		commentMapper.insertComment(target);

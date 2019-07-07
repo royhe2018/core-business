@@ -73,7 +73,8 @@
 		case when c.id is null then 0 else 1 end as commentStatus,
 		o.create_time as orderCreateTime,
 		o.user_id as userId,
-		o.use_time_type as useTimeType
+		o.use_time_type as useTimeType,
+		o.complaint_status as complaintStatus
 		from sdlh_order_info o
 		inner join sdlh_vehicle_type_info t on o.vehicle_type_id = t.id
 		left join sdlh_user d on o.driver_id = d.id
@@ -134,7 +135,8 @@
 		case when c.id is null then 0 else 1 end as commentStatus,
 		o.create_time as orderCreateTime,
 		o.user_id as userId,
-		o.use_time_type as useTimeType
+		o.use_time_type as useTimeType,
+		o.complaint_status as complaintStatus
 		from sdlh_order_info o
 		inner join sdlh_vehicle_type_info t on o.vehicle_type_id = t.id
 		left join sdlh_user d on o.driver_id = d.id
@@ -142,6 +144,12 @@
 		<trim prefix="where" prefixOverrides="and">
 			<![CDATA[ and o.cancle_status=0 and o.service_vehicle_level_id=2 and o.status=0 and DATE_FORMAT(NOW(), '%Y-%m-%d') <=left(o.use_truck_time,10)]]>
 			 <if test="driverCity != null "> and o.city_name = #{driverCity}</if>
+			 <if test="vehicleTypeList != null">
+			 	  and o.vehicle_type_id in 
+			 	  <foreach collection="vehicleTypeList" open="(" close=")" separator="," item="vihicleTypeId">
+			 	  	#{vihicleTypeId}
+			 	  </foreach>
+			 </if>
 		</trim>
 		group by o.id
 		order by o.id desc
@@ -335,7 +343,9 @@
 			<if test="cancelReason != null">
 				cancel_reason = #{cancelReason},
 			</if>
-			
+			<if test="complaintStatus != null">
+				complaint_status = #{complaintStatus},
+			</if>
 			data_version = #{dataVersion,jdbcType=INTEGER}+1,
 		</set>
 		where id = #{id,jdbcType=BIGINT} and data_version = #{dataVersion}
