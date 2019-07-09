@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.sdkj.business.domain.po.OrderComplaint;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.OrderComplaintService;
+import com.sdkj.business.service.component.optlog.SysLog;
 
 @Controller
 public class OrderComplaintController {
@@ -26,6 +27,7 @@ public class OrderComplaintController {
 	
     @RequestMapping(value="/add/order/complaint",method=RequestMethod.POST)
    	@ResponseBody
+   	@SysLog(description = "订单投诉", optCode = "addOrderComplaint")
    	public MobileResultVO addOrderComplaint(HttpServletRequest req) {
        	MobileResultVO result = null;
    		try {
@@ -66,6 +68,7 @@ public class OrderComplaintController {
     
     @RequestMapping(value="/find/order/complaint",method=RequestMethod.POST)
    	@ResponseBody
+   	@SysLog(description = "查询订单投诉", optCode = "findOrderComplaint")
    	public MobileResultVO findOrderComplaint(HttpServletRequest req) {
        	MobileResultVO result = null;
    		try {

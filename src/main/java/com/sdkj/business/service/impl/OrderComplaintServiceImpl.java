@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.aliyuncs.utils.StringUtils;
 import com.sdkj.business.dao.orderComplaint.OrderComplaintMapper;
 import com.sdkj.business.dao.orderInfo.OrderInfoMapper;
 import com.sdkj.business.domain.po.ComplaintTitle;
@@ -15,6 +16,7 @@ import com.sdkj.business.domain.po.OrderComplaint;
 import com.sdkj.business.domain.po.OrderInfo;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.OrderComplaintService;
+import com.sdkj.business.util.Constant;
 import com.sdlh.common.DateUtilLH;
 
 @Service
@@ -53,6 +55,19 @@ public class OrderComplaintServiceImpl implements OrderComplaintService{
 		Map<String,Object> param = new HashMap<String,Object>();
 		param.put("orderId", orderId);
 		List<OrderComplaint> complaintList = orderComplaintMapper.findOrderComplaintList(param);
+		if(complaintList!=null && complaintList.size()>0){
+			for(OrderComplaint complaint:complaintList){
+				if(StringUtils.isNotEmpty(complaint.getPhoto1())){
+					complaint.setPhoto1(Constant.ALI_OSS_ACCESS_PREFIX+complaint.getPhoto1());
+				}
+				if(StringUtils.isNotEmpty(complaint.getPhoto2())){
+					complaint.setPhoto2(Constant.ALI_OSS_ACCESS_PREFIX+complaint.getPhoto2());
+				}
+				if(StringUtils.isNotEmpty(complaint.getPhoto3())){
+					complaint.setPhoto2(Constant.ALI_OSS_ACCESS_PREFIX+complaint.getPhoto3());
+				}
+			}
+		}
 		result.setData(complaintList);
 		return result;
 	}

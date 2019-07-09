@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.adConvertRecord.AdConvertRecordMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.AdConvertRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="ad_type" property="adType" />
+    <result column="adid" property="adid" />
+    <result column="terminal_type" property="terminalType" />
+    <result column="user_type" property="userType" />
+    <result column="idfa" property="idfa" />
+    <result column="imei" property="imei" />
+    <result column="call_back_status" property="callBackStatus" />
+    <result column="create_time" property="createTime" />
+  </resultMap>
+ 
+  <select id="findSingleAdConvertRecord" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_ad_convert_record
+    <trim prefix="where" prefixOverrides="and">
+    	<if test="id != null">and id = #{id}</if>
+    	<if test="idfa != null">and idfa = #{idfa}</if>
+    	<if test="imei != null">and imei = #{imei}</if>
+    </trim>
+  </select>
+  <insert id="addAdConvertRecord" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="com.sdkj.business.domain.po.AdConvertRecord">
+  		INSERT INTO `sdlh_ad_convert_record`
+            (`ad_type`,
+             `adid`,
+             `terminal_type`,
+             `user_type`,
+             `idfa`,
+             `imei`,
+             `call_back_status`,
+             `create_time`)
+	VALUES (#{adType},
+	        #{adid},
+	        #{terminalType},
+	        #{userType},
+	        #{idfa},
+	        #{imei},
+	        #{callBackStatus},
+	        #{createTime})
+  </insert>
+  <update id="updateAdConvertRecord" parameterType="com.sdkj.business.domain.po.AdConvertRecord">
+  		update sdlh_ad_convert_record
+  		<trim prefix="set" suffixOverrides=",">
+  			<if test="callBackStatus != null"> call_back_status = #{callBackStatus}</if>
+  		</trim>
+  		where id = #{id}
+  </update>
+</mapper>
