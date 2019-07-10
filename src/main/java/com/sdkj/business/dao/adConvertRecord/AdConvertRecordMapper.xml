@@ -21,6 +21,7 @@
     	<if test="idfa != null">and idfa = #{idfa}</if>
     	<if test="imei != null">and imei = #{imei}</if>
     </trim>
+    limit 0,1
   </select>
   <insert id="addAdConvertRecord" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="com.sdkj.business.domain.po.AdConvertRecord">
   		INSERT INTO `sdlh_ad_convert_record`
