@@ -64,6 +64,8 @@ public class UserController {
    			String loginType = req.getParameter("loginType");
    			String registrionId = req.getParameter("registrionId");
    			String cityName = req.getParameter("cityName");
+   			String imei = req.getParameter("imei");
+   			String idfa = req.getParameter("idfa");
    			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
 			if (paramMap != null) {
 				userPhone = paramMap.get("userPhone");
@@ -73,8 +75,10 @@ public class UserController {
 				loginType = paramMap.get("loginType");
 				registrionId = paramMap.get("registrionId");
 				cityName = paramMap.get("cityName");
+				imei = paramMap.get("imei");
+				idfa = paramMap.get("idfa");
 			}
-   			result = userService.userLogin(userPhone, userType, checkCode,passWord,loginType,registrionId,cityName);
+   			result = userService.userLogin(userPhone, userType, checkCode,passWord,loginType,registrionId,cityName,imei,idfa);
    		}catch(Exception e) {
    			logger.error("用户登陆异常", e);
    			result = new MobileResultVO();
@@ -193,6 +197,33 @@ public class UserController {
    				param.put("cityName", cityName);
    			}
    			result = this.userService.getSysConfig(param);
+   		}catch(Exception e) {
+   			logger.error("获取系统配置异常", e);
+   			result = new MobileResultVO();
+   			result.setCode(MobileResultVO.CODE_FAIL);
+   			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+   		}
+   		return result;
+   	}
+    
+    @RequestMapping(value="/find/user/shareImg",method=RequestMethod.POST)
+   	@ResponseBody
+   	@SysLog(description="查询用户分享二维码",optCode="findUserShareImg")
+   	public MobileResultVO findUserShareImg(HttpServletRequest req) {
+       	MobileResultVO result = new MobileResultVO();
+   		try {
+   			String userId = req.getParameter("userId");
+   			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				userId = paramMap.get("userId");
+			}
+			if(StringUtils.isNotEmpty(userId)){
+				result.setData("https://sdlh.oss-cn-qingdao.aliyuncs.com/system/cli_500px.png");
+			}else{
+				result.setCode(MobileResultVO.CODE_FAIL);
+				result.setMessage("缺少用户参数");
+			}
+   			
    		}catch(Exception e) {
    			logger.error("获取系统配置异常", e);
    			result = new MobileResultVO();

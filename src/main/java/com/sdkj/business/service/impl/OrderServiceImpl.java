@@ -41,6 +41,7 @@ import com.sdkj.business.domain.po.VehicleTypeInfo;
 import com.sdkj.business.domain.vo.LableValInfoItem;
 import com.sdkj.business.domain.vo.MobileResultVO;
 import com.sdkj.business.service.AliMQProducer;
+import com.sdkj.business.service.OrderFeeItemService;
 import com.sdkj.business.service.OrderService;
 import com.sdkj.business.util.Constant;
 import com.sdlh.common.DateUtilLH;
@@ -66,7 +67,10 @@ public class OrderServiceImpl implements OrderService {
 	private UserMapper userMapper;
 	@Value("${ali.mq.order.dispatch.topic}")
 	private String orderDispatchTopic;
-
+	
+	@Value("${map.service.url}")
+	private String mapServiceUrl;
+	
 	@Autowired
 	private LeaseTruckOrderMapper leaseTruckOrderMapper;
 
@@ -88,12 +92,16 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired
 	private SubCompanyMapper subCompanyMapper;
 	
+	@Autowired
+	private OrderFeeItemService orderFeeItemService;
+	
 	@Override
 	public MobileResultVO submitOrder(OrderInfo order, List<OrderRoutePoint> routePointList) {
 		MobileResultVO result = new MobileResultVO();
 		Map<String, Object> resultData = new HashMap<String, Object>();
 		order.setStatus(Constant.ORDER_STATUS_WEIJIEDAN);
 		order.setCreateTime(DateUtilLH.getCurrentTime());
+		correctOrderCity(order,routePointList);
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		//queryMap.put("id", order.getUserId());
 		//User orderUser = userMapper.findSingleUser(queryMap);
@@ -513,35 +521,7 @@ public class OrderServiceImpl implements OrderService {
 				queryMap.put("userId", driver.getId());
 				DriverInfo driverInfo = driverInfoMapper.findSingleDriver(queryMap);
 				if(driverInfo!=null){
-					List<Integer> vehicleTypeList = new ArrayList<Integer>();
-					if(driverInfo.getVehicleTypeId().intValue()==6){
-						vehicleTypeList.add(6);
-					}if(driverInfo.getVehicleTypeId().intValue()==7){
-						vehicleTypeList.add(6);
-						vehicleTypeList.add(7);
-					}if(driverInfo.getVehicleTypeId().intValue()==8){
-						vehicleTypeList.add(6);
-						vehicleTypeList.add(7);
-						vehicleTypeList.add(8);
-					}if(driverInfo.getVehicleTypeId().intValue()==5){
-						vehicleTypeList.add(5);
-						vehicleTypeList.add(6);
-						vehicleTypeList.add(7);
-						vehicleTypeList.add(8);
-					}if(driverInfo.getVehicleTypeId().intValue()==9){
-						vehicleTypeList.add(5);
-						vehicleTypeList.add(6);
-						vehicleTypeList.add(7);
-						vehicleTypeList.add(8);
-						vehicleTypeList.add(9);
-					}if(driverInfo.getVehicleTypeId().intValue()==10){
-						vehicleTypeList.add(5);
-						vehicleTypeList.add(6);
-						vehicleTypeList.add(7);
-						vehicleTypeList.add(8);
-						vehicleTypeList.add(9);
-						vehicleTypeList.add(10);
-					}
+					List<Integer> vehicleTypeList = getDriverCanTakedVehicleTypeList(driverInfo);
 					if(vehicleTypeList.size()>0){
 						param.put("vehicleTypeList", vehicleTypeList);
 					}
@@ -636,67 +616,6 @@ public class OrderServiceImpl implements OrderService {
 				takedTime.setValue(order.getTakedTime());
 				orderTakedInfo.add(takedTime);
 				orderDetailInfo.add(orderTakedInfo);
-			}
-			if (false) {
-				for (int i = 0; i < placePointList.size(); i++) {
-					OrderRoutePoint routePoint = placePointList.get(i);
-					List<LableValInfoItem> routePointInfo = new ArrayList<LableValInfoItem>();
-					LableValInfoItem routePointName = new LableValInfoItem();
-					if (i == 0) {
-						routePointName.setLable("装货点名称");
-					} else if (i == (placePointList.size() - 1)) {
-						routePointName.setLable("目的地名称");
-					} else {
-						routePointName.setLable("途经点名称");
-					}
-					routePointName.setValue(routePoint.getPlaceName());
-					routePointInfo.add(routePointName);
-					if (routePoint.getStatus().intValue() == Constant.ROUTE_POINT_STATUS_NOT_ARRIVE) {
-						LableValInfoItem routePointStatus = new LableValInfoItem();
-						routePointStatus.setLable("当前状态");
-						routePointStatus.setValue("未到达");
-						routePointInfo.add(routePointStatus);
-						orderDetailInfo.add(routePointInfo);
-						break;
-					} else {
-						if (routePoint.getStatus().intValue() >= Constant.ROUTE_POINT_STATUS_ARRIVED) {
-							LableValInfoItem arrvieTime = new LableValInfoItem();
-							arrvieTime.setLable("到达时间");
-							arrvieTime.setValue(routePoint.getArriveTime());
-							routePointInfo.add(arrvieTime);
-
-							if (routePoint.getStatus().intValue() == Constant.ROUTE_POINT_STATUS_LEAVED) {
-								LableValInfoItem leaveTime = new LableValInfoItem();
-								leaveTime.setLable("离开时间");
-								leaveTime.setValue(routePoint.getLeaveTime());
-								routePointInfo.add(leaveTime);
-								orderDetailInfo.add(routePointInfo);
-
-								LableValInfoItem waitTime = new LableValInfoItem();
-								waitTime.setLable("等候时间");
-								waitTime.setValue(routePoint.getWaitTime() + "(分)");
-								routePointInfo.add(waitTime);
-								orderDetailInfo.add(routePointInfo);
-							} else {
-								Date arriveTime = DateUtilLH.convertStr2Date(routePoint.getArriveTime(),
-										DateUtilLH.timeFormat);
-								Date nowTime = new Date();
-								LableValInfoItem waitTime = new LableValInfoItem();
-								waitTime.setLable("等候时间");
-								waitTime.setValue(((nowTime.getTime() - arriveTime.getTime()) / 6000) + "(分)");
-								routePointInfo.add(waitTime);
-								orderDetailInfo.add(routePointInfo);
-
-								LableValInfoItem routePointStatus = new LableValInfoItem();
-								routePointStatus.setLable("当前状态");
-								routePointStatus.setValue("已到达，等待装卸货");
-								routePointInfo.add(routePointStatus);
-								orderDetailInfo.add(routePointInfo);
-								break;
-							}
-						}
-					}
-				}
 			}
 			result.setCode(MobileResultVO.CODE_SUCCESS);
 			Map<String, Object> orderDetail = new HashMap<String, Object>();
@@ -888,5 +807,110 @@ public class OrderServiceImpl implements OrderService {
 			result.setData(distanceResult.get("data").asInt());
 		}
 		return result;
+	}
+
+	@Override
+	public MobileResultVO findBackRoadOrder(Map<String, Object> param) {
+		MobileResultVO result = new MobileResultVO();
+		List<Map<String,Object>> orderDisplayList = new ArrayList<Map<String,Object>>();
+		Map<String,Object> queryMap = new HashMap<String,Object>();
+		queryMap.put("id", param.get("userId"));
+		User driver = userMapper.findSingleUser(queryMap);
+		if(driver!=null){
+			param.put("driverCity", driver.getRegisterCity());
+			queryMap.clear();
+			queryMap.put("userId", driver.getId());
+			DriverInfo driverInfo = driverInfoMapper.findSingleDriver(queryMap);
+			if(driverInfo!=null){
+				List<Integer> vehicleTypeList = getDriverCanTakedVehicleTypeList(driverInfo);
+				if(vehicleTypeList.size()>0){
+					param.put("vehicleTypeList", vehicleTypeList);
+				}
+			}
+			List<Map<String,Object>> orderDisplayListAll = orderInfoMapper.findBackRoadOrder(param);	
+			if (orderDisplayListAll != null) {
+				for (Map<String, Object> orderItem : orderDisplayListAll) {
+					Object orderId = orderItem.get("orderId");
+					String juli = orderItem.get("juli")+"";
+					if(StringUtils.isNotEmpty(juli)){
+						Float juliInt = Float.valueOf(juli);
+						orderItem.put("juli",juliInt.intValue());
+						if(juliInt.intValue()<50){
+							queryMap.clear();
+							queryMap.put("id", orderId);
+							OrderInfo order = this.orderInfoMapper.findSingleOrder(queryMap);
+							queryMap.clear();
+							queryMap.put("orderId", orderId);
+							List<OrderRoutePoint> placePointList = orderRoutePointMapper.findRoutePointList(queryMap);
+							if (placePointList != null && placePointList.size() > 0) {
+								OrderRoutePoint startPoint = placePointList.get(0);
+								orderItem.put("startPlaceName", startPoint.getPlaceName());
+								orderItem.put("startAddress", startPoint.getAddress());
+								OrderRoutePoint endPoint = placePointList.get(placePointList.size()-1);
+								orderItem.put("endPlaceName", endPoint.getPlaceName());
+								orderItem.put("endAddress", endPoint.getAddress());
+								String totalDriverFee = orderFeeItemService.caculateOrderFee(order, driverInfo.getDriverType());
+								orderItem.put("totalFee", totalDriverFee);
+								orderDisplayList.add(orderItem);
+							}
+						}
+					}
+				}
+			}
+			result.setData(orderDisplayList);
+		}
+		return result;
+	}
+	
+	private List<Integer> getDriverCanTakedVehicleTypeList(DriverInfo driverInfo) {
+		List<Integer> vehicleTypeList = new ArrayList<Integer>();
+		if(driverInfo.getVehicleTypeId().intValue()==6){
+			vehicleTypeList.add(6);
+		}if(driverInfo.getVehicleTypeId().intValue()==7){
+			vehicleTypeList.add(6);
+			vehicleTypeList.add(7);
+		}if(driverInfo.getVehicleTypeId().intValue()==8){
+			vehicleTypeList.add(6);
+			vehicleTypeList.add(7);
+			vehicleTypeList.add(8);
+		}if(driverInfo.getVehicleTypeId().intValue()==5){
+			vehicleTypeList.add(5);
+			vehicleTypeList.add(6);
+			vehicleTypeList.add(7);
+			vehicleTypeList.add(8);
+		}if(driverInfo.getVehicleTypeId().intValue()==9){
+			vehicleTypeList.add(5);
+			vehicleTypeList.add(6);
+			vehicleTypeList.add(7);
+			vehicleTypeList.add(8);
+			vehicleTypeList.add(9);
+		}if(driverInfo.getVehicleTypeId().intValue()==10){
+			vehicleTypeList.add(5);
+			vehicleTypeList.add(6);
+			vehicleTypeList.add(7);
+			vehicleTypeList.add(8);
+			vehicleTypeList.add(9);
+			vehicleTypeList.add(10);
+		}
+		return vehicleTypeList;
+	}
+	
+	private void correctOrderCity(OrderInfo order, List<OrderRoutePoint> routePointList){
+		try{
+			OrderRoutePoint startPoint = routePointList.get(0);
+			String requestUrl = mapServiceUrl+"/query/location/city?location="+startPoint.getLog()+","+startPoint.getLat();
+			logger.info("requestUrl:"+requestUrl);
+			String locationCityResultStr= HttpRequestUtil.get(requestUrl);
+			logger.info("locationCityResult:"+locationCityResultStr);
+			JsonNode locationCityResult =JsonUtil.convertStrToJson(locationCityResultStr);
+			if(locationCityResult!=null && locationCityResult.has("data")){
+				String cityName = locationCityResult.get("data").asText();
+				if(StringUtils.isNotEmpty(cityName)&& !"null".equals(cityName)){
+					order.setCityName(cityName);
+				}
+			}
+		}catch(Exception e){
+			logger.error("查询起点城市异常", e);
+		}
 	}
 }

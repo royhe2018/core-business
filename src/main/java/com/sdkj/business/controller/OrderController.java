@@ -678,4 +678,47 @@ public class OrderController {
 		}
 		return result;
 	}
+	
+	@RequestMapping(value = "/find/back/road/order", method = RequestMethod.POST)
+	@ResponseBody
+	@SysLog(description = "查询返程单", optCode = "findRoadDistance")
+	public MobileResultVO findBackRoadOrder(HttpServletRequest req) {
+		MobileResultVO result = null;
+		try {
+			String startlon = req.getParameter("startlon");
+			String startlat = req.getParameter("startlat");
+			String endlon = req.getParameter("endlon");
+			String endlat = req.getParameter("endlat");
+			String userId = req.getParameter("userId");
+			Map<String, String> paramMap = (Map<String, String>) req.getAttribute("paramMap");
+			if (paramMap != null) {
+				startlon = paramMap.get("startlon");
+				startlat = paramMap.get("startlat");
+				endlon = paramMap.get("endlon");
+				endlat = paramMap.get("endlat");
+				userId = paramMap.get("userId");
+			}
+			Map<String,Object> param = new HashMap<String,Object>();
+			if(StringUtils.isEmpty(startlat)|| StringUtils.isEmpty(startlon) || StringUtils.isEmpty(userId)){
+				result = new MobileResultVO();
+				result.setCode(MobileResultVO.CODE_FAIL);
+				result.setMessage("未获取到查询位置!");
+			}else{
+				param.put("startlon", startlon);
+				param.put("startlat", startlat);
+				param.put("userId", userId);
+				if(StringUtils.isNotEmpty(endlon) && StringUtils.isNotEmpty(endlat)){
+					param.put("endlon", endlon);
+					param.put("endlat", endlat);
+				}
+				result = orderService.findBackRoadOrder(param); 
+			}
+		} catch (Exception e) {
+			logger.error("计算路线距离异常", e);
+			result = new MobileResultVO();
+			result.setCode(MobileResultVO.CODE_FAIL);
+			result.setMessage(MobileResultVO.CHECKCODE_FAIL_MESSAGE);
+		}
+		return result;
+	}
 }

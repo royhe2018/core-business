@@ -21,4 +21,6 @@ public interface OrderInfoMapper {
     int updateById(OrderInfo record);
     
     public List<Map<String,Object>> findRoadBackOrderList(Map<String,Object> param);
+    
+    public List<Map<String,Object>> findBackRoadOrder(Map<String,Object> param);
 }

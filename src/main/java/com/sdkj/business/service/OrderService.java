@@ -37,4 +37,6 @@ public interface OrderService {
 	public MobileResultVO findOrderTakedStatus(String userId,String orderId);
 	
 	public MobileResultVO caculateRoutDistance(String origin,String destination,String waypoints);
+	
+	public MobileResultVO findBackRoadOrder(Map<String,Object> param);
 }

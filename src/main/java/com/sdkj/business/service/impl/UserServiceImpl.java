@@ -17,11 +17,12 @@ import com.github.pagehelper.StringUtil;
 import com.sdkj.business.dao.clientConfig.ClientConfigMapper;
 import com.sdkj.business.dao.driverInfo.DriverInfoMapper;
 import com.sdkj.business.dao.driverTrace.DriverTraceMapper;
+import com.sdkj.business.dao.refereeRecord.RefereeRecordMapper;
 import com.sdkj.business.dao.user.UserMapper;
 import com.sdkj.business.dao.vehicleTypeInfo.VehicleTypeInfoMapper;
 import com.sdkj.business.domain.po.ClientConfig;
 import com.sdkj.business.domain.po.DriverInfo;
-import com.sdkj.business.domain.po.DriverTrace;
+import com.sdkj.business.domain.po.RefereeRecord;
 import com.sdkj.business.domain.po.User;
 import com.sdkj.business.domain.po.VehicleTypeInfo;
 import com.sdkj.business.domain.vo.MobileResultVO;
@@ -29,9 +30,7 @@ import com.sdkj.business.service.AliMQProducer;
 import com.sdkj.business.service.CheckCodeService;
 import com.sdkj.business.service.UserService;
 import com.sdkj.business.util.Constant;
-import com.sdlh.common.DateUtilLH;
 import com.sdlh.common.HttpRequestUtil;
-import com.sdlh.common.HttpsUtil;
 import com.sdlh.common.JsonUtil;
 import com.sdlh.common.StringUtilLH;
 
@@ -54,6 +53,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private VehicleTypeInfoMapper vehicleTypeInfoMapper;
+	
+	@Autowired
+	private RefereeRecordMapper refereeRecordMapper;
  
 	@Value("${ali.mq.order.dispatch.topic}")
 	private String orderDispatchTopic;
@@ -64,17 +66,16 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private DriverTraceMapper driverTraceMapper;
 	@Override
-	public MobileResultVO userLogin(String userPhone,String userType,String checkCode,String passWord,String loginType,String registrionId,String cityName) throws Exception{
+	public MobileResultVO userLogin(String userPhone,String userType,String checkCode,String passWord,String loginType,String registrionId,String cityName,String imei,String idfa) throws Exception{
 		MobileResultVO result = new MobileResultVO();
 		Map<String,Object> param = new HashMap<String,Object>();
-		param.put("account", userPhone);
-		param.put("userType", userType);
-		User dbUser = userMapper.findSingleUser(param);
 		logger.info("loginType:"+loginType);
 		logger.info("userPhone:"+userPhone);
 		logger.info("checkCode:"+checkCode);
 		logger.info("passWord1111111:"+passWord);
-		
+		param.put("account", userPhone);
+		param.put("userType", userType);
+		User dbUser = userMapper.findSingleUser(param);
 		if("2".equals(loginType) && dbUser!=null &&
 				StringUtilLH.isNotEmpty(passWord) && !passWord.equals(dbUser.getPassWord())) {
 			result.setCode(MobileResultVO.CODE_FAIL);
@@ -97,6 +98,21 @@ public class UserServiceImpl implements UserService {
 				dbUser.setAccount(userPhone);
 				dbUser.setUserType(Integer.valueOf(userType));
 				dbUser.setPassWord(StringUtilLH.getStringRandom(16));
+				if(StringUtils.isNotEmpty(imei)){
+					dbUser.setDeviceId(imei);
+					dbUser.setTerminalType(1); //1安卓
+				}else if(StringUtils.isNotEmpty(idfa)){
+					dbUser.setDeviceId(idfa);
+					dbUser.setTerminalType(2); //IOS
+				}
+				if(StringUtils.isNotEmpty(dbUser.getDeviceId())){
+					param.clear();
+					param.put("userDeviceId",dbUser.getDeviceId());
+					RefereeRecord referee = refereeRecordMapper.findLastRefereeRecord(param);
+					if(referee!=null){
+						dbUser.setRefereeId(referee.getRefereeUserId());
+					}
+				}
 				userMapper.insert(dbUser);
 			}
 			if(StringUtils.isEmpty(dbUser.getPassWord())){

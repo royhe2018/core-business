@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sdkj.business.dao.refereeRecord.RefereeRecordMapper">
+  <resultMap id="BaseResultMap" type="com.sdkj.business.domain.po.RefereeRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_device_id" property="userDeviceId" />
+    <result column="referee_user_id" property="refereeUserId" />
+    <result column="create_time" property="createTime" />
+  </resultMap>
+  
+  <select id="findLastRefereeRecord" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select *
+    from sdlh_referee_record
+    <trim prefix="where" prefixOverrides="and">
+    	<choose>
+    		<when test="userDeviceId != null"> user_device_id = #{userDeviceId}</when>
+    		<otherwise> and 1=2</otherwise>
+    	</choose>
+    </trim>
+    order by id desc
+    limit 0,1
+  </select>
+ 
+  <insert id="insert" parameterType="com.sdkj.business.domain.po.RefereeRecord" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+	   	INSERT INTO `sdlh_referee_record`
+	            (`user_device_id`,
+	             `referee_user_id`,
+	             `create_time`)
+		VALUES (#{userDeviceId},
+		        #{refereeUserId},
+		        #{createTime});
+  </insert>
+</mapper>

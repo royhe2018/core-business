@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.sdkj.business.domain.po.OrderFeeItem;
+import com.sdkj.business.domain.po.OrderInfo;
 import com.sdkj.business.domain.vo.MobileResultVO;
 
 public interface OrderFeeItemService {
@@ -32,4 +33,6 @@ public interface OrderFeeItemService {
 	public MobileResultVO aliPayNotify(Map notifyInfo);
 	
 	public MobileResultVO findOrderFeeItemPayInfoList(String orderId);
+	
+	public String caculateOrderFee(OrderInfo order, Integer driverType);
 }

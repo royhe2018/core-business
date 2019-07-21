@@ -36,10 +36,10 @@
   <insert id="insert" parameterType="com.sdkj.business.domain.po.User" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     insert into sdlh_user (id, account, head_img, 
       nick_name, sex, user_type, 
-      referee_id,balance,pass_word,registrion_id)
+      referee_id,balance,pass_word,registrion_id,device_id,terminal_type)
     values (#{id,jdbcType=BIGINT}, #{account,jdbcType=VARCHAR}, #{headImg,jdbcType=VARCHAR}, 
       #{nickName,jdbcType=VARCHAR}, #{sex,jdbcType=INTEGER}, #{userType,jdbcType=INTEGER}, 
-      #{refereeId,jdbcType=BIGINT},0,#{passWord},#{registrionId})
+      #{refereeId,jdbcType=BIGINT},0,#{passWord},#{registrionId},#{deviceId},#{terminalType})
   </insert>
   <update id="updateById"  parameterType="com.sdkj.business.domain.po.User">
     update sdlh_user
@@ -82,6 +82,12 @@
       </if>
       <if test="registerCity != null">
         register_city = #{registerCity},
+      </if>
+      <if test="deviceId != null">
+        device_id = #{deviceId},
+      </if>
+      <if test="terminalType != null">
+        terminal_type = #{terminalType},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

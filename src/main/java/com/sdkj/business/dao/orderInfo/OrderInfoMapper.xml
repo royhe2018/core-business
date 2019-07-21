@@ -235,7 +235,43 @@
 		</trim>
 		order by id desc
 	</select>
-
+	<select id="findBackRoadOrder" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT CONCAT('时间:',RIGHT(o.`use_truck_time`,11)) as useTruckTime,t.`type_name` as vehicleTypeName,ROUND(o.`total_distance`) as totalDistance,
+		ROUND(6378.138 * 2 * ASIN(SQRT(
+		                POW(
+		                    SIN(
+		                        (
+		                            #{startlat} * PI() / 180 - p.`lat` * PI() / 180
+		                        ) / 2
+		                    ),
+		                    2
+		                ) + COS(#{startlat} * PI() / 180) * COS(p.`lat` * PI() / 180) * POW(
+		                    SIN(
+		                        (
+		                            #{startlon} * PI() / 180 - p.`log` * PI() / 180
+		                        ) / 2
+		                    ),
+		                    2
+		                )
+		            )
+		        )
+		    ) AS juli,P.`address`,P.`place_name`,o.`id` as orderId
+		FROM `sdlh_order_info` o
+		INNER JOIN sdlh_vehicle_type_info t ON o.vehicle_type_id = t.id
+		INNER JOIN  `sdlh_order_route_point` p ON o.`id`=p.`order_id` AND p.`order_num`=1
+		INNER JOIN sdlh_user u ON o.user_id = u.id
+		<trim prefix="where" prefixOverrides="and">
+			<![CDATA[ and o.cancle_status=0 and o.service_vehicle_level_id=2 and o.status=0 and DATE_FORMAT(NOW(), '%Y-%m-%d') <=left(o.use_truck_time,10)]]>
+			 <if test="vehicleTypeList != null">
+			 	  and o.vehicle_type_id in 
+			 	  <foreach collection="vehicleTypeList" open="(" close=")" separator="," item="vihicleTypeId">
+			 	  	#{vihicleTypeId}
+			 	  </foreach>
+			 </if>
+		</trim>
+		ORDER BY JULI ASC
+ 		limit 0,20
+	</select>
 	<delete id="deleteById" parameterType="java.lang.Long">
 		delete from sdlh_order_info
 		where id = #{id,jdbcType=BIGINT}

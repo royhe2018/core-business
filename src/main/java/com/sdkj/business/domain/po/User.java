@@ -32,6 +32,10 @@ public class User {
     
     private String registerCity;
     
+    private String deviceId;
+    
+    private Integer terminalType;
+    
     public Long getId() {
         return id;
     }
@@ -151,5 +155,20 @@ public class User {
 	public void setRegisterCity(String registerCity) {
 		this.registerCity = registerCity;
 	}
-	
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+
+	public Integer getTerminalType() {
+		return terminalType;
+	}
+
+	public void setTerminalType(Integer terminalType) {
+		this.terminalType = terminalType;
+	}
 }

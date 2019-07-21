@@ -590,5 +590,57 @@ public class OrderFeeItemServiceImpl implements OrderFeeItemService {
 			feeItem.setClientRefereeFee(0f);
 		}
 	}
+	
+
+	public String caculateOrderFee(OrderInfo order, Integer driverType) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("orderId", order.getId());
+		List<OrderFeeItem> feeItemList = orderFeeItemMapper.findOrderFeeItemList(param);
+		Float driverFee =0f;
+		if (feeItemList != null && feeItemList.size() > 0) {
+			for (OrderFeeItem feeItem : feeItemList) {
+				driverFee += feeItem.getFeeAmount();
+				param.clear();
+				param.put("city", order.getCityName());
+				param.put("feeType", feeItem.getFeeType());
+				param.put("driverType", driverType);
+				param.put("vehicleType", order.getVehicleTypeId());
+				List<DistributionSetting> feeDispatchSettingList = distributionSettingMapper
+						.findDistributionSettingList(param);
+				if (feeDispatchSettingList != null && feeDispatchSettingList.size() > 0) {
+					Float distributeTotalFee = 0f;
+					DistributionSetting distributionSetting = feeDispatchSettingList.get(0);
+					
+					Float clientRefereeRealAmount = distributionSetting.getClientRefereeAmount()
+							* feeItem.getFeeAmount();
+					BigDecimal clientRefereeBg = new BigDecimal(clientRefereeRealAmount).setScale(2, RoundingMode.UP);
+					feeItem.setClientRefereeFee(clientRefereeBg.floatValue());
+					distributeTotalFee += feeItem.getClientRefereeFee();
+
+					Float driverRefereeRealAmount = distributionSetting.getDriverRefereeAmount()
+							* feeItem.getFeeAmount();
+					BigDecimal driverRefereeBg = new BigDecimal(driverRefereeRealAmount).setScale(2, RoundingMode.UP);
+					feeItem.setDriverRefereeFee(driverRefereeBg.floatValue());
+					distributeTotalFee += feeItem.getDriverRefereeFee();
+					
+					
+					Float subCompanyRealAmount = distributionSetting.getSubcompanyAmount() * feeItem.getFeeAmount();
+					BigDecimal subCompanyBg = new BigDecimal(subCompanyRealAmount).setScale(2, RoundingMode.UP);
+					feeItem.setSubCompanyFee(subCompanyBg.floatValue());
+					distributeTotalFee += feeItem.getSubCompanyFee();
+					
+					Float platformRealAmount = distributionSetting.getPlatformAmount() * feeItem.getFeeAmount();
+					BigDecimal platformBg = new BigDecimal(platformRealAmount).setScale(2, RoundingMode.UP);
+					feeItem.setPlatFormFee(platformBg.floatValue());
+					distributeTotalFee += feeItem.getPlatFormFee();
+					
+					
+					driverFee = driverFee - distributeTotalFee;
+				}
+			}
+		}
+		BigDecimal driverTotalFeeBg = new BigDecimal(driverFee).setScale(2, RoundingMode.UP);
+		return driverTotalFeeBg.floatValue()+"";
+	}
 
 }
