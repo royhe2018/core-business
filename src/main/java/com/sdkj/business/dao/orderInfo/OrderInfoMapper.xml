@@ -187,7 +187,8 @@
 		sum(f.fee_amount) as orderTotalFee,
 		sum(f.driver_fee) as driverFee,
 		dr.car_no as carNo,
-		o.use_time_type as useTimeType
+		o.use_time_type as useTimeType,
+		o.service_vehicle_level_id as serviceVehicleLevel
 		from sdlh_order_info o
 		inner join sdlh_vehicle_type_info t on o.vehicle_type_id = t.id
 		left join sdlh_user d on o.driver_id = d.id
@@ -254,8 +255,8 @@
 		                    2
 		                )
 		            )
-		        )
-		    ) AS juli,P.`address`,P.`place_name`,o.`id` as orderId
+		        )													 
+		    ) AS juli,P.`address`,P.`place_name`,o.`id` as orderId,u.account as userPhone
 		FROM `sdlh_order_info` o
 		INNER JOIN sdlh_vehicle_type_info t ON o.vehicle_type_id = t.id
 		INNER JOIN  `sdlh_order_route_point` p ON o.`id`=p.`order_id` AND p.`order_num`=1
